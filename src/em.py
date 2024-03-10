@@ -1,8 +1,9 @@
 import numpy as np
 import warnings
-from models import Model
 from optimizer import Optimizer, ScipyNewtonCG
 from utils import *
+from distribution import Distribution
+from typing import NamedTuple
 
 warnings.filterwarnings("ignore")
 
@@ -12,50 +13,30 @@ class EM:
         self,
         deviation: float = 0.01,
         max_step: int | None = None,
-        optimizer: Optimizer = ScipyNewtonCG,  # type: ignore
+        optimizer: Optimizer = ScipyNewtonCG    # type: ignore
     ):
         self.deviation = deviation
         self.max_step = max_step
         self.optimizer = optimizer
         self.result = None
-        self.steps = None
-        self.error = None
 
-    class Result:
-        def __init__(
-                self,
-                result: list[distribution_data],
-                steps: int,
-                error: Exception | None = None
-        ) -> None:
-            self._result = result
-            self._steps = steps
-            self._error = error
-
-        @property
-        def result(self) -> list[distribution_data]:
-            return self._result
-
-        @property
-        def steps(self) -> int:
-            return self._steps
-
-        @property
-        def error(self) -> Exception | None:
-            return self._error
+    class Result(NamedTuple):
+        distributions: list[Distribution]
+        steps: int
+        error: Exception | None = None
 
     @staticmethod
     def em_algo(
         X: sample,
-        O: list[tuple[Model, params]],
+        distributions: list[Distribution],
         k: int,
         deviation: float = 0.01,
         max_step: int | None = 50,
-        optimizer: Optimizer = ScipyNewtonCG,  # type: ignore
+        optimizer: Optimizer = ScipyNewtonCG    # type: ignore
     ) -> "EM.Result":
         def end_cond(
-            prev: list[distribution_data] | None,
-            curr: list[distribution_data],
+            prev: list[Distribution] | None,
+            curr: list[Distribution],
             step: int
         ) -> bool:
             if prev is None:
@@ -74,14 +55,7 @@ class EM:
             )
 
         step = 0
-        curr = [
-            distribution_data(
-                model=model,
-                params=params,
-                prior_probability=1 / k
-            )
-            for model, params in O
-        ]
+        curr = [Distribution(model, o, 1 / k) for model, o, _ in distributions]
         prev = None
 
         while end_cond(prev, curr, step):
@@ -97,7 +71,7 @@ class EM:
                     cX.append(x)
 
             if not cX:
-                return EM.Result(curr, step, error=Exception("All models can't match"))
+                return EM.Result(curr, step, Exception("All models can't match"))
 
             m = len(p_xij)
             h = np.zeros([k, m])
@@ -106,7 +80,7 @@ class EM:
                 wp = curr_w * p
                 swp = np.sum(wp)
                 if not swp:
-                    return EM.Result(curr, step, error=Exception("Error in E step"))
+                    return EM.Result(curr, step, Exception("Error in E step"))
                 h[:, i] = wp / swp
 
             # M part
@@ -116,7 +90,7 @@ class EM:
                 model, o, _ = curr[j]
 
                 if np.isnan(new_w[j]):
-                    curr[j] = distribution_data(model, o, new_w[j])
+                    curr[j] = Distribution(model, o, new_w[j])
                     continue
 
                 new_o = optimizer.minimize(
@@ -127,26 +101,31 @@ class EM:
                         axis=1
                     )
                 )
-                curr[j] = distribution_data(model, new_o, new_w[j])
+                curr[j] = Distribution(model, new_o, new_w[j])
 
             step += 1
 
         return EM.Result(curr, step)
 
-    def fit(self, X, O, k):
-        result = EM.em_algo(
+    def fit(
+        self,
+        X: sample,
+        distributions: list[Distribution],
+        k: int,
+    ) -> None:
+        self.result = EM.em_algo(
             X,
-            O,
+            distributions,
             k,
             deviation=self.deviation,
             max_step=self.max_step,
             optimizer=self.optimizer
         )
-        self.result = result.result
-        self.steps = result.steps
-        self.error = result.error
 
     def predict(self, x):
         if not self.result:
             return 0
-        return np.sum([model.p(x, o) * w for model, o, w in self.result])
+        return np.sum([
+            model.p(x, o) * w if w is not None else 0
+            for model, o, w in self.result.distributions
+        ])
