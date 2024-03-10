@@ -85,7 +85,7 @@ class EM:
         prev = None
 
         while end_cond(prev, curr, step):
-            prev = curr
+            prev = list(curr)
 
             # E part
             p_xij = []
