@@ -17,6 +17,7 @@ $$p(x | \omega, f, \theta)=\sum_{j=1}^k \omega_j f_j(x | \theta_j)$$
 - `deviation` - the error: max difference between each parameter of each distribution
 - `max_step` - max count of EM algorithm iterations, `None` if not limited
 - `prior_probability_threshold` - when prior_probability of distribution will become less then this parameter, this distribution will no longer be considered, `None` if not limited
+- `prior_probability_threshold_step` - iteration after which `prior_probability_threshold` will be used
 - `optimizer` - minimizer which will be used in M step of algo
 
 ## Requirements

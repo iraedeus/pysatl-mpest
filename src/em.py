@@ -14,11 +14,13 @@ class EM:
         deviation: float = 0.01,
         max_step: int | None = None,
         prior_probability_threshold: float | None = None,
+        prior_probability_threshold_step: int = 3,
         optimizer: Optimizer = ScipyNewtonCG    # type: ignore
     ):
         self.deviation = deviation
         self.max_step = max_step
         self.prior_probability_threshold = prior_probability_threshold
+        self.prior_probability_threshold_step = prior_probability_threshold_step
         self.optimizer = optimizer
         self.result = None
 
@@ -37,8 +39,11 @@ class EM:
         deviation: float = 0.01,
         max_step: int | None = 50,
         prior_probability_threshold: float | None = None,
+        prior_probability_threshold_step: int = 3,
         optimizer: Optimizer = ScipyNewtonCG    # type: ignore
     ) -> "EM.Result":
+        step = 0
+
         class DistributionInProgress():
             def __init__(self, distribution: Distribution, ind: int):
                 self.content = distribution
@@ -52,6 +57,8 @@ class EM:
                 if self.content.prior_probability is None:
                     return False
                 if prior_probability_threshold is None:
+                    return True
+                if step < prior_probability_threshold_step:
                     return True
                 if self.content.prior_probability < prior_probability_threshold:
                     self._is_active = False
@@ -129,8 +136,7 @@ class EM:
 
         def end_cond(
             prev: tuple[Distribution, ...] | None,
-            curr: tuple[Distribution, ...],
-            step: int
+            curr: tuple[Distribution, ...]
         ) -> bool:
             if (max_step is not None) and (step > max_step):
                 return False
@@ -151,14 +157,13 @@ class EM:
                 and np.all(np.abs(prev_w - curr_w) < deviation)
             )
 
-        step = 0
         curr = DistributionsInProgress([
             Distribution(model, o, 1 / k)
             for model, o, _ in distributions
         ])
         prev = None
 
-        while end_cond(prev, curr.active_clean, step):
+        while end_cond(prev, curr.active_clean):
             prev = curr.active_clean
 
             # E part
@@ -229,6 +234,7 @@ class EM:
             deviation=self.deviation,
             max_step=self.max_step,
             prior_probability_threshold=self.prior_probability_threshold,
+            prior_probability_threshold_step=self.prior_probability_threshold_step
             optimizer=self.optimizer
         )
 
