@@ -22,11 +22,13 @@ class EM:
         self.optimizer = optimizer
         self.result = None
 
+    # Describes all needed data about em algo result
     class Result(NamedTuple):
         distributions: list[Distribution]
         steps: int
         error: Exception | None = None
 
+    # Static realization of em algo
     @staticmethod
     def em_algo(
         X: sample,
@@ -93,6 +95,7 @@ class EM:
                     ])
                 return self._all_clean
 
+            # must be called in the end of every algo iteration
             def update(self):
                 new_active: list[DistributionInProgress] = []
                 w_sum = 0
@@ -159,6 +162,8 @@ class EM:
             prev = curr.active_clean
 
             # E part
+
+            # p_xij contain all non zero probabilities: p_xij = p(X_i | O_j) for each X_i
             p_xij = []
             cX = []
             for x in X:
@@ -173,9 +178,10 @@ class EM:
             if not cX:
                 return EM.Result(list(curr.all_clean), step, Exception("All models can't match"))
 
+            # h[j, i] contains probability of X_i to be a part of distribution j
             m = len(p_xij)
             k = len(curr.active_clean)
-            h = np.zeros([k, m])
+            h = np.zeros([k, m], dtype=np.float64)
             curr_w = np.array([d.prior_probability for d in curr.active_clean])
             for i, p in enumerate(p_xij):
                 wp = curr_w * p
@@ -194,6 +200,7 @@ class EM:
                     curr.active[j].content = Distribution(model, o, new_w[j])
                     continue
 
+                # maximizing log of likelihood function for every active distribution
                 new_o = optimizer.minimize(
                     lambda o: -np.sum(ch * [model.lp(x, o) for x in cX]),
                     o,
