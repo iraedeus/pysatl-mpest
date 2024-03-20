@@ -20,11 +20,21 @@ from models import WeibullModelExp, GaussianModel, Model
 
 # fmt: on
 
+"""
 k_list = list(range(1, 6))
 sizes = [50, 100, 200, 500]
 distribution_count = 32
 base_size = 1024
 tests_per_cond = 20
+"""
+
+k_list = list(range(1, 6))
+sizes = [50, 100, 200, 500]
+distribution_count = 1
+base_size = 1024
+tests_per_cond = 1
+
+max_workers = 4
 
 
 class Test(NamedTuple):
@@ -40,7 +50,7 @@ class Test(NamedTuple):
 
 class TestResult(NamedTuple):
     test: Test
-    result: EM.Result | None
+    result: EM.Result
     time: float
 
 
@@ -53,7 +63,8 @@ def run_test(test: Test) -> TestResult:
             test.data,
             [Distribution(test.model, params) for params in test.start_params],
             test.k,
-            max_step=16
+            max_step=16,
+            prior_probability_threshold=0.001
         )
         stop = time.perf_counter()
         times.append(stop - start)
@@ -63,6 +74,7 @@ def run_test(test: Test) -> TestResult:
 
 if __name__ == '__main__':
     random.seed(42)
+    np.random.seed(42)
 
     tests: list[Test] = []
 
@@ -137,11 +149,9 @@ if __name__ == '__main__':
                             ]
                         ))
 
-    print(f"{len(tests)} items")
-
     random.shuffle(tests)
 
-    results = process_map(run_test, tests, max_workers=12)
+    results = process_map(run_test, tests, max_workers=max_workers)
 
     with open('results.pkl', 'wb') as f:
         pickle.dump(results, f, pickle.HIGHEST_PROTOCOL)
