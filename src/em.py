@@ -234,7 +234,7 @@ class EM:
             deviation=self.deviation,
             max_step=self.max_step,
             prior_probability_threshold=self.prior_probability_threshold,
-            prior_probability_threshold_step=self.prior_probability_threshold_step
+            prior_probability_threshold_step=self.prior_probability_threshold_step,
             optimizer=self.optimizer
         )
 
