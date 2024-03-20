@@ -31,4 +31,4 @@ class ScipyNewtonCG(Optimizer):
             params: params,
             jacobian: Callable[[params], np.ndarray]
     ) -> params:
-        return minimize(func, params, jacobian).x
+        return minimize(func, params, jac=jacobian, method="Newton-CG").x
