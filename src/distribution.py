@@ -5,6 +5,6 @@ from typing import NamedTuple
 
 # Describes all needed data about distribution
 class Distribution(NamedTuple):
-    model: Model
+    model: type[Model]
     params: params
     prior_probability: float | None = None

@@ -1,12 +1,28 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from utils import *
+from scipy.stats import weibull_min, norm
 
 
 class Model(ABC):
     @staticmethod
     @abstractmethod
     def name() -> str:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def params_convert_to_model(O: params) -> params:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def params_convert_from_model(O: params) -> params:
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def generate(O: params, size: int = 1) -> sample:
         pass
 
     @staticmethod
@@ -38,6 +54,23 @@ class WeibullModelExp(Model):
     @staticmethod
     def name() -> str:
         return "WeibullExp"
+
+    @staticmethod
+    def params_convert_to_model(O: params) -> params:
+        return np.log(O)
+
+    @staticmethod
+    def params_convert_from_model(O: params) -> params:
+        return np.exp(O)
+
+    @staticmethod
+    def generate(O: params, size: int = 1) -> sample:
+        return np.array(weibull_min.rvs(
+            O[0],
+            loc=0,
+            scale=O[1],
+            size=size
+        ))
 
     @staticmethod
     def p(x: float, O: params) -> float:
@@ -87,6 +120,18 @@ class GaussianModel(Model):
     @staticmethod
     def name() -> str:
         return "Gaussian"
+
+    @staticmethod
+    def params_convert_to_model(O: params) -> params:
+        return np.array([O[0], np.log(O[1])])
+
+    @staticmethod
+    def params_convert_from_model(O: params) -> params:
+        return np.array([O[0], np.exp(O[1])])
+
+    @staticmethod
+    def generate(O: params, size: int = 1) -> sample:
+        return np.array(norm.rvs(loc=O[0], scale=O[1], size=size))
 
     @staticmethod
     def p(x: float, O: params) -> float:

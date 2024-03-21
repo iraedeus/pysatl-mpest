@@ -15,7 +15,7 @@ class EM:
         max_step: int | None = None,
         prior_probability_threshold: float | None = None,
         prior_probability_threshold_step: int = 3,
-        optimizer: Optimizer = ScipyNewtonCG    # type: ignore
+        optimizer: type[Optimizer] = ScipyNewtonCG
     ):
         self.deviation = deviation
         self.max_step = max_step
@@ -40,7 +40,7 @@ class EM:
         max_step: int | None = 50,
         prior_probability_threshold: float | None = None,
         prior_probability_threshold_step: int = 3,
-        optimizer: Optimizer = ScipyNewtonCG    # type: ignore
+        optimizer: type[Optimizer] = ScipyNewtonCG
     ) -> "EM.Result":
         step = 0
 
@@ -234,7 +234,7 @@ class EM:
                 curr.active[j].content = Distribution(model, new_o, new_w[j])
             curr.update()
 
-            if (len(curr.active_clean) == 0):
+            if (len(curr.active) == 0):
                 return EM.Result(list(curr.all_clean), step, Exception("All models can't match due prior probability"))
 
             step += 1
