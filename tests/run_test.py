@@ -50,11 +50,11 @@ class TestResult(NamedTuple):
 
 class Counter():
     def __init__(self):
-        self.counter = -1
+        self._counter = -1
 
     def get(self):
-        self.counter += 1
-        return self.counter
+        self._counter += 1
+        return self._counter
 
 
 def run_test(test: Test) -> TestResult:
