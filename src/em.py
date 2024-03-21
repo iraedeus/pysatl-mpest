@@ -63,6 +63,12 @@ class EM:
                 )
                 self._is_active = False
 
+            def _check_if_finite(self) -> bool:
+                if (self.content.prior_probability is not None) \
+                        and not np.isfinite(self.content.prior_probability):
+                    return False
+                return bool(np.all(np.isfinite(self.content.params)))
+
             @property
             def is_active(self) -> bool:
                 if not self._is_active:
@@ -70,7 +76,7 @@ class EM:
                 if self.content.prior_probability is None:
                     self._is_active = False
                     return False
-                if not np.isfinite(self.content.prior_probability):
+                if not self._check_if_finite():
                     self._is_active = False
                     return False
                 if prior_probability_threshold is None:
@@ -84,52 +90,43 @@ class EM:
 
         class DistributionsInProgress():
             def __init__(self, distributions: list[Distribution]):
-                self.active: list[DistributionInProgress] = []
-                self.stopped: list[DistributionInProgress] = []
+                self._active: list[DistributionInProgress] = []
+                self._stopped: list[DistributionInProgress] = []
                 for i, d in enumerate(distributions):
                     dip = DistributionInProgress(d, i)
                     if dip.is_active:
-                        self.active.append(dip)
+                        self._active.append(dip)
                     else:
-                        self.stopped.append(dip)
-                self.update()
+                        self._stopped.append(dip)
+                self._distributions_changed = True
 
             @property
-            def active_clean(self) -> tuple[Distribution, ...]:
-                if self._active_clean is None:
-                    self._active_clean = tuple(
-                        [d.content for d in self.active]
-                    )
-                return self._active_clean
+            def all_distributions(self) -> tuple[Distribution, ...]:
+                return tuple([
+                    d.content
+                    for d in sorted(self._active + self._stopped, key=lambda d: d.ind)
+                ])
 
             @property
-            def stopped_clean(self) -> tuple[Distribution, ...]:
-                if self._stopped_clean is None:
-                    self._stopped_clean = tuple(
-                        [d.content for d in self.stopped]
-                    )
-                return self._stopped_clean
+            def active_distributions(self) -> tuple[Distribution, ...]:
+                if self._distributions_changed:
+                    self._active_distributions = self._update()
+                return self._active_distributions
 
-            @property
-            def all_clean(self) -> tuple[Distribution, ...]:
-                if self._all_clean is None:
-                    self._all_clean = tuple([
-                        d.content
-                        for d in sorted(self.active + self.stopped, key=lambda d: d.ind)
-                    ])
-                return self._all_clean
+            def set_distribution(self, ind: int, distribution: Distribution) -> None:
+                self._active[ind].content = distribution
+                self._distributions_changed = True
 
-            # must be called in the end of every algo iteration
-            def update(self):
+            def _update(self) -> tuple[Distribution, ...]:
                 new_active: list[DistributionInProgress] = []
                 w_sum = 0
-                for d in self.active:
+                for d in self._active:
                     if d.is_active:
                         new_active.append(d)
                         if d.content.prior_probability is not None:
                             w_sum += d.content.prior_probability
                     else:
-                        self.stopped.append(d)
+                        self._stopped.append(d)
                         d.make_inactive()
 
                 w_error = 1 - w_sum
@@ -144,10 +141,8 @@ class EM:
                                 d.content.prior_probability + w_mean
                             )
 
-                self.active = new_active
-                self._active_clean = None
-                self._stopped_clean = None
-                self._all_clean = None
+                self._active = new_active
+                return tuple([d.content for d in self._active])
 
         def end_cond(
             prev: tuple[Distribution, ...] | None,
@@ -176,10 +171,11 @@ class EM:
             Distribution(model, o, 1 / k)
             for model, o, _ in distributions
         ])
+        curr_a = curr.active_distributions
         prev = None
 
-        while end_cond(prev, curr.active_clean):
-            prev = curr.active_clean
+        while end_cond(prev, curr_a):
+            prev = curr_a
 
             # E part
 
@@ -189,25 +185,34 @@ class EM:
             for x in X:
                 p = np.array([
                     model.p(x, o)
-                    for model, o, _ in curr.active_clean
+                    for model, o, _ in curr_a
                 ])
                 if np.any(p):
                     p_xij.append(p)
                     cX.append(x)
 
             if not cX:
-                return EM.Result(list(curr.all_clean), step, Exception("All models can't match"))
+                return EM.Result(
+                    list(curr.all_distributions),
+                    step,
+                    Exception("All models can't match")
+                )
 
             # h[j, i] contains probability of X_i to be a part of distribution j
             m = len(p_xij)
-            k = len(curr.active_clean)
+            k = len(curr_a)
             h = np.zeros([k, m], dtype=float)
-            curr_w = np.array([d.prior_probability for d in curr.active_clean])
+            curr_w = np.array(
+                [d.prior_probability for d in curr_a])
             for i, p in enumerate(p_xij):
                 wp = curr_w * p
                 swp = np.sum(wp)
                 if not swp:
-                    return EM.Result(list(curr.all_clean), step, Exception("Error in E step"))
+                    return EM.Result(
+                        list(curr.all_distributions),
+                        step,
+                        Exception("Error in E step")
+                    )
                 h[:, i] = wp / swp
 
             # M part
@@ -216,11 +221,7 @@ class EM:
             new_w = np.sum(h, axis=1) / m
 
             for j, ch in enumerate(h[:]):
-                model, o, _ = curr.all_clean[j]
-
-                if np.isnan(new_w[j]):
-                    curr.active[j].content = Distribution(model, o, new_w[j])
-                    continue
+                model, o, _ = curr_a[j]
 
                 # maximizing log of likelihood function for every active distribution
                 new_o = optimizer.minimize(
@@ -231,15 +232,20 @@ class EM:
                         axis=1
                     )
                 )
-                curr.active[j].content = Distribution(model, new_o, new_w[j])
-            curr.update()
+                curr.set_distribution(j, Distribution(model, new_o, new_w[j]))
 
-            if (len(curr.active) == 0):
-                return EM.Result(list(curr.all_clean), step, Exception("All models can't match due prior probability"))
+            curr_a = curr.active_distributions
+
+            if (len(curr_a) == 0):
+                return EM.Result(
+                    list(curr.all_distributions),
+                    step,
+                    Exception("All models can't match due prior probability")
+                )
 
             step += 1
 
-        return EM.Result(list(curr.all_clean), step)
+        return EM.Result(list(curr.all_distributions), step)
 
     def fit(
         self,

@@ -21,7 +21,7 @@ from optimizer import Optimizer, ScipyNewtonCG
 
 # fmt: on
 
-max_workers = 14
+max_workers = 12
 
 
 class Test(NamedTuple):
@@ -166,8 +166,16 @@ if __name__ == '__main__':
 
     counter = Counter()
 
-    tests += generate_test(WeibullModelExp, [(0.25, 25), (0.25, 25)], counter)
-    tests += generate_test(GaussianModel, [(-15, 15), (0.25, 25)], counter)
+    def _generate_test(model: type[Model], o_borders: list[tuple[float, float]]) -> list[Test]:
+        return generate_test(
+            model=model,
+            o_borders_for_data=o_borders,
+            counter=counter,
+            max_step=32
+        )
+
+    tests += _generate_test(WeibullModelExp, [(0.25, 25), (0.25, 25)])
+    tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])
 
     random.shuffle(tests)
 
