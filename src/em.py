@@ -50,11 +50,28 @@ class EM:
                 self._is_active = True
                 self.ind = ind
 
+            def make_inactive(self):
+                if (self.content.prior_probability is not None) \
+                        and not np.isfinite(self.content.prior_probability):
+                    new_prior_probability = self.content.prior_probability
+                else:
+                    new_prior_probability = None
+                self.content = Distribution(
+                    self.content.model,
+                    self.content.params,
+                    new_prior_probability
+                )
+                self._is_active = False
+
             @property
             def is_active(self) -> bool:
                 if not self._is_active:
                     return False
                 if self.content.prior_probability is None:
+                    self._is_active = False
+                    return False
+                if not np.isfinite(self.content.prior_probability):
+                    self._is_active = False
                     return False
                 if prior_probability_threshold is None:
                     return True
@@ -109,18 +126,16 @@ class EM:
                 for d in self.active:
                     if d.is_active:
                         new_active.append(d)
-                    else:
-                        self.stopped.append(d)
                         if d.content.prior_probability is not None:
                             w_sum += d.content.prior_probability
-                        d.content = Distribution(
-                            d.content.model,
-                            d.content.params,
-                            None
-                        )
+                    else:
+                        self.stopped.append(d)
+                        d.make_inactive()
 
-                if w_sum > 0:
-                    w_mean = w_sum / len(new_active)
+                w_error = 1 - w_sum
+
+                if (w_error > 0) and (len(new_active) > 0):
+                    w_mean = w_error / len(new_active)
                     for d in new_active:
                         if d.content.prior_probability is not None:
                             d.content = Distribution(
@@ -138,7 +153,7 @@ class EM:
             prev: tuple[Distribution, ...] | None,
             curr: tuple[Distribution, ...]
         ) -> bool:
-            if (max_step is not None) and (step > max_step):
+            if (max_step is not None) and (step >= max_step):
                 return False
 
             if prev is None:
@@ -186,7 +201,7 @@ class EM:
             # h[j, i] contains probability of X_i to be a part of distribution j
             m = len(p_xij)
             k = len(curr.active_clean)
-            h = np.zeros([k, m], dtype=np.float64)
+            h = np.zeros([k, m], dtype=float)
             curr_w = np.array([d.prior_probability for d in curr.active_clean])
             for i, p in enumerate(p_xij):
                 wp = curr_w * p
@@ -196,6 +211,8 @@ class EM:
                 h[:, i] = wp / swp
 
             # M part
+
+            # Need attention due creating all w==np.nan problem instead of removing distribution which is a cause of error
             new_w = np.sum(h, axis=1) / m
 
             for j, ch in enumerate(h[:]):
@@ -216,6 +233,9 @@ class EM:
                 )
                 curr.active[j].content = Distribution(model, new_o, new_w[j])
             curr.update()
+
+            if (len(curr.active_clean) == 0):
+                return EM.Result(list(curr.all_clean), step, Exception("All models can't match due prior probability"))
 
             step += 1
 

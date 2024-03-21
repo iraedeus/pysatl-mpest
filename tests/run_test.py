@@ -34,7 +34,9 @@ distribution_count = 1
 base_size = 1024
 tests_per_cond = 1
 
-max_workers = 4
+max_workers = 14
+max_steps = 16
+prior_probability_threshold = 0.001
 
 
 class Test(NamedTuple):
@@ -46,6 +48,7 @@ class Test(NamedTuple):
     params: list[utils.params]
     params_modified: list[utils.params]
     start_params: list[utils.params]
+    max_steps: int
 
 
 class TestResult(NamedTuple):
@@ -63,8 +66,8 @@ def run_test(test: Test) -> TestResult:
             test.data,
             [Distribution(test.model, params) for params in test.start_params],
             test.k,
-            max_step=16,
-            prior_probability_threshold=0.001
+            max_step=max_steps,
+            prior_probability_threshold=prior_probability_threshold
         )
         stop = time.perf_counter()
         times.append(stop - start)
@@ -113,7 +116,8 @@ if __name__ == '__main__':
                                     for _ in range(2)
                                 ])
                                 for _ in range(k)
-                            ]
+                            ],
+                            max_steps
                         ))
 
     for k in k_list:
@@ -146,12 +150,14 @@ if __name__ == '__main__':
                                     random.uniform(np.log(0.25), np.log(25))
                                 ])
                                 for _ in range(k)
-                            ]
+                            ],
+                            max_steps
                         ))
 
     random.shuffle(tests)
 
     results = process_map(run_test, tests, max_workers=max_workers)
+    results.sort(key=lambda t: t.test.number)
 
     with open('results.pkl', 'wb') as f:
         pickle.dump(results, f, pickle.HIGHEST_PROTOCOL)
