@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from scipy.optimize import minimize
 from typing import Callable
-from utils import *
+import numpy as np
+from scipy.optimize import minimize
+
+from utils import Params
 
 
 class Optimizer(ABC):
@@ -13,10 +15,10 @@ class Optimizer(ABC):
     @staticmethod
     @abstractmethod
     def minimize(
-            func: Callable[[params], float],
-            params: params,
-            jacobian: Callable[[params], np.ndarray]
-    ) -> params:
+            func: Callable[[Params], float],
+            params: Params,
+            jacobian: Callable[[Params], np.ndarray]
+    ) -> Params:
         pass
 
 
@@ -27,8 +29,8 @@ class ScipyNewtonCG(Optimizer):
 
     @staticmethod
     def minimize(
-            func: Callable[[params], float],
-            params: params,
-            jacobian: Callable[[params], np.ndarray]
-    ) -> params:
+            func: Callable[[Params], float],
+            params: Params,
+            jacobian: Callable[[Params], np.ndarray]
+    ) -> Params:
         return minimize(func, params, jac=jacobian, method="Newton-CG").x

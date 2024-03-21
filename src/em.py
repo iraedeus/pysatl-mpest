@@ -1,9 +1,11 @@
-import numpy as np
-import warnings
-from optimizer import Optimizer, ScipyNewtonCG
-from utils import *
-from distribution import Distribution
 from typing import NamedTuple
+import functools
+import warnings
+import numpy as np
+
+from optimizer import Optimizer, ScipyNewtonCG
+from utils import Samples
+from distribution import Distribution
 
 warnings.filterwarnings("ignore")
 
@@ -33,7 +35,7 @@ class EM:
     # Static realization of em algo
     @staticmethod
     def em_algo(
-        X: sample,
+        samples: Samples,
         distributions: list[Distribution],
         k: int,
         deviation: float = 0.01,
@@ -99,6 +101,7 @@ class EM:
                     else:
                         self._stopped.append(dip)
                 self._distributions_changed = True
+                self._active_distributions = None
 
             @property
             def all_distributions(self) -> tuple[Distribution, ...]:
@@ -109,7 +112,8 @@ class EM:
 
             @property
             def active_distributions(self) -> tuple[Distribution, ...]:
-                if self._distributions_changed:
+                if self._distributions_changed \
+                        or self._active_distributions is None:
                     self._active_distributions = self._update()
                 return self._active_distributions
 
@@ -181,17 +185,17 @@ class EM:
 
             # p_xij contain all non zero probabilities: p_xij = p(X_i | O_j) for each X_i
             p_xij = []
-            cX = []
-            for x in X:
+            a_samples = []
+            for x in samples:
                 p = np.array([
                     model.p(x, o)
                     for model, o, _ in curr_a
                 ])
                 if np.any(p):
                     p_xij.append(p)
-                    cX.append(x)
+                    a_samples.append(x)
 
-            if not cX:
+            if not a_samples:
                 return EM.Result(
                     list(curr.all_distributions),
                     step,
@@ -217,26 +221,45 @@ class EM:
 
             # M part
 
-            # Need attention due creating all w==np.nan problem instead of removing distribution which is a cause of error
+            # Need attention due creating all w==np.nan problem
+            # instead of removing distribution which is a cause of error
             new_w = np.sum(h, axis=1) / m
 
             for j, ch in enumerate(h[:]):
                 model, o, _ = curr_a[j]
 
+                def log_likelihood(o, ch, model):
+                    return -np.sum(ch * [model.lp(x, o) for x in a_samples])
+
+                def jacobian(o, ch, model):
+                    return -np.sum(
+                        ch * np.swapaxes(
+                            [model.ld_params(x, o)for x in a_samples],
+                            0,
+                            1
+                        ),
+                        axis=1
+                    )
+
                 # maximizing log of likelihood function for every active distribution
                 new_o = optimizer.minimize(
-                    lambda o: -np.sum(ch * [model.lp(x, o) for x in cX]),
+                    functools.partial(
+                        log_likelihood,
+                        ch=ch,
+                        model=model
+                    ),
                     o,
-                    jacobian=lambda o: -np.sum(
-                        ch * np.swapaxes([model.ldO(x, o) for x in cX], 0, 1),
-                        axis=1
+                    jacobian=functools.partial(
+                        jacobian,
+                        ch=ch,
+                        model=model
                     )
                 )
                 curr.set_distribution(j, Distribution(model, new_o, new_w[j]))
 
             curr_a = curr.active_distributions
 
-            if (len(curr_a) == 0):
+            if len(curr_a) == 0:
                 return EM.Result(
                     list(curr.all_distributions),
                     step,
@@ -249,12 +272,12 @@ class EM:
 
     def fit(
         self,
-        X: sample,
+        samples: Samples,
         distributions: list[Distribution],
         k: int,
     ) -> None:
         self.result = EM.em_algo(
-            X,
+            samples,
             distributions,
             k,
             deviation=self.deviation,

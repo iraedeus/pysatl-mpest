@@ -1,38 +1,35 @@
 import random
 import time
-import numpy as np
 from typing import NamedTuple
-import seaborn as sns
-from scipy.stats import weibull_min, norm
 import sys
 import pickle
+import numpy as np
 from tqdm.contrib.concurrent import process_map
 
 # fmt: off
 
 sys.path.insert(1, "../src")
 
-from distribution import Distribution
-from utils import *
-import utils
 from em import EM
+from distribution import Distribution
+import utils
 from models import WeibullModelExp, GaussianModel, Model
 from optimizer import Optimizer, ScipyNewtonCG
 
 # fmt: on
 
-max_workers = 12
+MAX_WORKERS = 12
 
 
 class Test(NamedTuple):
     number: int
     model: type[Model]
 
-    base_data: sample
-    data: sample
+    base_data: utils.Samples
+    data: utils.Samples
     k: int
-    params: list[utils.params]
-    start_params: list[utils.params]
+    params: list[utils.Params]
+    start_params: list[utils.Params]
     runs_per_test: int
 
     deviation: float
@@ -48,7 +45,7 @@ class TestResult(NamedTuple):
     time: float
 
 
-class Counter():
+class Clicker():
     def __init__(self):
         self._counter = -1
 
@@ -88,7 +85,7 @@ def run_test(test: Test) -> TestResult:
 def generate_test(
     model: type[Model],
     o_borders_for_data: list[tuple[float, float]],
-    counter: Counter,
+    clicker: Clicker,
 
     o_borders_for_start_params: list[tuple[float, float]] | None = None,
 
@@ -105,7 +102,7 @@ def generate_test(
     prior_probability_threshold_step: int = 3,
     optimizer: type[Optimizer] = ScipyNewtonCG
 ) -> list[Test]:
-    tests: list[Test] = []
+    new_tests: list[Test] = []
 
     for k in k_list:
         for _ in range(distribution_count):
@@ -137,9 +134,9 @@ def generate_test(
                         ])
                         for _ in range(k)
                     ]
-                    tests.append(
+                    new_tests.append(
                         Test(
-                            counter.get(),
+                            clicker.get(),
                             model,
 
                             base,
@@ -155,7 +152,7 @@ def generate_test(
                             prior_probability_threshold_step,
                             optimizer
                         ))
-    return tests
+    return new_tests
 
 
 if __name__ == '__main__':
@@ -164,13 +161,13 @@ if __name__ == '__main__':
 
     tests: list[Test] = []
 
-    counter = Counter()
+    counter = Clicker()
 
     def _generate_test(model: type[Model], o_borders: list[tuple[float, float]]) -> list[Test]:
         return generate_test(
             model=model,
             o_borders_for_data=o_borders,
-            counter=counter,
+            clicker=counter,
             max_step=32
         )
 
@@ -179,7 +176,7 @@ if __name__ == '__main__':
 
     random.shuffle(tests)
 
-    results = process_map(run_test, tests, max_workers=max_workers)
+    results = process_map(run_test, tests, max_workers=MAX_WORKERS)
     results.sort(key=lambda t: t.test.number)
 
     with open('results.pkl', 'wb') as f:
