@@ -8,7 +8,7 @@ from test_utils import Test, Clicker, generate_mono_test, run_tests, save_result
 
 sys.path.insert(1, "../src")
 
-from models import WeibullModelExp, GaussianModel, Model
+from models import WeibullModelExp, GaussianModel, ExponentialModel, Model
 from optimizer import ScipyNewtonCG
 
 # fmt: on
@@ -34,7 +34,7 @@ if __name__ == '__main__':
             distribution_count=1,
             base_size=1024,
             tests_per_cond=1,
-            runs_per_test=3,
+            runs_per_test=1,
 
             deviation=0.01,
             max_step=16,
@@ -45,6 +45,7 @@ if __name__ == '__main__':
 
     tests += _generate_test(WeibullModelExp, [(0.25, 25), (0.25, 25)])
     tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])
+    tests += _generate_test(ExponentialModel, [(0.25, 25)])
 
     results = run_tests(tests, MAX_WORKERS, True)
 
