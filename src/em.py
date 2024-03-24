@@ -161,15 +161,12 @@ class EM:
             if len(prev) != len(curr):
                 return True
 
-            prev_o = np.array([d.params for d in prev if d])
-            prev_w = np.array([d.prior_probability for d in prev])
-            curr_o = np.array([d.params for d in curr])
-            curr_w = np.array([d.prior_probability for d in curr])
-
-            return not (
-                np.all(np.abs(prev_o - curr_o) < deviation)
-                and np.all(np.abs(prev_w - curr_w) < deviation)
-            )
+            for d_p, d_c in zip(prev, curr):
+                if np.any(np.abs(d_p.params - d_c.params) > deviation):
+                    return True
+                if np.any(np.abs(d_p.prior_probability - d_c.prior_probability) > deviation):
+                    return True
+            return False
 
         curr = DistributionsInProgress([
             Distribution(model, o, 1 / k)

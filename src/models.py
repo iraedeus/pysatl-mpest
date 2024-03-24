@@ -189,16 +189,22 @@ class ExponentialModel(Model):
 
     @staticmethod
     def p(x: float, params: Params) -> float:
+        if x < 0:
+            return 0
         l, = params
         return np.exp(l - np.exp(l) * x)
 
     @staticmethod
     def lp(x: float, params: Params) -> float:
+        if x < 0:
+            return -np.inf
         l, = params
         return l - np.exp(l) * x
 
     @staticmethod
     def ldl(x: float, params: Params) -> float:
+        if x < 0:
+            return -np.inf
         l, = params
         return 1 - np.exp(l) * x
 
