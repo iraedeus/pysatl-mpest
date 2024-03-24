@@ -1,8 +1,8 @@
 import random
 import time
 from typing import NamedTuple
-import sys
 import pickle
+import sys
 import numpy as np
 from tqdm.contrib.concurrent import process_map
 
@@ -18,18 +18,18 @@ from optimizer import Optimizer, ScipyNewtonCG
 
 # fmt: on
 
-MAX_WORKERS = 12
-
 
 class Test(NamedTuple):
     number: int
-    model: type[Model]
+
+    start_distributions: list[Distribution]
+    base_distributions: list[Distribution]
 
     base_data: utils.Samples
     data: utils.Samples
+
     k: int
-    params: list[utils.Params]
-    start_params: list[utils.Params]
+
     runs_per_test: int
 
     deviation: float
@@ -61,13 +61,7 @@ def run_test(test: Test) -> TestResult:
         start = time.perf_counter()
         result = EM.em_algo(
             test.data,
-            [
-                Distribution(
-                    test.model,
-                    test.model.params_convert_to_model(params)
-                )
-                for params in test.start_params
-            ],
+            test.start_distributions,
             test.k,
             deviation=test.deviation,
             max_step=test.max_step,
@@ -82,7 +76,22 @@ def run_test(test: Test) -> TestResult:
     return TestResult(test, result, float(np.mean(times)))
 
 
-def generate_test(
+def run_tests(tests: list[Test], workers_count: int, shuffled: bool = True) -> list[TestResult]:
+    if not shuffled:
+        return process_map(run_test, tests, max_workers=workers_count)
+
+    _tests = list(tests)
+    random.shuffle(_tests)
+    results: list[TestResult] = process_map(
+        run_test,
+        _tests,
+        max_workers=workers_count
+    )
+    results.sort(key=lambda t: t.test.number)
+    return results
+
+
+def generate_mono_test(
     model: type[Model],
     o_borders_for_data: list[tuple[float, float]],
     clicker: Clicker,
@@ -107,7 +116,7 @@ def generate_test(
     for k in k_list:
         for _ in range(distribution_count):
             per_model = base_size // k
-            params = []
+            base_params = []
             x = []
             for _ in range(k):
                 o = np.array([
@@ -115,7 +124,7 @@ def generate_test(
                     for border in o_borders_for_data
                 ])
                 x += list(model.generate(o, per_model))
-                params.append(o)
+                base_params.append(o)
 
             random.shuffle(x)
             base = np.array(x)
@@ -137,13 +146,25 @@ def generate_test(
                     new_tests.append(
                         Test(
                             clicker.get(),
-                            model,
+                            [
+                                Distribution(
+                                    model,
+                                    model.params_convert_to_model(params)
+                                )
+                                for params in start_params
+                            ],
+                            [
+                                Distribution(
+                                    model,
+                                    model.params_convert_to_model(params)
+                                )
+                                for params in base_params
+
+                            ],
 
                             base,
                             np.array(random.sample(x, size)),
                             k,
-                            params,
-                            start_params,
                             runs_per_test,
 
                             deviation,
@@ -155,29 +176,11 @@ def generate_test(
     return new_tests
 
 
-if __name__ == '__main__':
-    random.seed(42)
-    np.random.seed(42)
-
-    tests: list[Test] = []
-
-    counter = Clicker()
-
-    def _generate_test(model: type[Model], o_borders: list[tuple[float, float]]) -> list[Test]:
-        return generate_test(
-            model=model,
-            o_borders_for_data=o_borders,
-            clicker=counter,
-            max_step=32
-        )
-
-    tests += _generate_test(WeibullModelExp, [(0.25, 25), (0.25, 25)])
-    tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])
-
-    random.shuffle(tests)
-
-    results = process_map(run_test, tests, max_workers=MAX_WORKERS)
-    results.sort(key=lambda t: t.test.number)
-
-    with open('results.pkl', 'wb') as f:
+def save_results(results: list[TestResult], name: str) -> None:
+    with open(f"results/{name}.pkl", "wb") as f:
         pickle.dump(results, f, pickle.HIGHEST_PROTOCOL)
+
+
+def open_results(name: str) -> list[TestResult]:
+    with open(f"results/{name}.pkl", "rb") as f:
+        return pickle.load(f)
