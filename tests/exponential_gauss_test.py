@@ -81,7 +81,6 @@ if __name__ == '__main__':
                             ScipyNewtonCG
                         ))
 
-    print(tests)
     result = run_tests(tests, 14)
 
     save_results(result, "exponential_gauss")
