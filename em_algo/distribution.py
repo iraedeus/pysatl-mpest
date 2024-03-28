@@ -1,10 +1,13 @@
+"""TODO"""
+
 from typing import NamedTuple
-from models import Model
-from utils import Params
+from em_algo.models import Model
+from em_algo.utils import Params
 
 
-# Describes all needed data about distribution
 class Distribution(NamedTuple):
+    """Describes all needed data about distribution"""
+
     model: type[Model]
     params: Params
     prior_probability: float | None = None

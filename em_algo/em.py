@@ -1,16 +1,20 @@
+"""TODO"""
+
 from typing import NamedTuple
 import functools
 import warnings
 import numpy as np
 
-from optimizer import Optimizer, ScipyNewtonCG
-from utils import Samples
-from distribution import Distribution
+from em_algo.optimizer import Optimizer, ScipyNewtonCG
+from em_algo.utils import Samples
+from em_algo.distribution import Distribution
 
 warnings.filterwarnings("ignore")
 
 
 class EM:
+    """TODO"""
+
     def __init__(
         self,
         deviation: float = 0.01,
@@ -28,6 +32,8 @@ class EM:
 
     # Describes all needed data about em algo result
     class Result(NamedTuple):
+        """TODO"""
+
         distributions: list[Distribution]
         steps: int
         error: Exception | None = None
@@ -44,15 +50,21 @@ class EM:
         prior_probability_threshold_step: int = 3,
         optimizer: type[Optimizer] = ScipyNewtonCG,
     ) -> "EM.Result":
+        """TODO"""
+
         step = 0
 
         class DistributionInProgress:
+            """TODO"""
+
             def __init__(self, distribution: Distribution, ind: int):
                 self.content = distribution
                 self._is_active = True
                 self.ind = ind
 
             def make_inactive(self):
+                """TODO"""
+
                 if (self.content.prior_probability is not None) and not np.isfinite(
                     self.content.prior_probability
                 ):
@@ -73,6 +85,8 @@ class EM:
 
             @property
             def is_active(self) -> bool:
+                """TODO"""
+
                 if not self._is_active:
                     return False
                 if self.content.prior_probability is None:
@@ -91,6 +105,8 @@ class EM:
                 return True
 
         class DistributionsInProgress:
+            """TODO"""
+
             def __init__(self, distributions: list[Distribution]):
                 self._active: list[DistributionInProgress] = []
                 self._stopped: list[DistributionInProgress] = []
@@ -105,6 +121,8 @@ class EM:
 
             @property
             def all_distributions(self) -> tuple[Distribution, ...]:
+                """TODO"""
+
                 return tuple(
                     [
                         d.content
@@ -116,15 +134,21 @@ class EM:
 
             @property
             def active_distributions(self) -> tuple[Distribution, ...]:
+                """TODO"""
+
                 if self._distributions_changed or self._active_distributions is None:
                     self._active_distributions = self._update()
                 return self._active_distributions
 
             def set_distribution(self, ind: int, distribution: Distribution) -> None:
+                """TODO"""
+
                 self._active[ind].content = distribution
                 self._distributions_changed = True
 
             def _update(self) -> tuple[Distribution, ...]:
+                """TODO"""
+
                 new_active: list[DistributionInProgress] = []
                 w_sum = 0
                 for d in self._active:
@@ -154,6 +178,8 @@ class EM:
         def end_cond(
             prev: tuple[Distribution, ...] | None, curr: tuple[Distribution, ...]
         ) -> bool:
+            """TODO"""
+
             if (max_step is not None) and (step >= max_step):
                 return False
 
@@ -166,9 +192,9 @@ class EM:
             for d_p, d_c in zip(prev, curr):
                 if np.any(np.abs(d_p.params - d_c.params) > deviation):
                     return True
-                if np.any(
-                    np.abs(d_p.prior_probability - d_c.prior_probability) > deviation
-                ):
+                d_pp = 0.0 if d_p.prior_probability is None else d_p.prior_probability
+                d_cp = 0.0 if d_c.prior_probability is None else d_c.prior_probability
+                if np.any(np.abs(d_pp - d_cp) > deviation):
                     return True
             return False
 
@@ -259,6 +285,8 @@ class EM:
         distributions: list[Distribution],
         k: int,
     ) -> None:
+        """TODO"""
+
         self.result = EM.em_algo(
             samples,
             distributions,
@@ -271,6 +299,8 @@ class EM:
         )
 
     def predict(self, x):
+        """TODO"""
+
         if not self.result:
             return 0
         return np.sum(

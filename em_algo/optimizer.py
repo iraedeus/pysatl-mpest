@@ -1,16 +1,20 @@
+"""TODO"""
+
 from abc import ABC, abstractmethod
 from typing import Callable
 import numpy as np
 from scipy.optimize import minimize
 
-from utils import Params
+from em_algo.utils import Params
 
 
 class Optimizer(ABC):
+    """TODO"""
+
     @staticmethod
     @abstractmethod
     def name() -> str:
-        pass
+        """TODO"""
 
     @staticmethod
     @abstractmethod
@@ -19,10 +23,12 @@ class Optimizer(ABC):
         params: Params,
         jacobian: Callable[[Params], np.ndarray],
     ) -> Params:
-        pass
+        """TODO"""
 
 
 class ScipyNewtonCG(Optimizer):
+    """TODO"""
+
     @staticmethod
     def name():
         return "ScipyNewtonCG"

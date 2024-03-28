@@ -163,4 +163,4 @@ cython_debug/
 .vscode
 
 #test results
-tests/results/
+tests/results/*.pkl

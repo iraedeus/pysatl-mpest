@@ -1,32 +1,31 @@
+"""TODO"""
+
 import random
 import time
-from typing import NamedTuple
+from typing import NamedTuple, Iterable
 import pickle
-import sys
 import numpy as np
 from tqdm.contrib.concurrent import process_map
 
-# fmt: off
+from config import RESULTS_FOLDER
 
-sys.path.insert(1, "../src")
-
-from em import EM
-from distribution import Distribution
-import utils
-from models import WeibullModelExp, GaussianModel, Model
-from optimizer import Optimizer, ScipyNewtonCG
-
-# fmt: on
+from em_algo.em import EM
+from em_algo.distribution import Distribution
+from em_algo.utils import Samples
+from em_algo.models import Model
+from em_algo.optimizer import Optimizer, ScipyNewtonCG
 
 
 class Test(NamedTuple):
+    """TODO"""
+
     number: int
 
     start_distributions: list[Distribution]
     base_distributions: list[Distribution]
 
-    base_data: utils.Samples
-    data: utils.Samples
+    base_data: Samples
+    data: Samples
 
     k: int
 
@@ -40,21 +39,29 @@ class Test(NamedTuple):
 
 
 class TestResult(NamedTuple):
+    """TODO"""
+
     test: Test
     result: EM.Result
     time: float
 
 
 class Clicker:
+    """TODO"""
+
     def __init__(self):
         self._counter = -1
 
     def get(self):
+        """TODO"""
+
         self._counter += 1
         return self._counter
 
 
 def run_test(test: Test) -> TestResult:
+    """TODO"""
+
     times = []
 
     for _ in range(test.runs_per_test):
@@ -79,6 +86,8 @@ def run_test(test: Test) -> TestResult:
 def run_tests(
     tests: list[Test], workers_count: int, shuffled: bool = True
 ) -> list[TestResult]:
+    """TODO"""
+
     if not shuffled:
         return process_map(run_test, tests, max_workers=workers_count)
 
@@ -94,8 +103,8 @@ def generate_mono_test(
     o_borders_for_data: list[tuple[float, float]],
     clicker: Clicker,
     o_borders_for_start_params: list[tuple[float, float]] | None = None,
-    k_list: list[int] = [1, 2, 3, 4, 5],
-    sizes: list[int] = [50, 100, 200, 500],
+    k_list: Iterable[int] = (1, 2, 3, 4, 5),
+    sizes: Iterable[int] = (50, 100, 200, 500),
     distribution_count: int = 1,
     base_size: int = 1024,
     tests_per_cond: int = 1,
@@ -106,6 +115,8 @@ def generate_mono_test(
     prior_probability_threshold_step: int = 3,
     optimizer: type[Optimizer] = ScipyNewtonCG,
 ) -> list[Test]:
+    """TODO"""
+
     new_tests: list[Test] = []
 
     for k in k_list:
@@ -172,10 +183,14 @@ def generate_mono_test(
 
 
 def save_results(results: list[TestResult], name: str) -> None:
-    with open(f"results/{name}.pkl", "wb") as f:
+    """TODO"""
+
+    with open(RESULTS_FOLDER / f"{name}.pkl", "wb") as f:
         pickle.dump(results, f, pickle.HIGHEST_PROTOCOL)
 
 
 def open_results(name: str) -> list[TestResult]:
-    with open(f"results/{name}.pkl", "rb") as f:
+    """TODO"""
+
+    with open(RESULTS_FOLDER / f"{name}.pkl", "rb") as f:
         return pickle.load(f)

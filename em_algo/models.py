@@ -1,45 +1,49 @@
+"""TODO"""
+
 from abc import ABC, abstractmethod
 import numpy as np
 from scipy.stats import weibull_min, norm, expon
 
-from utils import Samples, Params
+from em_algo.utils import Samples, Params
 
 
 class Model(ABC):
+    """TODO"""
+
     @staticmethod
     @abstractmethod
     def name() -> str:
-        pass
+        """TODO"""
 
     @staticmethod
     @abstractmethod
     def params_convert_to_model(params: Params) -> Params:
-        pass
+        """TODO"""
 
     @staticmethod
     @abstractmethod
     def params_convert_from_model(params: Params) -> Params:
-        pass
+        """TODO"""
 
     @staticmethod
     @abstractmethod
     def generate(params: Params, size: int = 1) -> Samples:
-        pass
+        """TODO"""
 
     @staticmethod
     @abstractmethod
     def p(x: float, params: Params) -> float:
-        pass
+        """TODO"""
 
     @staticmethod
     @abstractmethod
     def lp(x: float, params: Params) -> float:
-        pass
+        """TODO"""
 
     @staticmethod
     @abstractmethod
     def ld_params(x: float, params: Params) -> np.ndarray:
-        pass
+        """TODO"""
 
 
 class WeibullModelExp(Model):
@@ -88,6 +92,8 @@ class WeibullModelExp(Model):
 
     @staticmethod
     def ldk(x: float, params: Params) -> float:
+        """TODO"""
+
         if x < 0:
             return -np.inf
         ek, el = np.exp(params)
@@ -96,6 +102,8 @@ class WeibullModelExp(Model):
 
     @staticmethod
     def ldl(x: float, params: Params) -> float:
+        """TODO"""
+
         if x < 0:
             return -np.inf
         ek, el = np.exp(params)
@@ -148,11 +156,15 @@ class GaussianModel(Model):
 
     @staticmethod
     def ldm(x: float, params: Params) -> float:
+        """TODO"""
+
         m, sd = params
         return (x - m) / (np.exp(2 * sd))
 
     @staticmethod
     def ldsd(x: float, params: Params) -> float:
+        """TODO"""
+
         m, sd = params
         return ((x - m) ** 2) / np.exp(2 * sd) - 1
 
@@ -202,6 +214,8 @@ class ExponentialModel(Model):
 
     @staticmethod
     def ldl(x: float, params: Params) -> float:
+        """TODO"""
+
         if x < 0:
             return -np.inf
         (l,) = params

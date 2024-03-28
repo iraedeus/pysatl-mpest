@@ -1,19 +1,13 @@
+"""TODO"""
+
 import random
-import sys
 import numpy as np
 
 from test_utils import Test, Clicker, generate_mono_test, run_tests, save_results
+from config import MAX_WORKERS
 
-# fmt: off
-
-sys.path.insert(1, "../src")
-
-from models import WeibullModelExp, GaussianModel, ExponentialModel, Model
-from optimizer import ScipyNewtonCG
-
-# fmt: on
-
-MAX_WORKERS = 4
+from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, Model
+from em_algo.optimizer import ScipyNewtonCG
 
 if __name__ == "__main__":
     random.seed(42)

@@ -1,18 +1,13 @@
+"""TODO"""
+
 import random
-import sys
 import numpy as np
 
 from test_utils import Test, Clicker, generate_mono_test, run_tests, save_results
+from config import MAX_WORKERS
 
-# fmt: off
+from em_algo.models import ExponentialModel, Model
 
-sys.path.insert(1, "../src")
-
-from models import ExponentialModel, Model
-
-# fmt: on
-
-MAX_WORKERS = 7
 
 if __name__ == "__main__":
     random.seed(42)
