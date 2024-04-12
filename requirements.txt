@@ -3,7 +3,7 @@ multiprocess
 numpy
 pandas
 pre-commit
+pytest
 scipy
 seaborn
 tqdm
-pytest
