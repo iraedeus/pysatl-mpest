@@ -3,8 +3,8 @@
 import random
 import numpy as np
 
-from test_utils import Test, Clicker, generate_mono_test, run_tests, save_results
-from config import MAX_WORKERS
+from examples.utils import Test, Clicker, generate_mono_test, run_tests, save_results
+from examples.config import MAX_WORKERS
 
 from em_algo.models import ExponentialModel, Model
 

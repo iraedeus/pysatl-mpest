@@ -7,7 +7,7 @@ import pickle
 import numpy as np
 from tqdm.contrib.concurrent import process_map
 
-from config import RESULTS_FOLDER
+from examples.config import RESULTS_FOLDER
 
 from em_algo.em import EM
 from em_algo.distribution import Distribution

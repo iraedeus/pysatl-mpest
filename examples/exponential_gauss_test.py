@@ -3,7 +3,7 @@
 import random
 import numpy as np
 
-from test_utils import Test, run_tests, save_results
+from examples.utils import Test, run_tests, save_results
 
 from em_algo.models import ExponentialModel, GaussianModel
 from em_algo.distribution import Distribution
