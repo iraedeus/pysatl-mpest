@@ -11,12 +11,12 @@ from em_algo.distribution import Distribution
 @pytest.mark.parametrize(
     "model, params, start_params, size, deviation, expected_error",
     [
-        (WeibullModelExp, (0.5, 0.5), (1.0, 1.0), 500, 0.01, 0.1),
-        (WeibullModelExp, (0.3, 1.0), (0.1, 2.0), 500, 0.01, 0.1),
+        (WeibullModelExp, (0.5, 0.5), (1.0, 1.0), 500, 0.01, 0.05),
+        (WeibullModelExp, (0.3, 1.0), (0.1, 2.0), 500, 0.01, 0.05),
         (GaussianModel, (0.0, 5.0), (1.0, 5.0), 500, 0.01, 0.1),
         (GaussianModel, (1.0, 5.0), (0.0, 1.0), 500, 0.01, 0.1),
-        (ExponentialModel, (1.0,), (0.5,), 500, 0.01, 0.1),
-        (ExponentialModel, (2.0,), (3.0,), 500, 0.01, 0.1),
+        (ExponentialModel, (1.0,), (0.5,), 500, 0.01, 0.05),
+        (ExponentialModel, (2.0,), (3.0,), 500, 0.01, 0.05),
     ],
     ids=[
         "Weibull (0.5, 0.5)",

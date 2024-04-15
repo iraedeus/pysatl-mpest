@@ -17,3 +17,7 @@ def configure_python_path():
         os.environ["PYTHONPATH"] = str(ROOT)
     else:
         os.environ["PYTHONPATH"] += ";" + str(ROOT)
+
+
+if __name__ == "__main__":
+    configure_python_path()
