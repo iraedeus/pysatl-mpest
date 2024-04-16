@@ -11,7 +11,7 @@ from examples.config import RESULTS_FOLDER
 
 from em_algo.em import EM
 from em_algo.distribution import Distribution
-from em_algo.utils import Samples
+from em_algo.types import Samples
 from em_algo.models import Model
 from em_algo.optimizer import Optimizer, ScipyNewtonCG
 

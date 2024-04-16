@@ -2,7 +2,7 @@
 
 from typing import NamedTuple
 from em_algo.models import Model
-from em_algo.utils import Params
+from em_algo.types import Params
 
 
 class Distribution(NamedTuple):

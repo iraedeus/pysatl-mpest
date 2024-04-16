@@ -5,7 +5,7 @@ from typing import Callable
 import numpy as np
 from scipy.optimize import minimize
 
-from em_algo.utils import Params
+from em_algo.types import Params
 
 
 class Optimizer(ABC):

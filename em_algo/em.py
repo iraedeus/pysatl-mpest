@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 
 from em_algo.optimizer import Optimizer, ScipyNewtonCG
-from em_algo.utils import Samples
+from em_algo.types import Samples
 from em_algo.distribution import Distribution
 
 warnings.filterwarnings("ignore")

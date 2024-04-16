@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from scipy.stats import weibull_min, norm, expon
 
-from em_algo.utils import Samples, Params
+from em_algo.types import Samples, Params
 
 
 class Model(ABC):

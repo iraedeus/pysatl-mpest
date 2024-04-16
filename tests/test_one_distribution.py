@@ -18,14 +18,6 @@ from em_algo.distribution import Distribution
         (ExponentialModel, (1.0,), (0.5,), 500, 0.01, 0.05),
         (ExponentialModel, (2.0,), (3.0,), 500, 0.01, 0.05),
     ],
-    ids=[
-        "Weibull (0.5, 0.5)",
-        "Weibull (0.3, 1.0)",
-        "Gaussian (0.0, 5.0)",
-        "Gaussian (1.0, 5.0)",
-        "Exponential (1.0,)",
-        "Exponential (2.0,)",
-    ],
 )
 def test_one_distribution(
     model: type[Model],
