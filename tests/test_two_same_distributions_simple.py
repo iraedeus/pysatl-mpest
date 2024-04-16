@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 
-from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, Model
+from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, AModel
 from em_algo.em import EM
 from em_algo.distribution import Distribution
 from em_algo.utils import absolute_diff_params
@@ -63,7 +63,7 @@ from em_algo.utils import absolute_diff_params
     ],
 )
 def test_one_distribution(
-    model: type[Model],
+    model: type[AModel],
     params,
     start_params,
     size: int,

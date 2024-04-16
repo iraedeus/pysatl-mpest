@@ -6,7 +6,7 @@ import numpy as np
 from examples.utils import Test, Clicker, generate_mono_test, run_tests, save_results
 from examples.config import MAX_WORKERS
 
-from em_algo.models import ExponentialModel, Model
+from em_algo.models import ExponentialModel, AModel
 
 
 if __name__ == "__main__":
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     counter = Clicker()
 
     def _generate_test(
-        model: type[Model], o_borders: list[tuple[float, float]]
+        model: type[AModel], o_borders: list[tuple[float, float]]
     ) -> list[Test]:
         return generate_mono_test(
             model=model,

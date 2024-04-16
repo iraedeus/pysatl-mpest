@@ -4,10 +4,10 @@ import numpy as np
 from scipy.stats import expon
 
 from em_algo.types import Samples, Params
-from em_algo.models import Model
+from em_algo.models import AModel
 
 
-class ExponentialModel(Model):
+class ExponentialModel(AModel):
     """
     f(x) = l * e^(-lx)
 

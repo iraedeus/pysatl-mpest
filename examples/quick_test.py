@@ -12,7 +12,7 @@ from examples.utils import (
 )
 from examples.config import MAX_WORKERS
 
-from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, Model
+from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, AModel
 from em_algo.optimizer import ScipyNewtonCG
 
 if __name__ == "__main__":
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     counter = Clicker()
 
     def _generate_test(
-        model: type[Model], o_borders: list[tuple[float, float]]
+        model: type[AModel], o_borders: list[tuple[float, float]]
     ) -> list[Test]:
         return generate_mono_test(
             model,

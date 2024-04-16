@@ -6,7 +6,7 @@ import numpy as np
 from em_algo.types import Samples, Params
 
 
-class Model(ABC):
+class AModel(ABC):
     """TODO"""
 
     @staticmethod
