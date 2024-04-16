@@ -4,10 +4,10 @@ import numpy as np
 from scipy.stats import weibull_min
 
 from em_algo.types import Samples, Params
-from em_algo.models import AModel
+from em_algo.models import AModelDifferentiable
 
 
-class WeibullModelExp(AModel):
+class WeibullModelExp(AModelDifferentiable):
     """
     f(x) = (k / l) * (x / l)^(k - 1) / e^((x / l)^k)
 

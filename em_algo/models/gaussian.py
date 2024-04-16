@@ -4,10 +4,10 @@ import numpy as np
 from scipy.stats import norm
 
 from em_algo.types import Samples, Params
-from em_algo.models import AModel
+from em_algo.models import AModelDifferentiable
 
 
-class GaussianModel(AModel):
+class GaussianModel(AModelDifferentiable):
     """
     f(x) = e^(-1/2 * ((x - m) / sd)^2) / (sd * sqrt(2pi))
 

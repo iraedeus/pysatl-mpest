@@ -39,6 +39,10 @@ class AModel(ABC):
     def lp(x: float, params: Params) -> float:
         """TODO"""
 
+
+class AModelDifferentiable(AModel):
+    """TODO"""
+
     @staticmethod
     @abstractmethod
     def ld_params(x: float, params: Params) -> np.ndarray:
