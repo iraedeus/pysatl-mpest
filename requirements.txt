@@ -2,6 +2,7 @@ matplotlib
 multiprocess
 numpy
 pandas
+pickleshare
 pre-commit
 pytest
 scipy

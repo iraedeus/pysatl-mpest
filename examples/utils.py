@@ -1,60 +1,51 @@
 """TODO"""
 
+from typing import NamedTuple, Callable
+
 import random
 import time
-from typing import NamedTuple, Iterable
 import pickle
 import numpy as np
 from tqdm.contrib.concurrent import process_map
 
-from examples.config import RESULTS_FOLDER
-
-from em_algo.em import EM
-from em_algo.distribution import Distribution
 from em_algo.types import Samples
-from em_algo.models import AModel
-from em_algo.optimizer import Optimizer, ScipyNewtonCG
+from em_algo.distribution_mixture import DistributionMixture
+from em_algo.problem import Problem, Result
+from em_algo.em import EM
+
+from examples.config import RESULTS_FOLDER
 
 
 class Test(NamedTuple):
     """TODO"""
 
-    number: int
+    index: int
+    all_data: Samples
+    true_mixture: DistributionMixture
 
-    start_distributions: list[Distribution]
-    base_distributions: list[Distribution]
+    problem: Problem
+    solver: EM
 
-    base_data: Samples
-    data: Samples
-
-    k: int
-
-    runs_per_test: int
-
-    deviation: float
-    max_step: int
-    prior_probability_threshold: float
-    prior_probability_threshold_step: int
-    optimizer: type[Optimizer]
+    runs: int
 
 
 class TestResult(NamedTuple):
     """TODO"""
 
     test: Test
-    result: EM.Result
+    result: Result
+    steps: int
     time: float
 
 
 class Clicker:
     """TODO"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._counter = -1
 
-    def get(self):
+    def click(self):
         """TODO"""
-
         self._counter += 1
         return self._counter
 
@@ -64,122 +55,44 @@ def run_test(test: Test) -> TestResult:
 
     times = []
 
-    for _ in range(test.runs_per_test):
+    for _ in range(test.runs):
         start = time.perf_counter()
-        result = EM.em_algo(
-            test.data,
-            test.start_distributions,
-            test.k,
-            deviation=test.deviation,
-            max_step=test.max_step,
-            prior_probability_threshold=test.prior_probability_threshold,
-            prior_probability_threshold_step=test.prior_probability_threshold_step,
-            optimizer=test.optimizer,
+        result = test.solver.solve_logged(
+            test.problem,
+            create_history=False,
+            remember_time=False,
         )
-
         stop = time.perf_counter()
         times.append(stop - start)
 
-    return TestResult(test, result, float(np.mean(times)))
+    return TestResult(test, result.result, result.log.steps, float(np.mean(times)))
 
 
 def run_tests(
-    tests: list[Test], workers_count: int, shuffled: bool = True
+    tests: list[Test],
+    workers_count: int,
+    shuffled: bool = True,
 ) -> list[TestResult]:
     """TODO"""
 
     if not shuffled:
-        return process_map(run_test, tests, max_workers=workers_count)
+        _tests = tests
+    else:
+        _tests = list(tests)
+        random.shuffle(_tests)
 
-    _tests = list(tests)
-    random.shuffle(_tests)
-    results: list[TestResult] = process_map(run_test, _tests, max_workers=workers_count)
-    results.sort(key=lambda t: t.test.number)
+    results: list[TestResult] = process_map(
+        run_test,
+        _tests,
+        max_workers=workers_count,
+        chunksize=32,
+    )
+
+    if shuffled:
+        key: Callable[[TestResult], int] = lambda t: t.test.index
+        results.sort(key=key)
+
     return results
-
-
-def generate_mono_test(
-    model: type[AModel],
-    o_borders_for_data: list[tuple[float, float]],
-    clicker: Clicker,
-    o_borders_for_start_params: list[tuple[float, float]] | None = None,
-    k_list: Iterable[int] = (1, 2, 3, 4, 5),
-    sizes: Iterable[int] = (50, 100, 200, 500),
-    distribution_count: int = 1,
-    base_size: int = 1024,
-    tests_per_cond: int = 1,
-    runs_per_test: int = 3,
-    deviation: float = 0.01,
-    max_step: int = 16,
-    prior_probability_threshold: float = 0.001,
-    prior_probability_threshold_step: int = 3,
-    optimizer: type[Optimizer] = ScipyNewtonCG,
-) -> list[Test]:
-    """TODO"""
-
-    new_tests: list[Test] = []
-
-    for k in k_list:
-        for _ in range(distribution_count):
-            per_model = base_size // k
-            base_params = []
-            x = []
-            for _ in range(k):
-                o = np.array(
-                    [
-                        random.uniform(border[0], border[1])
-                        for border in o_borders_for_data
-                    ]
-                )
-                x += list(model.generate(o, per_model))
-                base_params.append(o)
-
-            random.shuffle(x)
-            base = np.array(x)
-
-            if o_borders_for_start_params is not None:
-                params_borders = o_borders_for_start_params
-            else:
-                params_borders = o_borders_for_data
-
-            for size in sizes:
-                for _ in range(tests_per_cond):
-                    start_params = [
-                        np.array(
-                            [
-                                random.uniform(border[0], border[1])
-                                for border in params_borders
-                            ]
-                        )
-                        for _ in range(k)
-                    ]
-                    new_tests.append(
-                        Test(
-                            clicker.get(),
-                            [
-                                Distribution(
-                                    model, model.params_convert_to_model(params)
-                                )
-                                for params in start_params
-                            ],
-                            [
-                                Distribution(
-                                    model, model.params_convert_to_model(params)
-                                )
-                                for params in base_params
-                            ],
-                            base,
-                            np.array(random.sample(x, size)),
-                            k,
-                            runs_per_test,
-                            deviation,
-                            max_step,
-                            prior_probability_threshold,
-                            prior_probability_threshold_step,
-                            optimizer,
-                        )
-                    )
-    return new_tests
 
 
 def save_results(results: list[TestResult], name: str) -> None:

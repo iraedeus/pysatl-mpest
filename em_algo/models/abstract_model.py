@@ -4,46 +4,36 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from em_algo.types import Samples, Params
+from em_algo.utils import Named
 
 
-class AModel(ABC):
+class AModel(Named, ABC):
     """TODO"""
 
-    @staticmethod
     @abstractmethod
-    def name() -> str:
+    def params_convert_to_model(self, params: Params) -> Params:
         """TODO"""
 
-    @staticmethod
     @abstractmethod
-    def params_convert_to_model(params: Params) -> Params:
+    def params_convert_from_model(self, params: Params) -> Params:
         """TODO"""
 
-    @staticmethod
     @abstractmethod
-    def params_convert_from_model(params: Params) -> Params:
+    def generate(self, params: Params, size: int = 1) -> Samples:
         """TODO"""
 
-    @staticmethod
     @abstractmethod
-    def generate(params: Params, size: int = 1) -> Samples:
+    def p(self, x: float, params: Params) -> float:
         """TODO"""
 
-    @staticmethod
     @abstractmethod
-    def p(x: float, params: Params) -> float:
-        """TODO"""
-
-    @staticmethod
-    @abstractmethod
-    def lp(x: float, params: Params) -> float:
+    def lp(self, x: float, params: Params) -> float:
         """TODO"""
 
 
-class AModelDifferentiable(AModel):
+class AModelDifferentiable(AModel, ABC):
     """TODO"""
 
-    @staticmethod
     @abstractmethod
-    def ld_params(x: float, params: Params) -> np.ndarray:
+    def ld_params(self, x: float, params: Params) -> np.ndarray:
         """TODO"""

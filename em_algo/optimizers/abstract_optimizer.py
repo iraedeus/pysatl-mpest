@@ -3,22 +3,29 @@
 from abc import ABC, abstractmethod
 from typing import Callable
 import numpy as np
-from scipy.optimize import minimize
 
 from em_algo.types import Params
+from em_algo.utils import Named
 
 
-class Optimizer(ABC):
+class AOptimizer(Named, ABC):
     """TODO"""
 
-    @staticmethod
-    @abstractmethod
-    def name() -> str:
-        """TODO"""
-
-    @staticmethod
     @abstractmethod
     def minimize(
+        self,
+        func: Callable[[Params], float],
+        params: Params,
+    ) -> Params:
+        """TODO"""
+
+
+class AOptimizerJacobian(Named, ABC):
+    """TODO"""
+
+    @abstractmethod
+    def minimize(
+        self,
         func: Callable[[Params], float],
         params: Params,
         jacobian: Callable[[Params], np.ndarray],
@@ -26,17 +33,4 @@ class Optimizer(ABC):
         """TODO"""
 
 
-class ScipyNewtonCG(Optimizer):
-    """TODO"""
-
-    @staticmethod
-    def name():
-        return "ScipyNewtonCG"
-
-    @staticmethod
-    def minimize(
-        func: Callable[[Params], float],
-        params: Params,
-        jacobian: Callable[[Params], np.ndarray],
-    ) -> Params:
-        return minimize(func, params, jac=jacobian, method="Newton-CG").x
+TOptimizer = AOptimizer | AOptimizerJacobian
