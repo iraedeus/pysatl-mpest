@@ -14,7 +14,14 @@ from em_algo.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
-from em_algo.optimizers import ScipyNewtonCG
+from em_algo.optimizers import (
+    ScipyCG,
+    ScipyNewtonCG,
+    ScipyNelderMead,
+    ScipySLSQP,
+    ScipyTNC,
+    ScipyCOBYLA,
+)
 
 
 def run_test():
@@ -30,13 +37,23 @@ def run_test():
     def _generate_test(
         model: type[AModel], params_borders: list[tuple[float, float]]
     ) -> list[Test]:
-        return generate_mono_test(
+        test = generate_mono_test(
             model_t=model,
-            solver=EM(
-                StepCountBreakpointer(16) + ParamDifferBreakpointer(0.01),
-                FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
-                ScipyNewtonCG(),
-            ),
+            solvers=[
+                EM(
+                    StepCountBreakpointer(16) + ParamDifferBreakpointer(0.01),
+                    FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
+                    optimizer,
+                )
+                for optimizer in [
+                    ScipyCG(),
+                    ScipyNewtonCG(),
+                    ScipyNelderMead(),
+                    ScipySLSQP(),
+                    ScipyTNC(),
+                    ScipyCOBYLA(),
+                ]
+            ],
             clicker=counter,
             params_borders=params_borders,
             ks=[1, 2, 3, 4, 5],
@@ -47,6 +64,7 @@ def run_test():
             tests_per_cond=1,
             runs_per_test=1,
         )
+        return test
 
     tests += _generate_test(WeibullModelExp, [(0.25, 25), (0.25, 25)])
     tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])

@@ -15,7 +15,7 @@ from em_algo.distribution_mixture import DistributionMixture
 
 def generate_mono_test(
     model_t: type[AModel],
-    solver: EM,
+    solvers: list[EM],
     clicker: Clicker,
     params_borders: list[tuple[float, float]],
     start_params_borders: list[tuple[float, float]] | None = None,
@@ -93,7 +93,7 @@ def generate_mono_test(
                                         ]
                                     ),
                                 ),
-                                solver,
+                                solvers,
                                 runs_per_test,
                             )
                         )

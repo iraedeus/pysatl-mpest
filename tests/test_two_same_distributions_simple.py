@@ -16,7 +16,15 @@ from em_algo.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
-from em_algo.optimizers import ScipyNewtonCG
+from em_algo.optimizers import (
+    ScipyCG,
+    ScipyNewtonCG,
+    ScipyNelderMead,
+    ScipySLSQP,
+    ScipyTNC,
+    ScipyCOBYLA,
+    SPSA,
+)
 
 
 @pytest.mark.parametrize(
@@ -103,45 +111,57 @@ def test_two_same_distributions_simple(
         model.params_convert_to_model(param) for model, param in zip(models, params)
     ]
 
-    em_algo = EM(
-        StepCountBreakpointer() + ParamDifferBreakpointer(),
-        FiniteChecker() + PriorProbabilityThresholdChecker(),
+    for optimizer in [
+        ScipyCG(),
         ScipyNewtonCG(),
-    )
-
-    result = em_algo.solve(
-        problem=Problem(
-            samples=x,
-            distributions=DistributionMixture.from_distributions(
-                [
-                    Distribution(model, param)
-                    for model, param in zip(models, c_start_params)
-                ]
-            ),
-        )
-    )
-
-    assert result.error is None
-
-    def absolute_diff_params(
-        a: DistributionMixture,
-        b: DistributionMixture,
-    ):
-        """TODO"""
-
-        a_p, b_p = ([d.params for d in ld] for ld in (a, b))
-
-        return min(
-            sum(np.sum(np.abs(x - y)) for x, y in zip(a_p, _b_p))
-            for _b_p in permutations(b_p)
+        ScipyNelderMead(),
+        ScipySLSQP(),
+        ScipyTNC(),
+        ScipyCOBYLA(),
+        # SPSA(),
+    ]:
+        em_algo = EM(
+            StepCountBreakpointer() + ParamDifferBreakpointer(),
+            FiniteChecker() + PriorProbabilityThresholdChecker(),
+            optimizer,
         )
 
-    assert (
-        absolute_diff_params(
-            result.result,
-            DistributionMixture.from_distributions(
-                [Distribution(model, param) for model, param in zip(models, c_params)]
-            ),
+        result = em_algo.solve(
+            problem=Problem(
+                samples=x,
+                distributions=DistributionMixture.from_distributions(
+                    [
+                        Distribution(model, param)
+                        for model, param in zip(models, c_start_params)
+                    ]
+                ),
+            )
         )
-        <= expected_error
-    )
+
+        assert result.error is None
+
+        def absolute_diff_params(
+            a: DistributionMixture,
+            b: DistributionMixture,
+        ):
+            """TODO"""
+
+            a_p, b_p = ([d.params for d in ld] for ld in (a, b))
+
+            return min(
+                sum(np.sum(np.abs(x - y)) for x, y in zip(a_p, _b_p))
+                for _b_p in permutations(b_p)
+            )
+
+        assert (
+            absolute_diff_params(
+                result.result,
+                DistributionMixture.from_distributions(
+                    [
+                        Distribution(model, param)
+                        for model, param in zip(models, c_params)
+                    ]
+                ),
+            )
+            <= expected_error
+        )

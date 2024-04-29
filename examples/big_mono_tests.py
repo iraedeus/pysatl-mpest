@@ -15,7 +15,13 @@ from em_algo.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
-from em_algo.optimizers import ScipyNewtonCG
+
+from em_algo.optimizers import (
+    ScipyCG,
+    ScipyNewtonCG,
+    ScipySLSQP,
+    ScipyTNC,
+)
 
 if __name__ == "__main__":
     random.seed(42)
@@ -36,14 +42,22 @@ if __name__ == "__main__":
             sizes=[50, 100, 200, 500, 1000],
             distributions_count=64,
             base_size=2048,
-            tests_per_size=16,
-            tests_per_cond=4,
+            tests_per_size=8,
+            tests_per_cond=2,
             runs_per_test=1,
-            solver=EM(
-                StepCountBreakpointer(32) + ParamDifferBreakpointer(0.01),
-                FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
-                ScipyNewtonCG(),
-            ),
+            solvers=[
+                EM(
+                    StepCountBreakpointer(16) + ParamDifferBreakpointer(0.01),
+                    FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
+                    optimizer,
+                )
+                for optimizer in [
+                    ScipyCG(),
+                    ScipyNewtonCG(),
+                    ScipySLSQP(),
+                    ScipyTNC(),
+                ]
+            ],
         )
 
     tests += _generate_test(WeibullModelExp, [(0.25, 25), (0.25, 25)])

@@ -1,6 +1,6 @@
 """TODO"""
 
-from typing import NamedTuple, Callable
+from typing import NamedTuple, Callable, Any
 
 import random
 import time
@@ -15,6 +15,8 @@ from em_algo.em import EM
 
 from examples.config import RESULTS_FOLDER
 
+np.seterr(all="ignore")
+
 
 class Test(NamedTuple):
     """TODO"""
@@ -24,18 +26,27 @@ class Test(NamedTuple):
     true_mixture: DistributionMixture
 
     problem: Problem
-    solver: EM
+    solvers: list[EM]
 
     runs: int
+
+
+class SingleSolverResult(NamedTuple):
+    """TODO"""
+
+    test: Test
+
+    solver: EM
+    result: Result
+    steps: int
+    time: float
 
 
 class TestResult(NamedTuple):
     """TODO"""
 
     test: Test
-    result: Result
-    steps: int
-    time: float
+    results: list[SingleSolverResult]
 
 
 class Clicker:
@@ -54,24 +65,33 @@ def run_test(test: Test) -> TestResult:
     """TODO"""
 
     times = []
+    results = []
 
-    for _ in range(test.runs):
-        start = time.perf_counter()
-        result = test.solver.solve_logged(
-            test.problem,
-            create_history=False,
-            remember_time=False,
+    for solver in test.solvers:
+        for _ in range(test.runs):
+            start = time.perf_counter()
+            result = solver.solve_logged(
+                test.problem,
+                create_history=False,
+                remember_time=False,
+            )
+            stop = time.perf_counter()
+            times.append(stop - start)
+
+        results.append(
+            SingleSolverResult(
+                test, solver, result.result, result.log.steps, float(np.mean(times))
+            )
         )
-        stop = time.perf_counter()
-        times.append(stop - start)
 
-    return TestResult(test, result.result, result.log.steps, float(np.mean(times)))
+    return TestResult(test, results)
 
 
 def run_tests(
     tests: list[Test],
     workers_count: int,
     shuffled: bool = True,
+    chunksize: int = 1,
 ) -> list[TestResult]:
     """TODO"""
 
@@ -85,7 +105,7 @@ def run_tests(
         run_test,
         _tests,
         max_workers=workers_count,
-        chunksize=32,
+        chunksize=chunksize,
     )
 
     if shuffled:

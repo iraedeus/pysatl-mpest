@@ -13,7 +13,15 @@ from em_algo.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
-from em_algo.optimizers import ScipyNewtonCG
+from em_algo.optimizers import (
+    ScipyCG,
+    ScipyNewtonCG,
+    ScipyNelderMead,
+    ScipySLSQP,
+    ScipyTNC,
+    ScipyCOBYLA,
+    SPSA,
+)
 
 
 @pytest.mark.parametrize(
@@ -47,22 +55,31 @@ def test_one_distribution(
     c_params = model.params_convert_to_model(params)
     c_start_params = model.params_convert_to_model(start_params)
 
-    em_algo = EM(
-        StepCountBreakpointer() + ParamDifferBreakpointer(),
-        FiniteChecker() + PriorProbabilityThresholdChecker(),
+    for optimizer in [
+        ScipyCG(),
         ScipyNewtonCG(),
-    )
-
-    result = em_algo.solve(
-        problem=Problem(
-            samples=x,
-            distributions=DistributionMixture.from_distributions(
-                [Distribution(model, c_start_params)]
-            ),
+        ScipyNelderMead(),
+        ScipySLSQP(),
+        ScipyTNC(),
+        ScipyCOBYLA(),
+        # SPSA(),
+    ]:
+        em_algo = EM(
+            StepCountBreakpointer() + ParamDifferBreakpointer(),
+            FiniteChecker() + PriorProbabilityThresholdChecker(),
+            optimizer,
         )
-    )
 
-    assert result.error is None
+        result = em_algo.solve(
+            problem=Problem(
+                samples=x,
+                distributions=DistributionMixture.from_distributions(
+                    [Distribution(model, c_start_params)]
+                ),
+            )
+        )
 
-    result_params = result.result.distributions[0].params
-    assert float(np.sum(np.abs(c_params - result_params))) <= expected_error
+        assert result.error is None
+
+        result_params = result.result.distributions[0].params
+        assert float(np.sum(np.abs(c_params - result_params))) <= expected_error
