@@ -35,7 +35,6 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         self,
         distributions: list[DistributionInMixture],
     ) -> None:
-
         self._distributions = distributions
         self._normalize()
 
@@ -86,7 +85,6 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         return self._distributions
 
     def __iter__(self) -> Iterator[DistributionInMixture]:
-
         def iterate(instance: DistributionMixture, index: int):
             if index >= len(instance.distributions):
                 raise StopIteration
