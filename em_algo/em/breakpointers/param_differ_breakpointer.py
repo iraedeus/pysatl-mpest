@@ -1,0 +1,43 @@
+"""TODO"""
+
+import numpy as np
+
+from em_algo.distribution_mixture import DistributionMixture
+from em_algo.em.breakpointers import UnionableBreakpointer
+
+
+class ParamDifferBreakpointer(UnionableBreakpointer):
+    """TODO"""
+
+    def __init__(self, deviation: float = 0.01) -> None:
+        self._deviation = deviation
+
+    @property
+    def deviation(self):
+        """TODO"""
+        return self._deviation
+
+    @property
+    def name(self):
+        return f"ParamDifferBreakpointer(deviation={self.deviation})"
+
+    def is_over(
+        self,
+        step: int,
+        previous_step: DistributionMixture | None,
+        current_step: DistributionMixture,
+    ) -> bool:
+        if previous_step is None:
+            return False
+
+        if len(previous_step) != len(current_step):
+            return False
+
+        for d_p, d_c in zip(previous_step, current_step):
+            if np.any(np.abs(d_p.params - d_c.params) > self.deviation):
+                return False
+            d_pp = 0.0 if d_p.prior_probability is None else d_p.prior_probability
+            d_cp = 0.0 if d_c.prior_probability is None else d_c.prior_probability
+            if np.any(np.abs(d_pp - d_cp) > self.deviation):
+                return False
+        return True

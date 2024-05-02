@@ -16,49 +16,41 @@ class GaussianModel(AModelDifferentiable):
     O = [m, _sd]
     """
 
-    @staticmethod
-    def name() -> str:
+    @property
+    def name(self) -> str:
         return "Gaussian"
 
-    @staticmethod
-    def params_convert_to_model(params: Params) -> Params:
+    def params_convert_to_model(self, params: Params) -> Params:
         return np.array([params[0], np.log(params[1])])
 
-    @staticmethod
-    def params_convert_from_model(params: Params) -> Params:
+    def params_convert_from_model(self, params: Params) -> Params:
         return np.array([params[0], np.exp(params[1])])
 
-    @staticmethod
-    def generate(params: Params, size: int = 1) -> Samples:
+    def generate(self, params: Params, size: int = 1) -> Samples:
         return np.array(norm.rvs(loc=params[0], scale=params[1], size=size))
 
-    @staticmethod
-    def p(x: float, params: Params) -> float:
+    def p(self, x: float, params: Params) -> float:
         m, sd = params
         sd = np.exp(sd)
         return np.exp(-0.5 * (((x - m) / sd) ** 2)) / (sd * np.sqrt(2 * np.pi))
 
-    @staticmethod
-    def lp(x: float, params: Params) -> float:
-        p = GaussianModel.p(x, params)
+    def lp(self, x: float, params: Params) -> float:
+        p = self.p(x, params)
         if p <= 0:
             return -np.inf
         return np.log(p)
 
-    @staticmethod
-    def ldm(x: float, params: Params) -> float:
+    def ldm(self, x: float, params: Params) -> float:
         """TODO"""
 
         m, sd = params
         return (x - m) / (np.exp(2 * sd))
 
-    @staticmethod
-    def ldsd(x: float, params: Params) -> float:
+    def ldsd(self, x: float, params: Params) -> float:
         """TODO"""
 
         m, sd = params
         return ((x - m) ** 2) / np.exp(2 * sd) - 1
 
-    @staticmethod
-    def ld_params(x: float, params: Params) -> np.ndarray:
-        return np.array([GaussianModel.ldm(x, params), GaussianModel.ldsd(x, params)])
+    def ld_params(self, x: float, params: Params) -> np.ndarray:
+        return np.array([self.ldm(x, params), self.ldsd(x, params)])

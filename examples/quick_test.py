@@ -3,19 +3,30 @@
 import random
 import numpy as np
 
-from examples.utils import (
-    Test,
-    Clicker,
-    generate_mono_test,
-    run_tests,
-    save_results,
-)
+from examples.utils import Test, run_tests, save_results, Clicker
+from examples.mono_test_generator import generate_mono_test
 from examples.config import MAX_WORKERS
 
 from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, AModel
-from em_algo.optimizer import ScipyNewtonCG
+from em_algo.em import EM
+from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
+from em_algo.em.distribution_checkers import (
+    FiniteChecker,
+    PriorProbabilityThresholdChecker,
+)
+from em_algo.optimizers import (
+    ScipyCG,
+    ScipyNewtonCG,
+    ScipyNelderMead,
+    ScipySLSQP,
+    ScipyTNC,
+    ScipyCOBYLA,
+)
 
-if __name__ == "__main__":
+
+def run_test():
+    """TODO"""
+
     random.seed(42)
     np.random.seed(42)
 
@@ -24,29 +35,51 @@ if __name__ == "__main__":
     counter = Clicker()
 
     def _generate_test(
-        model: type[AModel], o_borders: list[tuple[float, float]]
+        model: type[AModel], params_borders: list[tuple[float, float]]
     ) -> list[Test]:
-        return generate_mono_test(
-            model,
-            o_borders,
-            counter,
-            k_list=[1, 2, 3, 4, 5],
+        test = generate_mono_test(
+            model_t=model,
+            solvers=[
+                EM(
+                    StepCountBreakpointer(16) + ParamDifferBreakpointer(0.01),
+                    FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
+                    optimizer,
+                )
+                for optimizer in [
+                    ScipyCG(),
+                    ScipyNewtonCG(),
+                    ScipyNelderMead(),
+                    ScipySLSQP(),
+                    ScipyTNC(),
+                    ScipyCOBYLA(),
+                ]
+            ],
+            clicker=counter,
+            params_borders=params_borders,
+            ks=[1, 2, 3, 4, 5],
             sizes=[50, 100, 200, 500],
-            distribution_count=1,
+            distributions_count=1,
             base_size=1024,
+            tests_per_size=1,
             tests_per_cond=1,
             runs_per_test=1,
-            deviation=0.01,
-            max_step=16,
-            prior_probability_threshold=0.001,
-            prior_probability_threshold_step=3,
-            optimizer=ScipyNewtonCG,
         )
+        return test
 
     tests += _generate_test(WeibullModelExp, [(0.25, 25), (0.25, 25)])
     tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])
     tests += _generate_test(ExponentialModel, [(0.25, 25)])
 
-    results = run_tests(tests, MAX_WORKERS, True)
+    results = run_tests(
+        tests,
+        MAX_WORKERS,
+        True,
+        create_history=True,
+        remember_time=True,
+    )
 
     save_results(results, "quick_test")
+
+
+if __name__ == "__main__":
+    run_test()
