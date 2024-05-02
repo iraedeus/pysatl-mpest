@@ -70,7 +70,13 @@ def run_test():
     tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])
     tests += _generate_test(ExponentialModel, [(0.25, 25)])
 
-    results = run_tests(tests, MAX_WORKERS, True)
+    results = run_tests(
+        tests,
+        MAX_WORKERS,
+        True,
+        create_history=True,
+        remember_time=True,
+    )
 
     save_results(results, "quick_test")
 

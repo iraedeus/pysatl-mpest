@@ -150,10 +150,10 @@ def timer(func: Callable[P, R]) -> Callable[P, TimerResultWrapper[R]]:
 
     @functools.wraps(func)
     def wrapper_timer(*args: P.args, **kwargs: P.kwargs) -> TimerResultWrapper[R]:
-        start = time.perf_counter()
+        start = time.perf_counter_ns()
         result = func(*args, **kwargs)
-        finish = time.perf_counter()
-        runtime = finish - start
+        finish = time.perf_counter_ns()
+        runtime = (finish - start) * 1e-6
         return TimerResultWrapper(result, runtime)
 
     return wrapper_timer
@@ -212,3 +212,16 @@ def logged(
         return curr_func
 
     return current_logged
+
+
+def in_bounds(min_value: float, max_value: float):
+    """TODO"""
+
+    def current_in_bounds(func: Callable[P, float]) -> Callable[P, float]:
+        @functools.wraps(func)
+        def wrapper_apply(*args: P.args, **kwargs: P.kwargs) -> float:
+            return min(max(func(*args, **kwargs), min_value), max_value)
+
+        return wrapper_apply
+
+    return current_in_bounds

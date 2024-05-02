@@ -5,6 +5,7 @@ pandas
 pickleshare
 pre-commit
 pytest
+scikit-learn
 scipy
 seaborn
 spsa

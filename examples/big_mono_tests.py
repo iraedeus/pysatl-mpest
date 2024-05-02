@@ -38,9 +38,9 @@ if __name__ == "__main__":
             model_t=model,
             params_borders=o_borders,
             clicker=counter,
-            ks=list(range(1, 6)),
+            ks=list(range(1, 4)),
             sizes=[50, 100, 200, 500, 1000],
-            distributions_count=64,
+            distributions_count=32,
             base_size=2048,
             tests_per_size=8,
             tests_per_cond=2,
@@ -64,6 +64,13 @@ if __name__ == "__main__":
     tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])
     tests += _generate_test(ExponentialModel, [(0.25, 25)])
 
-    results = run_tests(tests, workers_count=MAX_WORKERS, shuffled=True)
+    results = run_tests(
+        tests,
+        workers_count=MAX_WORKERS,
+        shuffled=True,
+        chunksize=64,
+        create_history=True,
+        remember_time=True,
+    )
 
     save_results(results, "big_mono_test")

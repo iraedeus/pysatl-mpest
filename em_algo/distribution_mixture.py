@@ -5,7 +5,7 @@ from typing import Sized, Iterable, Iterator, TypeVar
 from em_algo.distribution import Distribution
 from em_algo.models import AModel
 from em_algo.types import Params
-from em_algo.utils import IteratorWrapper
+from em_algo.utils import IteratorWrapper, in_bounds
 
 T = TypeVar("T", bound=Distribution)
 
@@ -103,5 +103,5 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         s = 0
         for d in self.distributions:
             if d.prior_probability is not None:
-                s += d.prior_probability * d.model.p(x, d.params)
+                s += d.prior_probability * in_bounds(0, 10)(d.model.p)(x, d.params)
         return s

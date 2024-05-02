@@ -122,17 +122,17 @@ class EM(Solver):
     def __init__(
         self,
         breakpointer: "EM.Breakpointer",
-        distribution_alive: "EM.DistributionChecker",
+        distribution_checker: "EM.DistributionChecker",
         optimizer: TOptimizer,
     ):
         self.breakpointer = breakpointer
-        self.distribution_alive = distribution_alive
+        self.distribution_checker = distribution_checker
         self.optimizer = optimizer
 
     @staticmethod
     def step(
         samples: Samples,
-        distributions: DistributionMixture,
+        distribution_mixture: DistributionMixture,
         optimizer: TOptimizer,
     ) -> ResultWithError[DistributionMixture]:
         """TODO"""
@@ -142,25 +142,29 @@ class EM(Solver):
         p_xij = []
         active_samples = []
         for x in samples:
-            p = np.array([d.model.p(x, d.params) for d in distributions])
+            p = np.array([d.model.p(x, d.params) for d in distribution_mixture])
             if np.any(p):
                 p_xij.append(p)
                 active_samples.append(x)
 
         if not active_samples:
-            return ResultWithError(distributions, Exception("All models can't match"))
+            return ResultWithError(
+                distribution_mixture, Exception("All models can't match")
+            )
 
         # h[j, i] contains probability of X_i to be a part of distribution j
         m = len(p_xij)
-        k = len(distributions)
+        k = len(distribution_mixture)
         h = np.zeros([k, m], dtype=float)
-        curr_w = np.array([d.prior_probability for d in distributions])
+        curr_w = np.array([d.prior_probability for d in distribution_mixture])
         for i, p in enumerate(p_xij):
             wp = curr_w * p
             swp = np.sum(wp)
 
             if not swp:
-                return ResultWithError(distributions, Exception("Error in E step"))
+                return ResultWithError(
+                    distribution_mixture, Exception("Error in E step")
+                )
             h[:, i] = wp / swp
 
         # M part
@@ -171,7 +175,7 @@ class EM(Solver):
         new_w = np.sum(h, axis=1) / m
         new_distributions: list[Distribution] = []
         for j, ch in enumerate(h[:]):
-            d = distributions[j]
+            d = distribution_mixture[j]
 
             def log_likelihood(params, ch, model: AModel):
                 return -np.sum(ch * [model.lp(x, params) for x in active_samples])
@@ -189,7 +193,7 @@ class EM(Solver):
             if isinstance(optimizer, AOptimizerJacobian):
                 if not isinstance(d.model, AModelDifferentiable):
                     return ResultWithError(
-                        distributions,
+                        distribution_mixture,
                         ValueError(
                             f"Model {d.model.name} can't handle optimizer with jacobian."
                         ),
@@ -325,7 +329,7 @@ class EM(Solver):
 
             distributions.update(
                 result.result,
-                lambda d: self.distribution_alive.is_alive(step, d),
+                lambda d: self.distribution_checker.is_alive(step, d),
             )
 
             error = (

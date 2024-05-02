@@ -1,6 +1,7 @@
 """TODO"""
 
-from typing import NamedTuple, Callable, Any
+from typing import NamedTuple, Callable
+from functools import partial
 
 import random
 import time
@@ -41,6 +42,8 @@ class SingleSolverResult(NamedTuple):
     steps: int
     time: float
 
+    log: list[EM.Log.Item] = []
+
 
 class TestResult(NamedTuple):
     """TODO"""
@@ -61,7 +64,11 @@ class Clicker:
         return self._counter
 
 
-def run_test(test: Test) -> TestResult:
+def run_test(
+    test: Test,
+    create_history=False,
+    remember_time=False,
+) -> TestResult:
     """TODO"""
 
     times = []
@@ -72,15 +79,20 @@ def run_test(test: Test) -> TestResult:
             start = time.perf_counter()
             result = solver.solve_logged(
                 test.problem,
-                create_history=False,
-                remember_time=False,
+                create_history=create_history,
+                remember_time=remember_time,
             )
             stop = time.perf_counter()
             times.append(stop - start)
 
         results.append(
             SingleSolverResult(
-                test, solver, result.result, result.log.steps, float(np.mean(times))
+                test,
+                solver,
+                result.result,
+                result.log.steps,
+                float(np.mean(times)),
+                result.log.log,
             )
         )
 
@@ -92,6 +104,8 @@ def run_tests(
     workers_count: int,
     shuffled: bool = True,
     chunksize: int = 1,
+    create_history=False,
+    remember_time=False,
 ) -> list[TestResult]:
     """TODO"""
 
@@ -102,7 +116,7 @@ def run_tests(
         random.shuffle(_tests)
 
     results: list[TestResult] = process_map(
-        run_test,
+        partial(run_test, create_history=create_history, remember_time=remember_time),
         _tests,
         max_workers=workers_count,
         chunksize=chunksize,
