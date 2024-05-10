@@ -142,7 +142,7 @@ class EM(Solver):
         p_xij = []
         active_samples = []
         for x in samples:
-            p = np.array([d.model.p(x, d.params) for d in distribution_mixture])
+            p = np.array([d.model.pdf(x, d.params) for d in distribution_mixture])
             if np.any(p):
                 p_xij.append(p)
                 active_samples.append(x)
@@ -178,7 +178,7 @@ class EM(Solver):
             d = distribution_mixture[j]
 
             def log_likelihood(params, ch, model: AModel):
-                return -np.sum(ch * [model.lp(x, params) for x in active_samples])
+                return -np.sum(ch * [model.lpdf(x, params) for x in active_samples])
 
             def jacobian(params, ch, model: AModelDifferentiable):
                 return -np.sum(

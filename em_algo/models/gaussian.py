@@ -29,13 +29,13 @@ class GaussianModel(AModelDifferentiable):
     def generate(self, params: Params, size: int = 1) -> Samples:
         return np.array(norm.rvs(loc=params[0], scale=params[1], size=size))
 
-    def p(self, x: float, params: Params) -> float:
+    def pdf(self, x: float, params: Params) -> float:
         m, sd = params
         sd = np.exp(sd)
         return np.exp(-0.5 * (((x - m) / sd) ** 2)) / (sd * np.sqrt(2 * np.pi))
 
-    def lp(self, x: float, params: Params) -> float:
-        p = self.p(x, params)
+    def lpdf(self, x: float, params: Params) -> float:
+        p = self.pdf(x, params)
         if p <= 0:
             return -np.inf
         return np.log(p)

@@ -24,3 +24,7 @@ class Distribution:
     def params(self):
         """TODO"""
         return self._params
+
+    def pdf(self, x: float):
+        """TODO"""
+        return self.model.pdf(x, self.params)

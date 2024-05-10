@@ -23,11 +23,11 @@ class AModel(Named, ABC):
         """TODO"""
 
     @abstractmethod
-    def p(self, x: float, params: Params) -> float:
+    def pdf(self, x: float, params: Params) -> float:
         """TODO"""
 
     @abstractmethod
-    def lp(self, x: float, params: Params) -> float:
+    def lpdf(self, x: float, params: Params) -> float:
         """TODO"""
 
 

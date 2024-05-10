@@ -27,6 +27,12 @@ class DistributionInMixture(Distribution):
         """TODO"""
         return self._prior_probability
 
+    def pdf(self, x: float):
+        """TODO"""
+        if self.prior_probability is None:
+            return 0.0
+        return self.prior_probability * super().pdf(x)
+
 
 class DistributionMixture(Sized, Iterable[DistributionInMixture]):
     """TODO"""
@@ -100,8 +106,4 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
 
     def pdf(self, x: float) -> float:
         """TODO"""
-        s = 0
-        for d in self.distributions:
-            if d.prior_probability is not None:
-                s += d.prior_probability * in_bounds(0, 10)(d.model.p)(x, d.params)
-        return s
+        return sum(d.pdf(x) for d in self.distributions)

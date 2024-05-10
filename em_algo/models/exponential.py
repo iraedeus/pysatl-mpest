@@ -29,13 +29,13 @@ class ExponentialModel(AModelDifferentiable):
     def generate(self, params: Params, size: int = 1) -> Samples:
         return np.array(expon.rvs(scale=1 / params[0], size=size))
 
-    def p(self, x: float, params: Params) -> float:
+    def pdf(self, x: float, params: Params) -> float:
         if x < 0:
             return 0
         (l,) = params
         return np.exp(l - np.exp(l) * x)
 
-    def lp(self, x: float, params: Params) -> float:
+    def lpdf(self, x: float, params: Params) -> float:
         if x < 0:
             return -np.inf
         (l,) = params

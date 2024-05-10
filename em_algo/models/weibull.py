@@ -31,14 +31,14 @@ class WeibullModelExp(AModelDifferentiable):
     def generate(self, params: Params, size: int = 1) -> Samples:
         return np.array(weibull_min.rvs(params[0], loc=0, scale=params[1], size=size))
 
-    def p(self, x: float, params: Params) -> float:
+    def pdf(self, x: float, params: Params) -> float:
         if x < 0:
             return 0
         ek, el = np.exp(params)
         xl = x / el
         return (ek / el) * (xl ** (ek - 1.0)) / np.exp(xl**ek)
 
-    def lp(self, x: float, params: Params) -> float:
+    def lpdf(self, x: float, params: Params) -> float:
         if x < 0:
             return -np.inf
         k, l = params
