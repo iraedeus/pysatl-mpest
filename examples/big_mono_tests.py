@@ -69,8 +69,8 @@ if __name__ == "__main__":
         workers_count=MAX_WORKERS,
         shuffled=True,
         chunksize=64,
-        create_history=True,
-        remember_time=True,
+        # create_history=True,
+        # remember_time=True,
     )
 
     save_results(results, "big_mono_test")

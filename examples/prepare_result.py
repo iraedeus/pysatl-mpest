@@ -13,6 +13,27 @@ from em_algo.distribution_mixture import DistributionMixture, DistributionInMixt
 from examples.utils import SingleSolverResult, TestResult
 from examples.config import MAX_WORKERS
 
+import random
+
+import numpy as np
+
+from examples.mono_test_generator import Clicker
+from examples.utils import Test, run_tests, save_results
+from examples.config import MAX_WORKERS
+from em_algo.models import GaussianModel, WeibullModelExp
+from em_algo.distribution import Distribution
+from em_algo.distribution_mixture import DistributionMixture
+from em_algo.problem import Problem
+from em_algo.em import EM
+from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
+from em_algo.em.distribution_checkers import (
+    FiniteChecker,
+    PriorProbabilityThresholdChecker,
+)
+from em_algo.optimizers import ScipyCG, ScipySLSQP, ScipyTNC, ScipyNewtonCG
+
+# Gaussian
+
 
 def nll(samples: Samples, mixture: DistributionMixture) -> float:
     """TODO"""
@@ -20,6 +41,93 @@ def nll(samples: Samples, mixture: DistributionMixture) -> float:
     if occur == -0.0:
         occur = 0.0
     return occur
+
+
+def metric(dx: DistributionMixture, dy: DistributionMixture, sample: Samples):
+    dxs = list(dx)
+    dxs.sort(key=lambda x: x.params[0])
+
+    dys = list(dy)
+    dys.sort(key=lambda x: x.params[0])
+
+    success = 0
+
+    for x in sample:
+        if ((dxs[0].pdf(x) > dxs[1].pdf(x)) and (dys[0].pdf(x) > dys[1].pdf(x))) or (
+            (dxs[0].pdf(x) < dxs[1].pdf(x)) and (dys[0].pdf(x) < dys[1].pdf(x))
+        ):
+            success += 1
+
+    return success / len(sample)
+
+
+def result_to_df_diff(result: SingleSolverResult):
+    """TODO"""
+
+    gaussian_start_params = [(0.0, 3.0), (-10.0, 3.0), (10.0, 3.0)]
+    weibull_start_params = [(0.5, 1.0), (1.0, 1.0), (1.5, 1.0), (5.0, 1.0)]
+    sizes = [50, 100, 200, 500, 1000]
+    BASE_SIZE = 2048
+    tests_per_cond = 4
+    tests_per_size = 8
+
+    clicker = Clicker()
+
+    dct = {}
+
+    for sp in gaussian_start_params:
+        for second_sp in np.linspace(sp[0] - 5, sp[0] + 5, num=8, endpoint=True):
+            for _ in sizes:
+                for _ in range(tests_per_cond):
+                    for _ in range(tests_per_size):
+                        dct[clicker.click()] = (sp[0], second_sp)
+
+    for sp in weibull_start_params:
+        for second_sp in np.linspace(
+            max(sp[0] - 5, 0.1), sp[0] + 5, num=8, endpoint=True
+        ):
+            for _ in sizes:
+                for _ in range(tests_per_cond):
+                    for _ in range(tests_per_size):
+                        dct[clicker.click()] = (sp[0], second_sp)
+
+    distribution_mixture = DistributionMixture(
+        [
+            (
+                d
+                if (d.prior_probability is not None) and (d.prior_probability > 0.001)
+                else DistributionInMixture(d.model, d.params, None)
+            )
+            for d in result.result.result
+        ]
+    )
+    failed = all(d.prior_probability is None for d in result.result.result)
+
+    start = dct[result.test.index][0]
+    diff = dct[result.test.index][1]
+
+    return {
+        "test_index": result.test.index,
+        "optimizer": result.solver.optimizer.name,
+        "k": len(result.test.true_mixture),
+        "sample": result.test.problem.samples,
+        "true_mixture": result.test.true_mixture,
+        "result_mixture": distribution_mixture,
+        "error": result.result.error,
+        "log": result.log,
+        "steps": result.steps,
+        "time": result.time,
+        "model": result.test.true_mixture[0].model.name,
+        "size": len(result.test.problem.samples),
+        "success": (result.steps < 128) and not failed,
+        "failed": failed,
+        "occur": nll(result.test.all_data, distribution_mixture),
+        "start": start,
+        "diff": diff,
+        "res_err": metric(
+            result.test.true_mixture, result.result.result, result.test.all_data
+        ),
+    }
 
 
 def result_to_df(result: SingleSolverResult):
@@ -62,6 +170,19 @@ def prepare(results: list[TestResult]):
     return pd.DataFrame(
         process_map(
             result_to_df,
+            list(itertools.chain.from_iterable(result.results for result in results)),
+            max_workers=MAX_WORKERS,
+            chunksize=256,
+        )
+    )
+
+
+def prepare_diff(results: list[TestResult]):
+    """TODO"""
+
+    return pd.DataFrame(
+        process_map(
+            result_to_df_diff,
             list(itertools.chain.from_iterable(result.results for result in results)),
             max_workers=MAX_WORKERS,
             chunksize=256,
