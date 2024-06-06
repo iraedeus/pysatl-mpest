@@ -4,7 +4,7 @@ import numpy as np
 from scipy.stats import weibull_min
 
 from em_algo.types import Samples, Params
-from em_algo.models import AModelDifferentiable, AModelWithGenerator
+from em_algo.models.abstract_model import AModelDifferentiable, AModelWithGenerator
 
 
 class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):

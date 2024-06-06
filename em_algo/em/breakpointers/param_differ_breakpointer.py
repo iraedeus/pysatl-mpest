@@ -3,7 +3,7 @@
 import numpy as np
 
 from em_algo.distribution_mixture import DistributionMixture
-from em_algo.em.breakpointers import AUnionableBreakpointer
+from em_algo.em.breakpointers.unionable_breakpointer import AUnionableBreakpointer
 
 
 class ParamDifferBreakpointer(AUnionableBreakpointer):

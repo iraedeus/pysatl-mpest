@@ -1,7 +1,9 @@
 """Module which contains distribution checker by using prior probability threshold"""
 
-from em_algo.em.distribution_checkers import AUnionableDistributionChecker
 from em_algo.distribution_mixture import DistributionInMixture
+from em_algo.em.distribution_checkers.unionable_distribution_checker import (
+    AUnionableDistributionChecker,
+)
 
 
 class PriorProbabilityThresholdChecker(AUnionableDistributionChecker):

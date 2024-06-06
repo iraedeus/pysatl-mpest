@@ -1,7 +1,7 @@
 """Module which contains EM breakpointer by step count"""
 
 from em_algo.distribution_mixture import DistributionMixture
-from em_algo.em.breakpointers import AUnionableBreakpointer
+from em_algo.em.breakpointers.unionable_breakpointer import AUnionableBreakpointer
 
 
 class StepCountBreakpointer(AUnionableBreakpointer):

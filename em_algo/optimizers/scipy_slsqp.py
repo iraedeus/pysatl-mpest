@@ -4,7 +4,7 @@ from typing import Callable
 from scipy.optimize import minimize
 
 from em_algo.types import Params
-from em_algo.optimizers import AOptimizer
+from em_algo.optimizers.abstract_optimizer import AOptimizer
 
 
 class ScipySLSQP(AOptimizer):
