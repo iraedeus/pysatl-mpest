@@ -24,13 +24,19 @@ class IteratorWrapper(Generic[T, R], Iterator[R]):
         self._next_function = next_function
         self._ind = -1
 
+    def instance(self):
+        """Instance getter"""
+        return self._instance
+
     def __next__(self):
         self._ind += 1
         return self._next_function(self._instance, self._ind)
 
 
-class Named(ABC):
+class ANamed(ABC):
     """Class which represents named objects"""
+
+    # pylint: disable=too-few-public-methods
 
     @property
     @abstractmethod
@@ -40,6 +46,8 @@ class Named(ABC):
 
 class Factory(Generic[T]):
     """Class which represents factory pattern"""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, cls: type[T], *args, **kwargs) -> None:
         self.cls = cls
@@ -53,6 +61,8 @@ class Factory(Generic[T]):
 
 class ObjectWrapper(Generic[T]):
     """Class which wraps object and used for future inheritance"""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(
         self,
@@ -68,6 +78,8 @@ class ObjectWrapper(Generic[T]):
 
 class Indexed(ObjectWrapper[T]):
     """Class which wraps object, adding index field"""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(
         self,
@@ -86,6 +98,8 @@ class Indexed(ObjectWrapper[T]):
 class ResultWrapper(ObjectWrapper[T]):
     """Class which wraps result and used for future inheritance"""
 
+    # pylint: disable=too-few-public-methods
+
     @property
     def result(self):
         """Result getter"""
@@ -94,6 +108,8 @@ class ResultWrapper(ObjectWrapper[T]):
 
 class ResultWithError(ResultWrapper[T]):
     """Class which wraps result object, adding error field"""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(
         self,
@@ -112,6 +128,8 @@ class ResultWithError(ResultWrapper[T]):
 class ResultWithLog(Generic[T, R], ResultWrapper[T]):
     """Class which wraps result object, adding custom log field"""
 
+    # pylint: disable=too-few-public-methods
+
     def __init__(self, result: T, log: R) -> None:
         super().__init__(result)
         self._log = log
@@ -124,6 +142,8 @@ class ResultWithLog(Generic[T, R], ResultWrapper[T]):
 
 class TimerResultWrapper(ResultWrapper[T]):
     """Class which wraps result object, adding time field"""
+
+    # pylint: disable=too-few-public-methods
 
     def __init__(self, result: T, runtime: float) -> None:
         super().__init__(result)

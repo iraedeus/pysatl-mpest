@@ -28,6 +28,10 @@ def generate_mono_test(
     runs_per_test: int = 3,
 ):
     """Distribution mixtures of single model tests generator"""
+
+    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals
+
     tests: list[Test] = []
 
     for k in ks:

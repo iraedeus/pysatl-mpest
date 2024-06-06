@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from em_algo.types import Samples, Params
-from em_algo.utils import Named
+from em_algo.utils import ANamed
 
 
-class AModel(Named, ABC):
+class AModel(ANamed, ABC):
     """Abstract class which represents all methods needed from model for EM algorithm"""
 
     @abstractmethod

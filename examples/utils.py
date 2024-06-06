@@ -55,6 +55,8 @@ class TestResult(NamedTuple):
 class Clicker:
     """Class which allows you to \"click\" """
 
+    # pylint: disable=too-few-public-methods
+
     def __init__(self) -> None:
         self._counter = -1
 
@@ -108,6 +110,8 @@ def run_tests(
     remember_time=False,
 ) -> list[TestResult]:
     """Runs given tests multithreaded and optional creates logs"""
+
+    # pylint: disable=too-many-arguments
 
     if not shuffled:
         _tests = tests

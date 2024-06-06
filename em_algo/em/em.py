@@ -23,13 +23,13 @@ from em_algo.utils import (
 from em_algo.problem import Problem, Result, ASolver
 from em_algo.optimizers import TOptimizer, AOptimizerJacobian
 from em_algo.models import AModel, AModelDifferentiable
-from em_algo.utils import Named
+from em_algo.utils import ANamed
 
 
 class EM(ASolver):
     """Class which represents EM algorithm"""
 
-    class ABreakpointer(Named, ABC):
+    class ABreakpointer(ANamed, ABC):
         """Abstract class which represents EM breakpointer function handler"""
 
         @abstractmethod
@@ -41,7 +41,7 @@ class EM(ASolver):
         ) -> bool:
             """Breakpointer function"""
 
-    class ADistributionChecker(Named, ABC):
+    class ADistributionChecker(ANamed, ABC):
         """
         Abstract class which represents distribution checker function handler.
         Used for dynamically removing of degenerate distribution in mixture.
@@ -213,6 +213,8 @@ class EM(ASolver):
         optimizer: TOptimizer,
     ) -> ResultWithError[DistributionMixture]:
         """EM algo step"""
+
+        # pylint: disable-msg=too-many-locals
 
         # E part
 

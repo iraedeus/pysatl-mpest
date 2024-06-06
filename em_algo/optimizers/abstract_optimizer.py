@@ -5,10 +5,10 @@ from typing import Callable
 import numpy as np
 
 from em_algo.types import Params
-from em_algo.utils import Named
+from em_algo.utils import ANamed
 
 
-class AOptimizer(Named, ABC):
+class AOptimizer(ANamed, ABC):
     """Abstract class which represents simple optimizer"""
 
     @abstractmethod
@@ -20,7 +20,7 @@ class AOptimizer(Named, ABC):
         """Optimization minimization method"""
 
 
-class AOptimizerJacobian(Named, ABC):
+class AOptimizerJacobian(ANamed, ABC):
     """Abstract class which represents gradient method optimizer"""
 
     @abstractmethod

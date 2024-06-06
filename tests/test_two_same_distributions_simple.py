@@ -10,25 +10,13 @@ from em_algo.models import (
     ExponentialModel,
     AModelWithGenerator,
 )
-from em_algo.em import EM
+
 from em_algo.distribution import Distribution
 from em_algo.distribution_mixture import DistributionMixture
 from em_algo.problem import Problem
 from em_algo.utils import Factory
 
-from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
-from em_algo.em.distribution_checkers import (
-    FiniteChecker,
-    PriorProbabilityThresholdChecker,
-)
-from em_algo.optimizers import (
-    ScipyCG,
-    ScipyNewtonCG,
-    ScipyNelderMead,
-    ScipySLSQP,
-    ScipyTNC,
-    ScipyCOBYLA,
-)
+from tests.utils import run_test
 
 
 @pytest.mark.parametrize(
@@ -94,6 +82,8 @@ def test_two_same_distributions_simple(
 ):
     """Runs mixture of two distributions parameter estimation unit test"""
 
+    # pylint: disable=too-many-arguments
+
     np.random.seed(42)
 
     models = [model_factory.construct() for _ in range(len(params))]
@@ -115,31 +105,14 @@ def test_two_same_distributions_simple(
         model.params_convert_to_model(param) for model, param in zip(models, params)
     ]
 
-    for optimizer in [
-        ScipyCG(),
-        ScipyNewtonCG(),
-        ScipyNelderMead(),
-        ScipySLSQP(),
-        ScipyTNC(),
-        ScipyCOBYLA(),
-    ]:
-        em_algo = EM(
-            StepCountBreakpointer() + ParamDifferBreakpointer(deviation=deviation),
-            FiniteChecker() + PriorProbabilityThresholdChecker(),
-            optimizer,
-        )
+    problem = Problem(
+        samples=x,
+        distributions=DistributionMixture.from_distributions(
+            [Distribution(model, param) for model, param in zip(models, c_start_params)]
+        ),
+    )
 
-        result = em_algo.solve(
-            problem=Problem(
-                samples=x,
-                distributions=DistributionMixture.from_distributions(
-                    [
-                        Distribution(model, param)
-                        for model, param in zip(models, c_start_params)
-                    ]
-                ),
-            )
-        )
+    for result in run_test(problem=problem, deviation=deviation):
 
         assert result.error is None
 
