@@ -4,17 +4,17 @@ from itertools import permutations
 import pytest
 import numpy as np
 
-from em_algo.models import (
+from mpest.models import (
     WeibullModelExp,
     GaussianModel,
     ExponentialModel,
     AModelWithGenerator,
 )
 
-from em_algo.distribution import Distribution
-from em_algo.mixture_distribution import MixtureDistribution
-from em_algo.problem import Problem
-from em_algo.utils import Factory
+from mpest.distribution import Distribution
+from mpest.mixture_distribution import MixtureDistribution
+from mpest.problem import Problem
+from mpest.utils import Factory
 
 from tests.utils import run_test
 

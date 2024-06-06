@@ -7,8 +7,8 @@ import numpy as np
 from examples.mono_test_generator import Clicker
 from examples.utils import Test, run_tests, save_results, init_solver
 from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
-from em_algo.models import GaussianModel, WeibullModelExp
-from em_algo import MixtureDistribution, Distribution, Problem
+from mpest.models import GaussianModel, WeibullModelExp
+from mpest import MixtureDistribution, Distribution, Problem
 
 # Gaussian
 

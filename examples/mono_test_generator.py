@@ -6,11 +6,11 @@ import numpy as np
 
 from examples.utils import Clicker, Test
 
-from em_algo.problem import Problem
-from em_algo.models import AModel, AModelWithGenerator
-from em_algo.em import EM
-from em_algo.distribution import Distribution
-from em_algo.mixture_distribution import MixtureDistribution
+from mpest.problem import Problem
+from mpest.models import AModel, AModelWithGenerator
+from mpest.em import EM
+from mpest.distribution import Distribution
+from mpest.mixture_distribution import MixtureDistribution
 
 
 def generate_mono_test(

@@ -2,7 +2,7 @@
 
 import os
 from scripts.shared import EXAMPLES
-from em_algo.optimizers import (
+from mpest.optimizers import (
     ScipyCG,
     ScipyNewtonCG,
     ScipySLSQP,

@@ -3,15 +3,15 @@
 import pytest
 import numpy as np
 
-from em_algo.models import (
+from mpest.models import (
     WeibullModelExp,
     GaussianModel,
     ExponentialModel,
     AModelWithGenerator,
 )
-from em_algo.distribution import Distribution
-from em_algo.mixture_distribution import MixtureDistribution
-from em_algo.problem import Problem
+from mpest.distribution import Distribution
+from mpest.mixture_distribution import MixtureDistribution
+from mpest.problem import Problem
 from tests.utils import run_test
 
 

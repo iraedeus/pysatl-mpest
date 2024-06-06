@@ -9,16 +9,16 @@ import pickle
 import numpy as np
 from tqdm.contrib.concurrent import process_map
 
-from em_algo.types import Samples
-from em_algo.mixture_distribution import MixtureDistribution
-from em_algo.problem import Problem, Result
-from em_algo.em import EM
-from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
-from em_algo.em.distribution_checkers import (
+from mpest.types import Samples
+from mpest.mixture_distribution import MixtureDistribution
+from mpest.problem import Problem, Result
+from mpest.em import EM
+from mpest.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
+from mpest.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
-from em_algo.optimizers import TOptimizer
+from mpest.optimizers import TOptimizer
 
 from examples.config import RESULTS_FOLDER
 

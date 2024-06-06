@@ -7,13 +7,13 @@ from examples.utils import Test, run_tests, save_results, Clicker, init_solver
 from examples.mono_test_generator import generate_mono_test
 from examples.config import MAX_WORKERS
 
-from em_algo.models import (
+from mpest.models import (
     WeibullModelExp,
     GaussianModel,
     ExponentialModel,
     AModelWithGenerator,
 )
-from em_algo.optimizers import ALL_OPTIMIZERS
+from mpest.optimizers import ALL_OPTIMIZERS
 
 
 def run_test():

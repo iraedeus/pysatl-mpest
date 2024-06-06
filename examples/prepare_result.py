@@ -8,8 +8,8 @@ import numpy as np
 
 from tqdm.contrib.concurrent import process_map
 
-from em_algo.types import Samples
-from em_algo.mixture_distribution import MixtureDistribution, DistributionInMixture
+from mpest.types import Samples
+from mpest.mixture_distribution import MixtureDistribution, DistributionInMixture
 
 from examples.utils import SingleSolverResult, TestResult
 from examples.mono_test_generator import Clicker

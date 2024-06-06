@@ -1,13 +1,13 @@
 """TODO"""
 
-from em_algo.problem import Problem, Result
-from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
-from em_algo.em.distribution_checkers import (
+from mpest.problem import Problem, Result
+from mpest.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
+from mpest.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
-from em_algo.optimizers import ALL_OPTIMIZERS
-from em_algo.em import EM
+from mpest.optimizers import ALL_OPTIMIZERS
+from mpest.em import EM
 
 
 def run_test(problem: Problem, deviation: float) -> list[Result]:

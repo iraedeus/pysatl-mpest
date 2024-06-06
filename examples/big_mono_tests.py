@@ -7,7 +7,7 @@ from examples.utils import Test, Clicker, run_tests, save_results, init_solver
 from examples.mono_test_generator import generate_mono_test
 from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
 
-from em_algo.models import (
+from mpest.models import (
     WeibullModelExp,
     GaussianModel,
     ExponentialModel,
