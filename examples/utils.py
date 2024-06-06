@@ -13,6 +13,12 @@ from em_algo.types import Samples
 from em_algo.distribution_mixture import DistributionMixture
 from em_algo.problem import Problem, Result
 from em_algo.em import EM
+from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
+from em_algo.em.distribution_checkers import (
+    FiniteChecker,
+    PriorProbabilityThresholdChecker,
+)
+from em_algo.optimizers import TOptimizer
 
 from examples.config import RESULTS_FOLDER
 
@@ -144,3 +150,25 @@ def open_results(name: str) -> list[TestResult]:
 
     with open(RESULTS_FOLDER / f"{name}.pkl", "rb") as f:
         return pickle.load(f)
+
+
+def init_solver(
+    max_step: int | None,
+    max_deviation: float | None,
+    prior_probability_threshold: float | None,
+    prior_probability_threshold_step: int | None,
+    optimizer: TOptimizer,
+):
+    """TODO"""
+
+    breakpointer = StepCountBreakpointer(max_step)
+    if max_deviation is not None:
+        breakpointer += ParamDifferBreakpointer(max_deviation)
+    return EM(
+        breakpointer,
+        FiniteChecker()
+        + PriorProbabilityThresholdChecker(
+            prior_probability_threshold, prior_probability_threshold_step
+        ),
+        optimizer,
+    )

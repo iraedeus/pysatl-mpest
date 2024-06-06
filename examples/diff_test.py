@@ -5,16 +5,10 @@ import random
 import numpy as np
 
 from examples.mono_test_generator import Clicker
-from examples.utils import Test, run_tests, save_results
+from examples.utils import Test, run_tests, save_results, init_solver
 from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
 from em_algo.models import GaussianModel, WeibullModelExp
 from em_algo import DistributionMixture, Distribution, Problem
-from em_algo.em import EM
-from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
-from em_algo.em.distribution_checkers import (
-    FiniteChecker,
-    PriorProbabilityThresholdChecker,
-)
 
 # Gaussian
 
@@ -88,13 +82,7 @@ for sp in gaussian_start_params:
                                 ),
                             ),
                             [
-                                EM(
-                                    StepCountBreakpointer(16)
-                                    + ParamDifferBreakpointer(0.01),
-                                    FiniteChecker()
-                                    + PriorProbabilityThresholdChecker(0.001, 3),
-                                    optimizer,
-                                )
+                                init_solver(16, 0.1, 0.001, 3, optimizer)
                                 for optimizer in TESTS_OPTIMIZERS
                             ],
                             1,
@@ -158,13 +146,7 @@ for sp in weibull_start_params:
                                 ),
                             ),
                             [
-                                EM(
-                                    StepCountBreakpointer(16)
-                                    + ParamDifferBreakpointer(0.01),
-                                    FiniteChecker()
-                                    + PriorProbabilityThresholdChecker(0.001, 3),
-                                    optimizer,
-                                )
+                                init_solver(16, 0.1, 0.001, 3, optimizer)
                                 for optimizer in TESTS_OPTIMIZERS
                             ],
                             1,

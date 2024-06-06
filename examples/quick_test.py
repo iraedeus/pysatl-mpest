@@ -3,21 +3,15 @@
 import random
 import numpy as np
 
-from examples.utils import Test, run_tests, save_results, Clicker
+from examples.utils import Test, run_tests, save_results, Clicker, init_solver
 from examples.mono_test_generator import generate_mono_test
-from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
+from examples.config import MAX_WORKERS
 
 from em_algo.models import (
     WeibullModelExp,
     GaussianModel,
     ExponentialModel,
     AModelWithGenerator,
-)
-from em_algo.em import EM
-from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
-from em_algo.em.distribution_checkers import (
-    FiniteChecker,
-    PriorProbabilityThresholdChecker,
 )
 from em_algo.optimizers import ALL_OPTIMIZERS
 
@@ -47,11 +41,7 @@ def run_test():
             tests_per_cond=1,
             runs_per_test=1,
             solvers=[
-                EM(
-                    StepCountBreakpointer(16) + ParamDifferBreakpointer(0.01),
-                    FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
-                    optimizer,
-                )
+                init_solver(16, 0.1, 0.001, 3, optimizer)
                 for optimizer in ALL_OPTIMIZERS
             ],
         )

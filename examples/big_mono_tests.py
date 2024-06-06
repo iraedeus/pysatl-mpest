@@ -3,7 +3,7 @@
 import random
 import numpy as np
 
-from examples.utils import Test, Clicker, run_tests, save_results
+from examples.utils import Test, Clicker, run_tests, save_results, init_solver
 from examples.mono_test_generator import generate_mono_test
 from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
 
@@ -12,13 +12,6 @@ from em_algo.models import (
     GaussianModel,
     ExponentialModel,
     AModelWithGenerator,
-)
-
-from em_algo.em import EM
-from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
-from em_algo.em.distribution_checkers import (
-    FiniteChecker,
-    PriorProbabilityThresholdChecker,
 )
 
 if __name__ == "__main__":
@@ -44,11 +37,7 @@ if __name__ == "__main__":
             tests_per_cond=2,
             runs_per_test=1,
             solvers=[
-                EM(
-                    StepCountBreakpointer(16) + ParamDifferBreakpointer(0.01),
-                    FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
-                    optimizer,
-                )
+                init_solver(16, 0.1, 0.001, 3, optimizer)
                 for optimizer in TESTS_OPTIMIZERS
             ],
         )
