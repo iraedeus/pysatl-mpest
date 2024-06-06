@@ -113,7 +113,6 @@ def test_two_same_distributions_simple(
     )
 
     for result in run_test(problem=problem, deviation=deviation):
-
         assert result.error is None
 
         def absolute_diff_params(

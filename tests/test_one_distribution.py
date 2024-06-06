@@ -56,7 +56,6 @@ def test_one_distribution(
     )
 
     for result in run_test(problem=problem, deviation=deviation):
-
         assert result.error is None
 
         result_params = result.content.distributions[0].params
