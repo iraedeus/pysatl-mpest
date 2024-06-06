@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains library and python paths configurations"""
 
 import os
 import pathlib
@@ -9,7 +9,7 @@ EXAMPLES = ROOT / "examples"
 
 
 def configure_python_path():
-    """TODO"""
+    """Configure python paths"""
 
     python_path = os.getenv("PYTHONPATH")
 

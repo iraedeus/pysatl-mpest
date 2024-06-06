@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains classes to reproduce unionable distribution checkers"""
 
 from abc import ABC
 
@@ -6,12 +6,12 @@ from em_algo.distribution_mixture import DistributionInMixture
 from em_algo.em import EM
 
 
-class UnionDistributionChecker(EM.DistributionChecker):
-    """TODO"""
+class UnionDistributionChecker(EM.ADistributionChecker):
+    """Class which represents union of distribution checkers"""
 
-    def __init__(self, breakpointers: list[EM.DistributionChecker] | None) -> None:
+    def __init__(self, breakpointers: list[EM.ADistributionChecker] | None) -> None:
         super().__init__()
-        self._distribution_checkers: list[EM.DistributionChecker] = (
+        self._distribution_checkers: list[EM.ADistributionChecker] = (
             [] if breakpointers is None else breakpointers
         )
 
@@ -24,7 +24,7 @@ class UnionDistributionChecker(EM.DistributionChecker):
 
     def __add__(
         self,
-        additional: "UnionDistributionChecker | EM.DistributionChecker",
+        additional: "UnionDistributionChecker | EM.ADistributionChecker",
     ):
         if isinstance(additional, UnionDistributionChecker):
             return UnionDistributionChecker(
@@ -34,16 +34,16 @@ class UnionDistributionChecker(EM.DistributionChecker):
 
     def __radd__(
         self,
-        additional: "UnionDistributionChecker | EM.DistributionChecker",
+        additional: "UnionDistributionChecker | EM.ADistributionChecker",
     ):
         return self + additional
 
     @staticmethod
     def union(
-        first: "UnionDistributionChecker | EM.DistributionChecker",
-        second: "UnionDistributionChecker | EM.DistributionChecker",
+        first: "UnionDistributionChecker | EM.ADistributionChecker",
+        second: "UnionDistributionChecker | EM.ADistributionChecker",
     ):
-        """TODO"""
+        """Unions two distribution checkers"""
         if isinstance(first, UnionDistributionChecker):
             return first + second
         if isinstance(second, UnionDistributionChecker):
@@ -61,17 +61,15 @@ class UnionDistributionChecker(EM.DistributionChecker):
         return True
 
 
-class UnionableDistributionChecker(EM.DistributionChecker, ABC):
-    """TODO"""
+class AUnionableDistributionChecker(EM.ADistributionChecker, ABC):
+    """Abstract class which can be used to make any distribution checker unionable"""
 
-    def union(self, additional: EM.DistributionChecker):
-        """TODO"""
+    def union(self, additional: EM.ADistributionChecker):
+        """Method which allows that class to union with another distribution checker"""
         return UnionDistributionChecker.union(self, additional)
 
-    def __add__(self, additional: EM.DistributionChecker):
-        """TODO"""
+    def __add__(self, additional: EM.ADistributionChecker):
         return self.union(additional)
 
-    def __radd__(self, additional: EM.DistributionChecker):
-        """TODO"""
+    def __radd__(self, additional: EM.ADistributionChecker):
         return self.union(additional)

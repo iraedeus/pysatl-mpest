@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which describes configuration of experiments"""
 
 import os
 from scripts.shared import EXAMPLES

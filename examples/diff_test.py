@@ -1,3 +1,5 @@
+"""Module which contains experiment of moving one distribution against other"""
+
 import random
 
 import numpy as np
@@ -21,8 +23,8 @@ gaussian_start_params = [(0.0, 3.0), (-10.0, 3.0), (10.0, 3.0)]
 weibull_start_params = [(0.5, 1.0), (1.0, 1.0), (1.5, 1.0), (5.0, 1.0)]
 sizes = [50, 100, 200, 500, 1000]
 BASE_SIZE = 2048
-tests_per_cond = 8
-tests_per_size = 8
+TESTS_PER_COND = 8
+TESTS_PER_SIZE = 8
 
 clicker = Clicker()
 gaussian = GaussianModel()
@@ -44,9 +46,9 @@ for sp in gaussian_start_params:
         ]
 
         for size in sizes:
-            for _ in range(tests_per_cond):
+            for _ in range(TESTS_PER_COND):
                 samples = random.sample(x, size)
-                for _ in range(tests_per_size):
+                for _ in range(TESTS_PER_SIZE):
                     start_params = [
                         np.array(
                             [
@@ -119,9 +121,9 @@ for sp in weibull_start_params:
         ]
 
         for size in sizes:
-            for _ in range(tests_per_cond):
+            for _ in range(TESTS_PER_COND):
                 samples = random.sample(x, size)
-                for _ in range(tests_per_size):
+                for _ in range(TESTS_PER_SIZE):
                     start_params = [
                         np.array(
                             [

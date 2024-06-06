@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which provides source for quick test of distribution mixtures of single model"""
 
 import random
 import numpy as np
@@ -7,7 +7,12 @@ from examples.utils import Test, run_tests, save_results, Clicker
 from examples.mono_test_generator import generate_mono_test
 from examples.config import MAX_WORKERS
 
-from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, AModel
+from em_algo.models import (
+    WeibullModelExp,
+    GaussianModel,
+    ExponentialModel,
+    AModelWithGenerator,
+)
 from em_algo.em import EM
 from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
 from em_algo.em.distribution_checkers import (
@@ -25,7 +30,7 @@ from em_algo.optimizers import (
 
 
 def run_test():
-    """TODO"""
+    """Runs the distribution mixtures of single model quick test"""
 
     random.seed(42)
     np.random.seed(42)
@@ -35,7 +40,7 @@ def run_test():
     counter = Clicker()
 
     def _generate_test(
-        model: type[AModel], params_borders: list[tuple[float, float]]
+        model: type[AModelWithGenerator], params_borders: list[tuple[float, float]]
     ) -> list[Test]:
         test = generate_mono_test(
             model_t=model,

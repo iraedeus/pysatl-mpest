@@ -1,13 +1,13 @@
-"""TODO"""
+"""Module which contains Gaussian model class"""
 
 import numpy as np
 from scipy.stats import norm
 
 from em_algo.types import Samples, Params
-from em_algo.models import AModelDifferentiable
+from em_algo.models import AModelDifferentiable, AModelWithGenerator
 
 
-class GaussianModel(AModelDifferentiable):
+class GaussianModel(AModelDifferentiable, AModelWithGenerator):
     """
     f(x) = e^(-1/2 * ((x - m) / sd)^2) / (sd * sqrt(2pi))
 
@@ -41,13 +41,13 @@ class GaussianModel(AModelDifferentiable):
         return np.log(p)
 
     def ldm(self, x: float, params: Params) -> float:
-        """TODO"""
+        """Method which returns logarithm of derivative with respect to mean"""
 
         m, sd = params
         return (x - m) / (np.exp(2 * sd))
 
     def ldsd(self, x: float, params: Params) -> float:
-        """TODO"""
+        """Method which returns logarithm of derivative with respect to variance"""
 
         m, sd = params
         return ((x - m) ** 2) / np.exp(2 * sd) - 1

@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which represents types simplifications"""
 
 import numpy as np
 

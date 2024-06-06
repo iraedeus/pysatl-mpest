@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains Sequential Least Squares Programming (SLSQP) optimizer"""
 
 from typing import Callable
 from scipy.optimize import minimize
@@ -8,7 +8,7 @@ from em_algo.optimizers import AOptimizer
 
 
 class ScipySLSQP(AOptimizer):
-    """TODO"""
+    """Class which represents SciPy Sequential Least Squares Programming (SLSQP) optimizer"""
 
     @property
     def name(self):

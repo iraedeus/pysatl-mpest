@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains Nelder Mead optimizer"""
 
 from typing import Callable
 from scipy.optimize import minimize
@@ -8,7 +8,7 @@ from em_algo.optimizers import AOptimizer
 
 
 class ScipyNelderMead(AOptimizer):
-    """TODO"""
+    """Class which represents SciPy Nelder Mead optimizer"""
 
     @property
     def name(self):

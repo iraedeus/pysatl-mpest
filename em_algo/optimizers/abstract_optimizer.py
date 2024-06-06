@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains abstract optimizer classes"""
 
 from abc import ABC, abstractmethod
 from typing import Callable
@@ -9,7 +9,7 @@ from em_algo.utils import Named
 
 
 class AOptimizer(Named, ABC):
-    """TODO"""
+    """Abstract class which represents simple optimizer"""
 
     @abstractmethod
     def minimize(
@@ -17,11 +17,11 @@ class AOptimizer(Named, ABC):
         func: Callable[[Params], float],
         params: Params,
     ) -> Params:
-        """TODO"""
+        """Optimization minimization method"""
 
 
 class AOptimizerJacobian(Named, ABC):
-    """TODO"""
+    """Abstract class which represents gradient method optimizer"""
 
     @abstractmethod
     def minimize(
@@ -30,7 +30,7 @@ class AOptimizerJacobian(Named, ABC):
         params: Params,
         jacobian: Callable[[Params], np.ndarray],
     ) -> Params:
-        """TODO"""
+        """Optimization minimization method, which also needs jacobian for work"""
 
 
 TOptimizer = AOptimizer | AOptimizerJacobian

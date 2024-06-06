@@ -1,10 +1,15 @@
-"""TODO"""
+"""Unit test module which tests mixture of two distributions parameter estimation"""
 
+from itertools import permutations
 import pytest
 import numpy as np
-from itertools import permutations
 
-from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, AModel
+from em_algo.models import (
+    WeibullModelExp,
+    GaussianModel,
+    ExponentialModel,
+    AModelWithGenerator,
+)
 from em_algo.em import EM
 from em_algo.distribution import Distribution
 from em_algo.distribution_mixture import DistributionMixture
@@ -23,7 +28,6 @@ from em_algo.optimizers import (
     ScipySLSQP,
     ScipyTNC,
     ScipyCOBYLA,
-    SPSA,
 )
 
 
@@ -81,14 +85,14 @@ from em_algo.optimizers import (
     ],
 )
 def test_two_same_distributions_simple(
-    model_factory: Factory[AModel],
+    model_factory: Factory[AModelWithGenerator],
     params,
     start_params,
     size: int,
     deviation: float,
     expected_error: float,
 ):
-    """TODO"""
+    """Runs mixture of two distributions parameter estimation unit test"""
 
     np.random.seed(42)
 
@@ -118,10 +122,9 @@ def test_two_same_distributions_simple(
         ScipySLSQP(),
         ScipyTNC(),
         ScipyCOBYLA(),
-        # SPSA(),
     ]:
         em_algo = EM(
-            StepCountBreakpointer() + ParamDifferBreakpointer(),
+            StepCountBreakpointer() + ParamDifferBreakpointer(deviation=deviation),
             FiniteChecker() + PriorProbabilityThresholdChecker(),
             optimizer,
         )
@@ -144,7 +147,7 @@ def test_two_same_distributions_simple(
             a: DistributionMixture,
             b: DistributionMixture,
         ):
-            """TODO"""
+            """Metric which checks absolute differ of gotten distribution mixtures"""
 
             a_p, b_p = ([d.params for d in ld] for ld in (a, b))
 
@@ -155,7 +158,7 @@ def test_two_same_distributions_simple(
 
         assert (
             absolute_diff_params(
-                result.result,
+                result.content,
                 DistributionMixture.from_distributions(
                     [
                         Distribution(model, param)

@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which provides many useful utils for improving code writing experience"""
 
 from typing import NamedTuple, Callable
 from functools import partial
@@ -20,7 +20,7 @@ np.seterr(all="ignore")
 
 
 class Test(NamedTuple):
-    """TODO"""
+    """NamedTuple which represents all needed test data"""
 
     index: int
     all_data: Samples
@@ -33,7 +33,7 @@ class Test(NamedTuple):
 
 
 class SingleSolverResult(NamedTuple):
-    """TODO"""
+    """NamedTuple which represents all needed single EM solver data"""
 
     test: Test
 
@@ -46,20 +46,20 @@ class SingleSolverResult(NamedTuple):
 
 
 class TestResult(NamedTuple):
-    """TODO"""
+    """NamedTuple which represents test result"""
 
     test: Test
     results: list[SingleSolverResult]
 
 
 class Clicker:
-    """TODO"""
+    """Class which allows you to \"click\" """
 
     def __init__(self) -> None:
         self._counter = -1
 
     def click(self):
-        """TODO"""
+        """Click method"""
         self._counter += 1
         return self._counter
 
@@ -69,7 +69,7 @@ def run_test(
     create_history=False,
     remember_time=False,
 ) -> TestResult:
-    """TODO"""
+    """Runs given test and optional creates logs"""
 
     times = []
     results = []
@@ -107,7 +107,7 @@ def run_tests(
     create_history=False,
     remember_time=False,
 ) -> list[TestResult]:
-    """TODO"""
+    """Runs given tests multithreaded and optional creates logs"""
 
     if not shuffled:
         _tests = tests
@@ -130,14 +130,13 @@ def run_tests(
 
 
 def save_results(results: list[TestResult], name: str) -> None:
-    """TODO"""
-
+    """Saves test results into standard folder using pickle"""
     with open(RESULTS_FOLDER / f"{name}.pkl", "wb") as f:
         pickle.dump(results, f, pickle.HIGHEST_PROTOCOL)
 
 
 def open_results(name: str) -> list[TestResult]:
-    """TODO"""
+    """Loads test results from standard folder using pickle"""
 
     with open(RESULTS_FOLDER / f"{name}.pkl", "rb") as f:
         return pickle.load(f)

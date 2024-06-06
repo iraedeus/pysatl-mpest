@@ -1,13 +1,13 @@
-"""TODO"""
+"""Module which contains Exponential model class"""
 
 import numpy as np
 from scipy.stats import expon
 
 from em_algo.types import Samples, Params
-from em_algo.models import AModelDifferentiable
+from em_algo.models import AModelDifferentiable, AModelWithGenerator
 
 
-class ExponentialModel(AModelDifferentiable):
+class ExponentialModel(AModelDifferentiable, AModelWithGenerator):
     """
     f(x) = l * e^(-lx)
 
@@ -42,7 +42,7 @@ class ExponentialModel(AModelDifferentiable):
         return l - np.exp(l) * x
 
     def ldl(self, x: float, params: Params) -> float:
-        """TODO"""
+        """Method which returns logarithm of derivative with respect to parameter l"""
 
         if x < 0:
             return -np.inf

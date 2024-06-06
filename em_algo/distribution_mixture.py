@@ -1,17 +1,29 @@
-"""TODO"""
+"""
+Module which represents distribution mixture.
 
-from typing import Sized, Iterable, Iterator, TypeVar
+Distribution mixture can be defined as
+p(x | list[pdf], list[params], list[prior_probability]) = sum(prior_probability * pdf(x | params))
+"""
+
+from typing import Sized, Iterable, Iterator
 
 from em_algo.distribution import Distribution
 from em_algo.models import AModel
 from em_algo.types import Params
-from em_algo.utils import IteratorWrapper, in_bounds
-
-T = TypeVar("T", bound=Distribution)
+from em_algo.utils import IteratorWrapper
 
 
 class DistributionInMixture(Distribution):
-    """TODO"""
+    """
+    Class which represents distribution is mixture.
+
+    Distribution in mixture has an additional parameter which is prior probability
+    pdf'(x) = prior_probability * pdf(x)
+
+    Prior probability can be None value, which means that
+    this distribution is not in mixture. When prior probability is None value
+    it's the same as prior probability is equal zero.
+    """
 
     def __init__(
         self,
@@ -24,18 +36,24 @@ class DistributionInMixture(Distribution):
 
     @property
     def prior_probability(self):
-        """TODO"""
+        """Prior probability getter."""
         return self._prior_probability
 
     def pdf(self, x: float):
-        """TODO"""
+        """Probability density function for distribution in mixture."""
         if self.prior_probability is None:
             return 0.0
         return self.prior_probability * super().pdf(x)
 
 
 class DistributionMixture(Sized, Iterable[DistributionInMixture]):
-    """TODO"""
+    """
+    Class which represents distributions mixture.
+
+    Distributions mixture contains independent distributions
+    and their prior probabilities.
+    Also can be used as container of distributions in mixture.
+    """
 
     def __init__(
         self,
@@ -50,7 +68,9 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         distributions: list[Distribution],
         prior_probabilities: list[float | None] | None = None,
     ) -> "DistributionMixture":
-        """TODO"""
+        """
+        Creates DistributionsMixture object from distributions and their prior probabilities.
+        """
 
         if prior_probabilities is None:
             k = len(distributions)
@@ -68,7 +88,10 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         )
 
     def _normalize(self):
-        """TODO"""
+        """
+        Normalizing method, which is used to maintain the invariant:
+        sum of prior probabilities is equal to zero.
+        """
 
         s = [d.prior_probability for d in self._distributions if d.prior_probability]
         if len(s) == 0:
@@ -87,7 +110,7 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
 
     @property
     def distributions(self) -> list[DistributionInMixture]:
-        """TODO"""
+        """Distributions in mixture getter."""
         return self._distributions
 
     def __iter__(self) -> Iterator[DistributionInMixture]:
@@ -105,5 +128,5 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         return len(self.distributions)
 
     def pdf(self, x: float) -> float:
-        """TODO"""
+        """Probability density function for distributions mixture."""
         return sum(d.pdf(x) for d in self.distributions)

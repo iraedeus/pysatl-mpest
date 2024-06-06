@@ -1,13 +1,13 @@
-"""TODO"""
+"""Module which contains Weibull model class"""
 
 import numpy as np
 from scipy.stats import weibull_min
 
 from em_algo.types import Samples, Params
-from em_algo.models import AModelDifferentiable
+from em_algo.models import AModelDifferentiable, AModelWithGenerator
 
 
-class WeibullModelExp(AModelDifferentiable):
+class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):
     """
     f(x) = (k / l) * (x / l)^(k - 1) / e^((x / l)^k)
 
@@ -47,7 +47,7 @@ class WeibullModelExp(AModelDifferentiable):
         return k - ((x / el) ** ek) - ek * l - lx + ek * lx
 
     def ldk(self, x: float, params: Params) -> float:
-        """TODO"""
+        """Method which returns logarithm of derivative with respect to k"""
 
         if x < 0:
             return -np.inf
@@ -56,7 +56,7 @@ class WeibullModelExp(AModelDifferentiable):
         return 1.0 - ek * ((xl**ek) - 1.0) * np.log(xl)
 
     def ldl(self, x: float, params: Params) -> float:
-        """TODO"""
+        """Method which returns logarithm of derivative with respect to l"""
 
         if x < 0:
             return -np.inf

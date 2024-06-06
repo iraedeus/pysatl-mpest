@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains truncated Newton (TNC) optimizer"""
 
 from typing import Callable
 from scipy.optimize import minimize
@@ -8,7 +8,7 @@ from em_algo.optimizers import AOptimizer
 
 
 class ScipyTNC(AOptimizer):
-    """TODO"""
+    """Class which represents SciPy truncated Newton (TNC) optimizer"""
 
     @property
     def name(self):

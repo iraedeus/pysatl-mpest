@@ -1,20 +1,20 @@
-"""TODO"""
+"""Module which contains EM breakpointer by sum of difference between params"""
 
 import numpy as np
 
 from em_algo.distribution_mixture import DistributionMixture
-from em_algo.em.breakpointers import UnionableBreakpointer
+from em_algo.em.breakpointers import AUnionableBreakpointer
 
 
-class ParamDifferBreakpointer(UnionableBreakpointer):
-    """TODO"""
+class ParamDifferBreakpointer(AUnionableBreakpointer):
+    """Class which represents EM breakpointer by sum of difference between params"""
 
     def __init__(self, deviation: float = 0.01) -> None:
         self._deviation = deviation
 
     @property
     def deviation(self):
-        """TODO"""
+        """Max deviation getter"""
         return self._deviation
 
     @property

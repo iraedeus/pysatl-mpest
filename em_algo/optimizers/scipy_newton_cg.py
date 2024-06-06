@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains Newton-CG optimizer"""
 
 from typing import Callable
 import numpy as np
@@ -9,7 +9,7 @@ from em_algo.optimizers import AOptimizerJacobian
 
 
 class ScipyNewtonCG(AOptimizerJacobian):
-    """TODO"""
+    """Class which represents SciPy Newton-CG optimizer"""
 
     @property
     def name(self):

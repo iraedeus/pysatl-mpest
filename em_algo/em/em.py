@@ -1,4 +1,8 @@
-"""TODO"""
+"""
+Module which represents EM algorithm and few of it's params:
+- EM.Breakpointer
+- EM.DistributionChecker
+"""
 
 from functools import partial
 from abc import ABC, abstractmethod
@@ -9,18 +13,24 @@ import numpy as np
 from em_algo.types import Samples
 from em_algo.distribution import Distribution
 from em_algo.distribution_mixture import DistributionMixture, DistributionInMixture
-from em_algo.utils import logged, ResultWrapper, TimerResultWrapper, ResultWithError
-from em_algo.problem import Problem, Result, Solver
+from em_algo.utils import (
+    logged,
+    ObjectWrapper,
+    TimerResultWrapper,
+    ResultWithError,
+    ResultWithLog,
+)
+from em_algo.problem import Problem, Result, ASolver
 from em_algo.optimizers import TOptimizer, AOptimizerJacobian
 from em_algo.models import AModel, AModelDifferentiable
 from em_algo.utils import Named
 
 
-class EM(Solver):
-    """TODO"""
+class EM(ASolver):
+    """Class which represents EM algorithm"""
 
-    class Breakpointer(Named, ABC):
-        """TODO"""
+    class ABreakpointer(Named, ABC):
+        """Abstract class which represents EM breakpointer function handler"""
 
         @abstractmethod
         def is_over(
@@ -29,10 +39,13 @@ class EM(Solver):
             previous_step: DistributionMixture | None,
             current_step: DistributionMixture,
         ) -> bool:
-            """TODO"""
+            """Breakpointer function"""
 
-    class DistributionChecker(Named, ABC):
-        """TODO"""
+    class ADistributionChecker(Named, ABC):
+        """
+        Abstract class which represents distribution checker function handler.
+        Used for dynamically removing of degenerate distribution in mixture.
+        """
 
         @abstractmethod
         def is_alive(
@@ -40,10 +53,16 @@ class EM(Solver):
             step: int,
             distribution: DistributionInMixture,
         ) -> bool:
-            """TODO"""
+            """
+            Distribution checker function,
+            which returns True if distribution is correct and not degenerated
+            """
 
     class _DistributionMixtureAlive(DistributionMixture):
-        """TODO"""
+        """
+        Class which represents distribution mixture which in EM algorithm solving process.
+        Remembers the distributions order and control over the degenerated ones.
+        """
 
         def __init__(
             self,
@@ -81,22 +100,27 @@ class EM(Solver):
 
         @property
         def distributions(self) -> list[DistributionInMixture]:
+            """Active (non degenerated) distributions getter"""
             return self._active
 
         @property
         def all_distributions(self) -> DistributionMixture:
-            """TODO"""
+            """All distributions getter"""
             return DistributionMixture(self._distributions)
 
         def update(
             self,
             distribution_mixture: DistributionMixture,
-            distribution_alive: Callable[[DistributionInMixture], bool] | None = None,
+            distribution_checker: Callable[[DistributionInMixture], bool] | None = None,
         ):
-            """TODO"""
+            """
+            Updating active distributions by given one.
+            Applies distribution checker function to active distributions.
+            Removes degenerated ones from active and sets their prior probabilities to None.
+            """
 
-            if distribution_alive is not None:
-                self._checker = distribution_alive
+            if distribution_checker is not None:
+                self._checker = distribution_checker
 
             if len(distribution_mixture) != len(self._active):
                 raise ValueError(
@@ -121,13 +145,66 @@ class EM(Solver):
 
     def __init__(
         self,
-        breakpointer: "EM.Breakpointer",
-        distribution_checker: "EM.DistributionChecker",
+        breakpointer: "EM.ABreakpointer",
+        distribution_checker: "EM.ADistributionChecker",
         optimizer: TOptimizer,
     ):
         self.breakpointer = breakpointer
         self.distribution_checker = distribution_checker
         self.optimizer = optimizer
+
+    class Log:
+        """Class which represents EM algorithm log object"""
+
+        class Item:
+            """Class which represents EM algorithm log object for intermediate step"""
+
+            def __init__(
+                self,
+                result: ResultWithError[DistributionMixture] | None,
+                time: float | None,
+            ) -> None:
+                self._result = result
+                self._time = time
+
+            @property
+            def result(self):
+                """Logged step result getter"""
+                return self._result
+
+            @property
+            def time(self):
+                """Logged runtime getter"""
+                return self._time
+
+        def __init__(
+            self,
+            log: list[
+                TimerResultWrapper[ResultWithError[DistributionMixture]]
+                | ObjectWrapper[ResultWithError[DistributionMixture]]
+                | float
+            ],
+            steps: int,
+        ) -> None:
+            self._log: list[EM.Log.Item] = []
+            for note in log:
+                if isinstance(note, float | int):
+                    self._log.append(EM.Log.Item(None, note))
+                elif isinstance(note, TimerResultWrapper):
+                    self._log.append(EM.Log.Item(note.content, note.runtime))
+                else:
+                    self._log.append(EM.Log.Item(note.content, None))
+            self._steps = steps
+
+        @property
+        def log(self):
+            """Log getter"""
+            return self._log
+
+        @property
+        def steps(self):
+            """Count of steps getter"""
+            return self._steps
 
     @staticmethod
     def step(
@@ -135,7 +212,7 @@ class EM(Solver):
         distribution_mixture: DistributionMixture,
         optimizer: TOptimizer,
     ) -> ResultWithError[DistributionMixture]:
-        """TODO"""
+        """EM algo step"""
 
         # E part
 
@@ -218,93 +295,22 @@ class EM(Solver):
             )
         )
 
-    class Log:
-        """TODO"""
-
-        class Item:
-            """TODO"""
-
-            def __init__(
-                self,
-                result: ResultWithError[DistributionMixture] | None,
-                time: float | None,
-            ) -> None:
-                self._result = result
-                self._time = time
-
-            @property
-            def result(self):
-                """TODO"""
-                return self._result
-
-            @property
-            def time(self):
-                """TODO"""
-                return self._time
-
-        def __init__(
-            self,
-            log: list[
-                TimerResultWrapper[ResultWithError[DistributionMixture]]
-                | ResultWrapper[ResultWithError[DistributionMixture]]
-                | float
-            ],
-            steps: int,
-        ) -> None:
-            self._log: list[EM.Log.Item] = []
-            for note in log:
-                if isinstance(note, float | int):
-                    self._log.append(EM.Log.Item(None, note))
-                elif isinstance(note, TimerResultWrapper):
-                    self._log.append(EM.Log.Item(note.result, note.runtime))
-                else:
-                    self._log.append(EM.Log.Item(note.result, None))
-            self._steps = steps
-
-        @property
-        def log(self):
-            """TODO"""
-            return self._log
-
-        @property
-        def steps(self):
-            """TODO"""
-            return self._steps
-
-    class ResultWithLog:
-        """TODO"""
-
-        def __init__(
-            self,
-            result: ResultWithError[DistributionMixture],
-            log: "EM.Log",
-        ) -> None:
-            self._result = result
-            self._log = log
-
-        @property
-        def result(self):
-            """TODO"""
-            return self._result
-
-        @property
-        def log(self):
-            """TODO"""
-            return self._log
-
     def solve_logged(
         self,
         problem: Problem,
         create_history: bool = False,
         remember_time: bool = False,
-    ):
-        """TODO"""
+    ) -> ResultWithLog[ResultWithError[DistributionMixture], Log]:
+        """
+        The parameter estimation of distribution mixture problem solver,
+        which uses EM algorithm and allows to collect logs of each algorithm step result.
+        """
 
         history = []
 
         def log_map(distributions: ResultWithError[EM._DistributionMixtureAlive]):
             return ResultWithError(
-                distributions.result.all_distributions,
+                distributions.content.all_distributions,
                 distributions.error,
             )
 
@@ -318,7 +324,7 @@ class EM(Solver):
             step: int,
             distributions: EM._DistributionMixtureAlive,
         ) -> ResultWithError[EM._DistributionMixtureAlive]:
-            """TODO"""
+            """EM algorithm full step with checking distributions"""
 
             result = EM.step(problem.samples, distributions, self.optimizer)
             if result.error:
@@ -328,7 +334,7 @@ class EM(Solver):
                 )
 
             distributions.update(
-                result.result,
+                result.content,
                 lambda d: self.distribution_checker.is_alive(step, d),
             )
 
@@ -346,14 +352,14 @@ class EM(Solver):
 
         while not self.breakpointer.is_over(step, previous_step, distributions):
             previous_step = distributions.all_distributions
-            if make_step(step, distributions).result.error:
+            if make_step(step, distributions).content.error:
                 break
             step += 1
 
-        return EM.ResultWithLog(
+        return ResultWithLog(
             ResultWithError(distributions.all_distributions),
             EM.Log(history, step),
         )
 
     def solve(self, problem: Problem) -> Result:
-        return self.solve_logged(problem, False, False).result
+        return self.solve_logged(problem, False, False).content

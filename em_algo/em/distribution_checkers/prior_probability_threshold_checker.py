@@ -1,11 +1,11 @@
-"""TODO"""
+"""Module which contains distribution checker by using prior probability threshold"""
 
-from em_algo.em.distribution_checkers import UnionableDistributionChecker
+from em_algo.em.distribution_checkers import AUnionableDistributionChecker
 from em_algo.distribution_mixture import DistributionInMixture
 
 
-class PriorProbabilityThresholdChecker(UnionableDistributionChecker):
-    """TODO"""
+class PriorProbabilityThresholdChecker(AUnionableDistributionChecker):
+    """Class which represents distribution checker by using prior probability threshold"""
 
     def __init__(
         self,
@@ -17,12 +17,12 @@ class PriorProbabilityThresholdChecker(UnionableDistributionChecker):
 
     @property
     def prior_probability_threshold(self):
-        """TODO"""
+        """Prior probability threshold getter"""
         return self._prior_probability_threshold
 
     @property
     def prior_probability_threshold_step(self):
-        """TODO"""
+        """Prior probability threshold start step getter"""
         return self._prior_probability_threshold_step
 
     @property

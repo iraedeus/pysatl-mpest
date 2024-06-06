@@ -1,9 +1,14 @@
-"""TODO"""
+"""Unit test module which tests mixture of one distribution parameter estimation"""
 
 import pytest
 import numpy as np
 
-from em_algo.models import WeibullModelExp, GaussianModel, ExponentialModel, AModel
+from em_algo.models import (
+    WeibullModelExp,
+    GaussianModel,
+    ExponentialModel,
+    AModelWithGenerator,
+)
 from em_algo.em import EM
 from em_algo.distribution import Distribution
 from em_algo.distribution_mixture import DistributionMixture
@@ -20,7 +25,6 @@ from em_algo.optimizers import (
     ScipySLSQP,
     ScipyTNC,
     ScipyCOBYLA,
-    SPSA,
 )
 
 
@@ -36,14 +40,14 @@ from em_algo.optimizers import (
     ],
 )
 def test_one_distribution(
-    model: AModel,
+    model: AModelWithGenerator,
     params,
     start_params,
     size: int,
     deviation: float,
     expected_error: float,
 ):
-    """TODO"""
+    """Runs mixture of one distribution parameter estimation unit test"""
 
     np.random.seed(42)
 
@@ -62,10 +66,9 @@ def test_one_distribution(
         ScipySLSQP(),
         ScipyTNC(),
         ScipyCOBYLA(),
-        # SPSA(),
     ]:
         em_algo = EM(
-            StepCountBreakpointer() + ParamDifferBreakpointer(),
+            StepCountBreakpointer() + ParamDifferBreakpointer(deviation=deviation),
             FiniteChecker() + PriorProbabilityThresholdChecker(),
             optimizer,
         )
@@ -81,5 +84,5 @@ def test_one_distribution(
 
         assert result.error is None
 
-        result_params = result.result.distributions[0].params
+        result_params = result.content.distributions[0].params
         assert float(np.sum(np.abs(c_params - result_params))) <= expected_error

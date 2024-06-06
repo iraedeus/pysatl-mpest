@@ -1,11 +1,11 @@
-"""TODO"""
+"""Module which represents distribution."""
 
 from em_algo.models import AModel
 from em_algo.types import Params
 
 
 class Distribution:
-    """Describes all needed data about distribution"""
+    """Class which represents all needed data about distribution."""
 
     def __init__(
         self,
@@ -17,14 +17,14 @@ class Distribution:
 
     @property
     def model(self):
-        """TODO"""
+        """Model of distribution getter."""
         return self._model
 
     @property
     def params(self):
-        """TODO"""
+        """Params getter."""
         return self._params
 
     def pdf(self, x: float):
-        """TODO"""
+        """Probability density function for distribution."""
         return self.model.pdf(x, self.params)

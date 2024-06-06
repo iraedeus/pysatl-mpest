@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which provides many useful utils for improving code writing experience"""
 
 import functools
 from typing import ParamSpec, TypeVar, Callable, Generic, Iterator
@@ -13,7 +13,7 @@ T = TypeVar("T")
 
 
 class IteratorWrapper(Generic[T, R], Iterator[R]):
-    """TODO"""
+    """Class which represents custom iterator wrapper"""
 
     def __init__(
         self,
@@ -29,39 +29,17 @@ class IteratorWrapper(Generic[T, R], Iterator[R]):
         return self._next_function(self._instance, self._ind)
 
 
-class Indexed(Generic[T]):
-    """TODO"""
-
-    def __init__(
-        self,
-        ind: int,
-        content: T,
-    ) -> None:
-        self._ind = ind
-        self._content = content
-
-    @property
-    def ind(self):
-        """TODO"""
-        return self._ind
-
-    @property
-    def content(self):
-        """TODO"""
-        return self._content
-
-
 class Named(ABC):
-    """TODO"""
+    """Class which represents named objects"""
 
     @property
     @abstractmethod
     def name(self) -> str:
-        """TODO"""
+        """Name getter"""
 
 
 class Factory(Generic[T]):
-    """TODO"""
+    """Class which represents factory pattern"""
 
     def __init__(self, cls: type[T], *args, **kwargs) -> None:
         self.cls = cls
@@ -69,27 +47,53 @@ class Factory(Generic[T]):
         self.kwargs = kwargs
 
     def construct(self):
-        """TODO"""
+        """Get new instance of given class"""
         return self.cls(*self.args, **self.kwargs)
 
 
-class ResultWrapper(Generic[T]):
-    """TODO"""
+class ObjectWrapper(Generic[T]):
+    """Class which wraps object and used for future inheritance"""
 
     def __init__(
         self,
-        result: T,
+        content: T,
     ) -> None:
-        self._result = result
+        self._content = content
+
+    @property
+    def content(self):
+        """Wrapped object getter"""
+        return self._content
+
+
+class Indexed(ObjectWrapper[T]):
+    """Class which wraps object, adding index field"""
+
+    def __init__(
+        self,
+        ind: int,
+        content: T,
+    ) -> None:
+        super().__init__(content)
+        self._ind = ind
+
+    @property
+    def ind(self):
+        """Index getter"""
+        return self._ind
+
+
+class ResultWrapper(ObjectWrapper[T]):
+    """Class which wraps result and used for future inheritance"""
 
     @property
     def result(self):
-        """TODO"""
-        return self._result
+        """Result getter"""
+        return self._content
 
 
 class ResultWithError(ResultWrapper[T]):
-    """TODO"""
+    """Class which wraps result object, adding error field"""
 
     def __init__(
         self,
@@ -101,12 +105,12 @@ class ResultWithError(ResultWrapper[T]):
 
     @property
     def error(self):
-        """TODO"""
+        """Error getter"""
         return self._error
 
 
 class ResultWithLog(Generic[T, R], ResultWrapper[T]):
-    """TODO"""
+    """Class which wraps result object, adding custom log field"""
 
     def __init__(self, result: T, log: R) -> None:
         super().__init__(result)
@@ -114,12 +118,12 @@ class ResultWithLog(Generic[T, R], ResultWrapper[T]):
 
     @property
     def log(self):
-        """TODO"""
+        """Log getter"""
         return self._log
 
 
 class TimerResultWrapper(ResultWrapper[T]):
-    """TODO"""
+    """Class which wraps result object, adding time field"""
 
     def __init__(self, result: T, runtime: float) -> None:
         super().__init__(result)
@@ -127,12 +131,12 @@ class TimerResultWrapper(ResultWrapper[T]):
 
     @property
     def runtime(self):
-        """TODO"""
+        """Runtime getter"""
         return self._runtime
 
 
 def apply(mapper: Callable[[R], T]):
-    """TODO"""
+    """Decorator which applies given map function to wrapped one"""
 
     def current_apply(func: Callable[P, R]) -> Callable[P, T]:
         @functools.wraps(func)
@@ -146,7 +150,10 @@ def apply(mapper: Callable[[R], T]):
 
 
 def timer(func: Callable[P, R]) -> Callable[P, TimerResultWrapper[R]]:
-    """TODO"""
+    """
+    Decorator which replaces function output by TimerResultWrapper object
+    and calculates runtime
+    """
 
     @functools.wraps(func)
     def wrapper_timer(*args: P.args, **kwargs: P.kwargs) -> TimerResultWrapper[R]:
@@ -160,10 +167,15 @@ def timer(func: Callable[P, R]) -> Callable[P, TimerResultWrapper[R]]:
 
 
 def history(holder: list[T], mapper: Callable[[R], T] = lambda x: x):
-    """TODO"""
+    """
+    Decorator factory which allows you
+    to save custom mapped history of wrapped function calls to given list
+    """
 
     def current_history(func: Callable[P, R]) -> Callable[P, R]:
-        """TODO"""
+        """
+        Decorator which save custom mapped history of wrapped function calls to given list
+        """
 
         @functools.wraps(func)
         def wrapped_history(*args: P.args, **kwargs: P.kwargs) -> R:
@@ -177,26 +189,26 @@ def history(holder: list[T], mapper: Callable[[R], T] = lambda x: x):
 
 
 def logged(
-    holder: list[TimerResultWrapper[T] | ResultWrapper[T] | float],
+    holder: list[TimerResultWrapper[T] | ObjectWrapper[T] | float],
     save_results: bool = True,
     save_results_mapper: Callable[[R], T] = lambda x: x,
     save_time: bool = True,
 ):
-    """TODO"""
+    """Decorator factory which simplifies using timer and history decorators"""
 
     def time_only(x: TimerResultWrapper[R]):
         return x.runtime
 
-    def apply_mapper_to_result(x: ResultWrapper[R]):
-        return ResultWrapper(save_results_mapper(x.result))
+    def apply_mapper_to_result(x: ObjectWrapper[R]):
+        return ObjectWrapper(save_results_mapper(x.content))
 
     def apply_mapper_to_timer_result(x: TimerResultWrapper[R]):
-        return TimerResultWrapper(save_results_mapper(x.result), x.runtime)
+        return TimerResultWrapper(save_results_mapper(x.content), x.runtime)
 
-    def current_logged(func: Callable[P, R]) -> Callable[P, ResultWrapper[R]]:
-        """TODO"""
+    def current_logged(func: Callable[P, R]) -> Callable[P, ObjectWrapper[R]]:
+        """Decorator which simplifies using timer and history decorators"""
 
-        curr_func = apply(ResultWrapper[R])(func)
+        curr_func = apply(ObjectWrapper[R])(func)
 
         if save_time:
             if not save_results:
@@ -215,7 +227,7 @@ def logged(
 
 
 def in_bounds(min_value: float, max_value: float):
-    """TODO"""
+    """Decorator for float result functions to set bonds of it's result values"""
 
     def current_in_bounds(func: Callable[P, float]) -> Callable[P, float]:
         @functools.wraps(func)

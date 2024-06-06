@@ -1,18 +1,18 @@
-"""TODO"""
+"""Module which contains EM breakpointer by step count"""
 
 from em_algo.distribution_mixture import DistributionMixture
-from em_algo.em.breakpointers import UnionableBreakpointer
+from em_algo.em.breakpointers import AUnionableBreakpointer
 
 
-class StepCountBreakpointer(UnionableBreakpointer):
-    """TODO"""
+class StepCountBreakpointer(AUnionableBreakpointer):
+    """Class which represents EM breakpointer by step count"""
 
     def __init__(self, max_step: int | None = 16) -> None:
         self._max_step = max_step
 
     @property
     def max_step(self):
-        """TODO"""
+        """Max step getter"""
         return self._max_step
 
     @property

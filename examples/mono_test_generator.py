@@ -1,4 +1,4 @@
-"""TODO"""
+"""Module which contains distribution mixtures of single model tests generator"""
 
 from typing import Iterable
 import random
@@ -7,14 +7,14 @@ import numpy as np
 from examples.utils import Clicker, Test
 
 from em_algo.problem import Problem
-from em_algo.models import AModel
+from em_algo.models import AModel, AModelWithGenerator
 from em_algo.em import EM
 from em_algo.distribution import Distribution
 from em_algo.distribution_mixture import DistributionMixture
 
 
 def generate_mono_test(
-    model_t: type[AModel],
+    model_t: type[AModelWithGenerator],
     solvers: list[EM],
     clicker: Clicker,
     params_borders: list[tuple[float, float]],
@@ -27,7 +27,7 @@ def generate_mono_test(
     tests_per_cond: int = 8,
     runs_per_test: int = 3,
 ):
-    """TODO"""
+    """Distribution mixtures of single model tests generator"""
     tests: list[Test] = []
 
     for k in ks:
