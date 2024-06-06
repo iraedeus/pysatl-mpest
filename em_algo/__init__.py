@@ -2,7 +2,7 @@
 
 from em_algo.types import Params, Samples
 from em_algo.distribution import Distribution
-from em_algo.distribution_mixture import DistributionInMixture, DistributionMixture
+from em_algo.mixture_distribution import DistributionInMixture, MixtureDistribution
 from em_algo.problem import Problem, Result
 
 from em_algo import em

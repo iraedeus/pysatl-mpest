@@ -12,7 +12,7 @@ import numpy as np
 
 from em_algo.types import Samples
 from em_algo.distribution import Distribution
-from em_algo.distribution_mixture import DistributionMixture, DistributionInMixture
+from em_algo.mixture_distribution import MixtureDistribution, DistributionInMixture
 from em_algo.utils import (
     logged,
     ObjectWrapper,
@@ -36,8 +36,8 @@ class EM(ASolver):
         def is_over(
             self,
             step: int,
-            previous_step: DistributionMixture | None,
-            current_step: DistributionMixture,
+            previous_step: MixtureDistribution | None,
+            current_step: MixtureDistribution,
         ) -> bool:
             """Breakpointer function"""
 
@@ -58,9 +58,9 @@ class EM(ASolver):
             which returns True if distribution is correct and not degenerated
             """
 
-    class _DistributionMixtureAlive(DistributionMixture):
+    class _DistributionMixtureAlive(MixtureDistribution):
         """
-        Class which represents distribution mixture which in EM algorithm solving process.
+        Class which represents mixture distribution which in EM algorithm solving process.
         Remembers the distributions order and control over the degenerated ones.
         """
 
@@ -90,7 +90,7 @@ class EM(ASolver):
         ) -> "EM._DistributionMixtureAlive":
             return cls(
                 list(
-                    DistributionMixture.from_distributions(
+                    MixtureDistribution.from_distributions(
                         distributions,
                         prior_probabilities,
                     )
@@ -104,13 +104,13 @@ class EM(ASolver):
             return self._active
 
         @property
-        def all_distributions(self) -> DistributionMixture:
+        def all_distributions(self) -> MixtureDistribution:
             """All distributions getter"""
-            return DistributionMixture(self._distributions)
+            return MixtureDistribution(self._distributions)
 
         def update(
             self,
-            distribution_mixture: DistributionMixture,
+            mixture_distribution: MixtureDistribution,
             distribution_checker: Callable[[DistributionInMixture], bool] | None = None,
         ):
             """
@@ -122,13 +122,13 @@ class EM(ASolver):
             if distribution_checker is not None:
                 self._checker = distribution_checker
 
-            if len(distribution_mixture) != len(self._active):
+            if len(mixture_distribution) != len(self._active):
                 raise ValueError(
-                    "New distribution mixture size must be the same with previous"
+                    "New mixture distribution size must be the same with previous"
                 )
 
             new_active_indexes: list[int] = []
-            for ind, d in zip(self._active_indexes, distribution_mixture):
+            for ind, d in zip(self._active_indexes, mixture_distribution):
                 if self._checker(d):
                     new_active_indexes.append(ind)
                     self._distributions[ind] = d
@@ -161,7 +161,7 @@ class EM(ASolver):
 
             def __init__(
                 self,
-                result: ResultWithError[DistributionMixture] | None,
+                result: ResultWithError[MixtureDistribution] | None,
                 time: float | None,
             ) -> None:
                 self._result = result
@@ -180,8 +180,8 @@ class EM(ASolver):
         def __init__(
             self,
             log: list[
-                TimerResultWrapper[ResultWithError[DistributionMixture]]
-                | ObjectWrapper[ResultWithError[DistributionMixture]]
+                TimerResultWrapper[ResultWithError[MixtureDistribution]]
+                | ObjectWrapper[ResultWithError[MixtureDistribution]]
                 | float
             ],
             steps: int,
@@ -209,9 +209,9 @@ class EM(ASolver):
     @staticmethod
     def step(
         samples: Samples,
-        distribution_mixture: DistributionMixture,
+        mixture_distribution: MixtureDistribution,
         optimizer: TOptimizer,
-    ) -> ResultWithError[DistributionMixture]:
+    ) -> ResultWithError[MixtureDistribution]:
         """EM algo step"""
 
         # pylint: disable-msg=too-many-locals
@@ -221,28 +221,28 @@ class EM(ASolver):
         p_xij = []
         active_samples = []
         for x in samples:
-            p = np.array([d.model.pdf(x, d.params) for d in distribution_mixture])
+            p = np.array([d.model.pdf(x, d.params) for d in mixture_distribution])
             if np.any(p):
                 p_xij.append(p)
                 active_samples.append(x)
 
         if not active_samples:
             return ResultWithError(
-                distribution_mixture, Exception("All models can't match")
+                mixture_distribution, Exception("All models can't match")
             )
 
         # h[j, i] contains probability of X_i to be a part of distribution j
         m = len(p_xij)
-        k = len(distribution_mixture)
+        k = len(mixture_distribution)
         h = np.zeros([k, m], dtype=float)
-        curr_w = np.array([d.prior_probability for d in distribution_mixture])
+        curr_w = np.array([d.prior_probability for d in mixture_distribution])
         for i, p in enumerate(p_xij):
             wp = curr_w * p
             swp = np.sum(wp)
 
             if not swp:
                 return ResultWithError(
-                    distribution_mixture, Exception("Error in E step")
+                    mixture_distribution, Exception("Error in E step")
                 )
             h[:, i] = wp / swp
 
@@ -254,7 +254,7 @@ class EM(ASolver):
         new_w = np.sum(h, axis=1) / m
         new_distributions: list[Distribution] = []
         for j, ch in enumerate(h[:]):
-            d = distribution_mixture[j]
+            d = mixture_distribution[j]
 
             def log_likelihood(params, ch, model: AModel):
                 return -np.sum(ch * [model.lpdf(x, params) for x in active_samples])
@@ -272,7 +272,7 @@ class EM(ASolver):
             if isinstance(optimizer, AOptimizerJacobian):
                 if not isinstance(d.model, AModelDifferentiable):
                     return ResultWithError(
-                        distribution_mixture,
+                        mixture_distribution,
                         ValueError(
                             f"Model {d.model.name} can't handle optimizer with jacobian."
                         ),
@@ -291,7 +291,7 @@ class EM(ASolver):
             new_distributions.append(Distribution(d.model, new_params))
 
         return ResultWithError(
-            DistributionMixture.from_distributions(
+            MixtureDistribution.from_distributions(
                 new_distributions,
                 new_w,
             )
@@ -302,9 +302,9 @@ class EM(ASolver):
         problem: Problem,
         create_history: bool = False,
         remember_time: bool = False,
-    ) -> ResultWithLog[ResultWithError[DistributionMixture], Log]:
+    ) -> ResultWithLog[ResultWithError[MixtureDistribution], Log]:
         """
-        The parameter estimation of distribution mixture problem solver,
+        The parameter estimation of mixture distribution problem solver,
         which uses EM algorithm and allows to collect logs of each algorithm step result.
         """
 

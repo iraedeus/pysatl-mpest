@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 from em_algo.em.breakpointers.unionable_breakpointer import AUnionableBreakpointer
 
 
@@ -24,8 +24,8 @@ class ParamDifferBreakpointer(AUnionableBreakpointer):
     def is_over(
         self,
         step: int,
-        previous_step: DistributionMixture | None,
-        current_step: DistributionMixture,
+        previous_step: MixtureDistribution | None,
+        current_step: MixtureDistribution,
     ) -> bool:
         if previous_step is None:
             return False

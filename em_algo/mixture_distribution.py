@@ -46,7 +46,7 @@ class DistributionInMixture(Distribution):
         return self.prior_probability * super().pdf(x)
 
 
-class DistributionMixture(Sized, Iterable[DistributionInMixture]):
+class MixtureDistribution(Sized, Iterable[DistributionInMixture]):
     """
     Class which represents distributions mixture.
 
@@ -67,7 +67,7 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         cls,
         distributions: list[Distribution],
         prior_probabilities: list[float | None] | None = None,
-    ) -> "DistributionMixture":
+    ) -> "MixtureDistribution":
         """
         Creates DistributionsMixture object from distributions and their prior probabilities.
         """
@@ -114,7 +114,7 @@ class DistributionMixture(Sized, Iterable[DistributionInMixture]):
         return self._distributions
 
     def __iter__(self) -> Iterator[DistributionInMixture]:
-        def iterate(instance: DistributionMixture, index: int):
+        def iterate(instance: MixtureDistribution, index: int):
             if index >= len(instance.distributions):
                 raise StopIteration
             return instance.distributions[index]

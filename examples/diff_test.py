@@ -8,7 +8,7 @@ from examples.mono_test_generator import Clicker
 from examples.utils import Test, run_tests, save_results, init_solver
 from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
 from em_algo.models import GaussianModel, WeibullModelExp
-from em_algo import DistributionMixture, Distribution, Problem
+from em_algo import MixtureDistribution, Distribution, Problem
 
 # Gaussian
 
@@ -55,7 +55,7 @@ for sp in gaussian_start_params:
                         Test(
                             clicker.click(),
                             np.array(x),
-                            DistributionMixture.from_distributions(
+                            MixtureDistribution.from_distributions(
                                 [
                                     Distribution(
                                         gaussian,
@@ -71,7 +71,7 @@ for sp in gaussian_start_params:
                             ),
                             Problem(
                                 np.array(samples),
-                                DistributionMixture.from_distributions(
+                                MixtureDistribution.from_distributions(
                                     [
                                         Distribution(
                                             gaussian,
@@ -119,7 +119,7 @@ for sp in weibull_start_params:
                         Test(
                             clicker.click(),
                             np.array(x),
-                            DistributionMixture.from_distributions(
+                            MixtureDistribution.from_distributions(
                                 [
                                     Distribution(
                                         weibull,
@@ -135,7 +135,7 @@ for sp in weibull_start_params:
                             ),
                             Problem(
                                 np.array(samples),
-                                DistributionMixture.from_distributions(
+                                MixtureDistribution.from_distributions(
                                     [
                                         Distribution(
                                             weibull,

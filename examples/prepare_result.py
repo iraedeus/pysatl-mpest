@@ -9,14 +9,14 @@ import numpy as np
 from tqdm.contrib.concurrent import process_map
 
 from em_algo.types import Samples
-from em_algo.distribution_mixture import DistributionMixture, DistributionInMixture
+from em_algo.mixture_distribution import MixtureDistribution, DistributionInMixture
 
 from examples.utils import SingleSolverResult, TestResult
 from examples.mono_test_generator import Clicker
 from examples.config import MAX_WORKERS
 
 
-def nll(samples: Samples, mixture: DistributionMixture) -> float:
+def nll(samples: Samples, mixture: MixtureDistribution) -> float:
     """Mean least squares logarithm metric"""
     occur = sum(np.log(mixture.pdf(x)) for x in samples) / len(samples)
     if occur == -0.0:
@@ -25,7 +25,7 @@ def nll(samples: Samples, mixture: DistributionMixture) -> float:
 
 
 def identity_guessing_chance(
-    dx: DistributionMixture, dy: DistributionMixture, sample: Samples
+    dx: MixtureDistribution, dy: MixtureDistribution, sample: Samples
 ):
     """Identity guessing chance metric"""
 
@@ -75,7 +75,7 @@ def result_to_df_diff(result: SingleSolverResult):
                     for _ in range(tests_per_size):
                         dct[clicker.click()] = (sp[0], second_sp)
 
-    distribution_mixture = DistributionMixture(
+    mixture_distribution = MixtureDistribution(
         [
             (
                 d
@@ -96,7 +96,7 @@ def result_to_df_diff(result: SingleSolverResult):
         "k": len(result.test.true_mixture),
         "sample": result.test.problem.samples,
         "true_mixture": result.test.true_mixture,
-        "result_mixture": distribution_mixture,
+        "result_mixture": mixture_distribution,
         "error": result.result.error,
         "log": result.log,
         "steps": result.steps,
@@ -105,7 +105,7 @@ def result_to_df_diff(result: SingleSolverResult):
         "size": len(result.test.problem.samples),
         "success": (result.steps < 128) and not failed,
         "failed": failed,
-        "occur": nll(result.test.all_data, distribution_mixture),
+        "occur": nll(result.test.all_data, mixture_distribution),
         "start": start,
         "diff": diff,
         "res_err": identity_guessing_chance(
@@ -130,7 +130,7 @@ def prepare_diff(results: list[TestResult]):
 def result_to_df(result: SingleSolverResult):
     """Mono test result mapper"""
 
-    distribution_mixture = DistributionMixture(
+    mixture_distribution = MixtureDistribution(
         [
             (
                 d
@@ -148,7 +148,7 @@ def result_to_df(result: SingleSolverResult):
         "k": len(result.test.true_mixture),
         "sample": result.test.problem.samples,
         "true_mixture": result.test.true_mixture,
-        "result_mixture": distribution_mixture,
+        "result_mixture": mixture_distribution,
         "error": result.result.error,
         "log": result.log,
         "steps": result.steps,
@@ -157,7 +157,7 @@ def result_to_df(result: SingleSolverResult):
         "size": len(result.test.problem.samples),
         "success": (result.steps < 16) and failed,
         "failed": failed,
-        "occur": nll(result.test.all_data, distribution_mixture),
+        "occur": nll(result.test.all_data, mixture_distribution),
     }
 
 

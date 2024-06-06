@@ -10,7 +10,7 @@ from em_algo.models import (
     AModelWithGenerator,
 )
 from em_algo.distribution import Distribution
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 from em_algo.problem import Problem
 from tests.utils import run_test
 
@@ -50,7 +50,7 @@ def test_one_distribution(
 
     problem = Problem(
         samples=x,
-        distributions=DistributionMixture.from_distributions(
+        distributions=MixtureDistribution.from_distributions(
             [Distribution(model, c_start_params)]
         ),
     )

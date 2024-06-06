@@ -1,6 +1,6 @@
 """Module which contains EM breakpointer by step count"""
 
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 from em_algo.em.breakpointers.unionable_breakpointer import AUnionableBreakpointer
 
 
@@ -22,8 +22,8 @@ class StepCountBreakpointer(AUnionableBreakpointer):
     def is_over(
         self,
         step: int,
-        previous_step: DistributionMixture | None,
-        current_step: DistributionMixture,
+        previous_step: MixtureDistribution | None,
+        current_step: MixtureDistribution,
     ) -> bool:
         if (self.max_step is not None) and (step >= self.max_step):
             return True

@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from em_algo.distribution_mixture import DistributionInMixture
+from em_algo.mixture_distribution import DistributionInMixture
 from em_algo.em.distribution_checkers.unionable_distribution_checker import (
     AUnionableDistributionChecker,
 )

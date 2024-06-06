@@ -2,7 +2,7 @@
 
 from abc import ABC
 
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 from em_algo.em import EM
 
 
@@ -42,8 +42,8 @@ class UnionBreakpointer(EM.ABreakpointer):
     def is_over(
         self,
         step: int,
-        previous_step: DistributionMixture | None,
-        current_step: DistributionMixture,
+        previous_step: MixtureDistribution | None,
+        current_step: MixtureDistribution,
     ) -> bool:
         for breakpointer in self._breakpointers:
             if breakpointer.is_over(step, previous_step, current_step):

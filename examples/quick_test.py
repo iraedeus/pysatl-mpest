@@ -1,4 +1,4 @@
-"""Module which provides source for quick test of distribution mixtures of single model"""
+"""Module which provides source for quick test of mixture distributions of single model"""
 
 import random
 import numpy as np
@@ -17,7 +17,7 @@ from em_algo.optimizers import ALL_OPTIMIZERS
 
 
 def run_test():
-    """Runs the distribution mixtures of single model quick test"""
+    """Runs the mixture distributions of single model quick test"""
 
     random.seed(42)
     np.random.seed(42)

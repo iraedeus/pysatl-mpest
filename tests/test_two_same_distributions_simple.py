@@ -12,7 +12,7 @@ from em_algo.models import (
 )
 
 from em_algo.distribution import Distribution
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 from em_algo.problem import Problem
 from em_algo.utils import Factory
 
@@ -107,7 +107,7 @@ def test_two_same_distributions_simple(
 
     problem = Problem(
         samples=x,
-        distributions=DistributionMixture.from_distributions(
+        distributions=MixtureDistribution.from_distributions(
             [Distribution(model, param) for model, param in zip(models, c_start_params)]
         ),
     )
@@ -116,8 +116,8 @@ def test_two_same_distributions_simple(
         assert result.error is None
 
         def absolute_diff_params(
-            a: DistributionMixture,
-            b: DistributionMixture,
+            a: MixtureDistribution,
+            b: MixtureDistribution,
         ):
             """Metric which checks absolute differ of gotten distribution mixtures"""
 
@@ -131,7 +131,7 @@ def test_two_same_distributions_simple(
         assert (
             absolute_diff_params(
                 result.content,
-                DistributionMixture.from_distributions(
+                MixtureDistribution.from_distributions(
                     [
                         Distribution(model, param)
                         for model, param in zip(models, c_params)

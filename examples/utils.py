@@ -10,7 +10,7 @@ import numpy as np
 from tqdm.contrib.concurrent import process_map
 
 from em_algo.types import Samples
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 from em_algo.problem import Problem, Result
 from em_algo.em import EM
 from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
@@ -30,7 +30,7 @@ class Test(NamedTuple):
 
     index: int
     all_data: Samples
-    true_mixture: DistributionMixture
+    true_mixture: MixtureDistribution
 
     problem: Problem
     solvers: list[EM]

@@ -1,4 +1,4 @@
-"""Module which contains distribution mixtures of single model tests generator"""
+"""Module which contains mixture distributions of single model tests generator"""
 
 from typing import Iterable
 import random
@@ -10,7 +10,7 @@ from em_algo.problem import Problem
 from em_algo.models import AModel, AModelWithGenerator
 from em_algo.em import EM
 from em_algo.distribution import Distribution
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 
 
 def generate_mono_test(
@@ -27,7 +27,7 @@ def generate_mono_test(
     tests_per_cond: int = 8,
     runs_per_test: int = 3,
 ):
-    """Distribution mixtures of single model tests generator"""
+    """Mixture Distributions of single model tests generator"""
 
     # pylint: disable=too-many-arguments
     # pylint: disable=too-many-locals
@@ -74,7 +74,7 @@ def generate_mono_test(
                             Test(
                                 clicker.click(),
                                 all_samples,
-                                DistributionMixture.from_distributions(
+                                MixtureDistribution.from_distributions(
                                     [
                                         Distribution(
                                             model,
@@ -85,7 +85,7 @@ def generate_mono_test(
                                 ),
                                 Problem(
                                     np.array(samples),
-                                    DistributionMixture.from_distributions(
+                                    MixtureDistribution.from_distributions(
                                         [
                                             Distribution(
                                                 model,

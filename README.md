@@ -5,16 +5,16 @@
 
 # Usage
 
-This package contains realization of em algorithm for solving the parameter estimation of distribution mixture problem:
+This package contains realization of em algorithm for solving the parameter estimation of mixture distribution problem:
 
 $$p(x | \Omega, F, \Theta) = \sum_{j=1}^k \omega_j f_j(x | \theta_j)$$
 
-- $p(x | \Omega, F, \Theta)$ - distributions mixture
+- $p(x | \Omega, F, \Theta)$ - mixture distribution
 - $f_j(x | \theta_j)$ - $j$ distribution
 - $\theta_j$ - parameters of $j$ distribution
 - $\omega_j$ - prior probability of $j$ distribution
 
-It can work with distribution mixture of any combination of models, which implements `AModel` class. EM algorithm result can be calculated by using `EM` class with `AOptimizer` implementation and guessed or random initial approximation.
+It can work with mixture distribution of any combination of models, which implements `AModel` class. EM algorithm result can be calculated by using `EM` class with `AOptimizer` implementation and guessed or random initial approximation.
 
 ## Requirements
 - python 3.11

@@ -3,22 +3,22 @@
 from abc import ABC, abstractmethod
 
 from em_algo.types import Samples
-from em_algo.distribution_mixture import DistributionMixture
+from em_algo.mixture_distribution import MixtureDistribution
 from em_algo.utils import ResultWithError
 
 
 class Problem:
     """
-    Class which represents the parameter estimation of distribution mixture problem.
+    Class which represents the parameter estimation of mixture distribution problem.
 
     Described by samples and the initial approximation.
-    Initial approximation is an distribution mixture.
+    Initial approximation is an mixture distribution.
     """
 
     def __init__(
         self,
         samples: Samples,
-        distributions: DistributionMixture,
+        distributions: MixtureDistribution,
     ) -> None:
         self._samples = samples
         self._distributions = distributions
@@ -34,13 +34,13 @@ class Problem:
         return self._distributions
 
 
-Result = ResultWithError[DistributionMixture]
+Result = ResultWithError[MixtureDistribution]
 
 
 class ASolver(ABC):
     """
     Abstract class which represents solver for
-    the parameter estimation of distributions mixture problem.
+    the parameter estimation of mixture distribution problem.
     """
 
     # pylint: disable=too-few-public-methods
@@ -49,5 +49,5 @@ class ASolver(ABC):
     def solve(self, problem: Problem) -> Result:
         """
         Method which solve the parameter estimation
-        of distributions mixture problem.
+        of mixture distribution problem.
         """
