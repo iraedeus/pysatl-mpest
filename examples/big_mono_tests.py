@@ -5,7 +5,7 @@ import numpy as np
 
 from examples.utils import Test, Clicker, run_tests, save_results
 from examples.mono_test_generator import generate_mono_test
-from examples.config import MAX_WORKERS
+from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
 
 from em_algo.models import (
     WeibullModelExp,
@@ -19,13 +19,6 @@ from em_algo.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpoin
 from em_algo.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
-)
-
-from em_algo.optimizers import (
-    ScipyCG,
-    ScipyNewtonCG,
-    ScipySLSQP,
-    ScipyTNC,
 )
 
 if __name__ == "__main__":
@@ -43,7 +36,7 @@ if __name__ == "__main__":
             model_t=model,
             params_borders=o_borders,
             clicker=counter,
-            ks=list(range(1, 4)),
+            ks=[1, 2, 3],
             sizes=[50, 100, 200, 500, 1000],
             distributions_count=32,
             base_size=2048,
@@ -56,12 +49,7 @@ if __name__ == "__main__":
                     FiniteChecker() + PriorProbabilityThresholdChecker(0.001, 3),
                     optimizer,
                 )
-                for optimizer in [
-                    ScipyCG(),
-                    ScipyNewtonCG(),
-                    ScipySLSQP(),
-                    ScipyTNC(),
-                ]
+                for optimizer in TESTS_OPTIMIZERS
             ],
         )
 
@@ -69,13 +57,7 @@ if __name__ == "__main__":
     tests += _generate_test(GaussianModel, [(-15, 15), (0.25, 25)])
     tests += _generate_test(ExponentialModel, [(0.25, 25)])
 
-    results = run_tests(
-        tests,
-        workers_count=MAX_WORKERS,
-        shuffled=True,
-        chunksize=64,
-        # create_history=True,
-        # remember_time=True,
+    save_results(
+        run_tests(tests=tests, workers_count=MAX_WORKERS, chunksize=256),
+        "big_mono_test",
     )
-
-    save_results(results, "big_mono_test")

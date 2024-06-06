@@ -2,6 +2,12 @@
 
 import os
 from scripts.shared import EXAMPLES
+from em_algo.optimizers import (
+    ScipyCG,
+    ScipyNewtonCG,
+    ScipySLSQP,
+    ScipyTNC,
+)
 
 CPU_COUNT = os.cpu_count()
 MAX_WORKERS_PERCENT = 0.75
@@ -13,3 +19,10 @@ MAX_WORKERS = (
 # MAX_WORKERS = 4
 
 RESULTS_FOLDER = EXAMPLES / "results"
+
+TESTS_OPTIMIZERS = [
+    ScipyCG(),
+    ScipyNewtonCG(),
+    ScipySLSQP(),
+    ScipyTNC(),
+]

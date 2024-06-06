@@ -11,3 +11,12 @@ from em_algo.optimizers.scipy_cobyla import ScipyCOBYLA
 from em_algo.optimizers.scipy_nelder_mead import ScipyNelderMead
 from em_algo.optimizers.scipy_slsqp import ScipySLSQP
 from em_algo.optimizers.scipy_tnc import ScipyTNC
+
+ALL_OPTIMIZERS = [
+    ScipyCG(),
+    ScipyNewtonCG(),
+    ScipyNelderMead(),
+    ScipySLSQP(),
+    ScipyTNC(),
+    ScipyCOBYLA(),
+]

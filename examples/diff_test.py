@@ -6,7 +6,7 @@ import numpy as np
 
 from examples.mono_test_generator import Clicker
 from examples.utils import Test, run_tests, save_results
-from examples.config import MAX_WORKERS
+from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
 from em_algo.models import GaussianModel, WeibullModelExp
 from em_algo import DistributionMixture, Distribution, Problem
 from em_algo.em import EM
@@ -15,7 +15,6 @@ from em_algo.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
-from em_algo.optimizers import ScipyCG, ScipySLSQP, ScipyTNC, ScipyNewtonCG
 
 # Gaussian
 
@@ -96,12 +95,7 @@ for sp in gaussian_start_params:
                                     + PriorProbabilityThresholdChecker(0.001, 3),
                                     optimizer,
                                 )
-                                for optimizer in [
-                                    ScipyCG(),
-                                    ScipyNewtonCG(),
-                                    ScipySLSQP(),
-                                    ScipyTNC(),
-                                ]
+                                for optimizer in TESTS_OPTIMIZERS
                             ],
                             1,
                         )
@@ -171,24 +165,13 @@ for sp in weibull_start_params:
                                     + PriorProbabilityThresholdChecker(0.001, 3),
                                     optimizer,
                                 )
-                                for optimizer in [
-                                    ScipyCG(),
-                                    ScipyNewtonCG(),
-                                    ScipySLSQP(),
-                                    ScipyTNC(),
-                                ]
+                                for optimizer in TESTS_OPTIMIZERS
                             ],
                             1,
                         )
                     )
 
-results = run_tests(
-    tests,
-    workers_count=MAX_WORKERS,
-    shuffled=True,
-    chunksize=64,
-    # create_history=True,
-    # remember_time=True,
+save_results(
+    run_tests(tests=tests, workers_count=MAX_WORKERS, chunksize=64),
+    "diff_test",
 )
-
-save_results(results, "diff_test")
