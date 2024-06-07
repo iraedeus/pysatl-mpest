@@ -3,6 +3,12 @@
 [![Code style](https://img.shields.io/badge/Code%20style-black-000000.svg)](https://github.com/psf/black)
 ![Unit Tests](https://github.com/ToxaKaz/EM-algo/actions/workflows/test.yml/badge.svg)
 
+## Installation
+
+```
+pip install reliability
+```
+
 ## Abstract
 
 This package contains realization of em algorithm for solving the parameter estimation of mixture distribution problem:
