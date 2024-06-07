@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mpest"
-version = "0.0.3"
+version = "0.1.0"
 description = "Parameter estimation of mixture distribution problem solver, based on EM algorithm"
 readme = "README.md"
 authors = [{ name = "ToxaKaz", email = "anton.a.kazancev@gmail.com" }]
