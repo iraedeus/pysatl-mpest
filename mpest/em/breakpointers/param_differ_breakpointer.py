@@ -1,4 +1,3 @@
-
 """Module which contains EM breakpointer by sum of difference between params"""
 
 import numpy as np

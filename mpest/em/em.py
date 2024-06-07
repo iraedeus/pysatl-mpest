@@ -1,5 +1,3 @@
-
-
 """
 Module which represents EM algorithm and few of it's params:
 - EM.Breakpointer
