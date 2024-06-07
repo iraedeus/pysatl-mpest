@@ -1,0 +1,41 @@
+# pyproject.toml
+
+[build-system]
+requires      = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mpest"
+version = "0.0.2"
+description = "Parameter estimation of mixture distribution problem solver, based on EM algorithm"
+readme = "README.md"
+authors = [{ name = "ToxaKaz", email = "anton.a.kazancev@gmail.com" }]
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+keywords = ["EM algorithm", "mixture distribution", "parameter estimation"]
+dependencies = [
+    "numpy",
+    "scipy",
+]
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+    "matplotlib",
+    "multiprocess",
+    "pandas",
+    "pickleshare",
+    "pre-commit",
+    "pytest",
+    "scikit-learn",
+    "seaborn",
+    "tqdm",
+]
+
+[project.urls]
+Homepage = "https://github.com/toxakaz/EM-algo"

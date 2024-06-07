@@ -88,7 +88,7 @@ axs_.plot(X, [result.content.pdf(x) for x in X], color="red", label="result")
 plt.legend()
 plt.show()
 ```
-![plot](./readme_example/example.png)
+![plot](https://github.com/toxakaz/EM-algo/raw/main/readme_example/example.png)
 
 ## Requirements
 - python 3.11
