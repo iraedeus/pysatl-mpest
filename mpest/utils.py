@@ -103,21 +103,37 @@ class ResultWrapper(ObjectWrapper[T]):
     @property
     def result(self):
         """Result getter"""
-        return self._content
+        return self.content
 
 
-class ResultWithError(ResultWrapper[T]):
-    """Class which wraps result object, adding error field"""
-
-    # pylint: disable=too-few-public-methods
+class ResultWithError(ResultWrapper[T | None]):
+    """
+    Class which wraps result object, adding error field
+    - Cant contains None value
+    - Raises contained error on result getting attempt if exist
+    - Raises ValueError("Empty result") if both result and error is None
+    """
 
     def __init__(
         self,
-        result: T,
+        result: T | None = None,
         error: Exception | None = None,
     ) -> None:
         super().__init__(result)
         self._error = error
+
+    @property
+    def content(self) -> T:
+        """
+        Overrides ObjectWrapper.content
+        - Raises contained error if exist
+        - Raises ValueError("Empty result") if both content and error is None
+        """
+        if self.error is not None:
+            raise self.error
+        if self._content is None:
+            raise ValueError("Empty result")
+        return self._content
 
     @property
     def error(self):

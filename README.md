@@ -48,20 +48,15 @@ from mpest.em.breakpointers import StepCountBreakpointer
 from mpest.em.distribution_checkers import FiniteChecker
 from mpest.em import EM
 
-x = np.concatenate(
-    (
-        WeibullModelExp().generate(np.array([0.5, 1.0]), 100),
-        GaussianModel().generate(np.array([5.0, 1.0]), 200),
-    )
-)
-np.random.shuffle(x)
-
 base_mixture_distribution = MixtureDistribution.from_distributions(
     [
         Distribution.from_params(WeibullModelExp, [0.5, 1.0]),
         Distribution.from_params(GaussianModel, [5.0, 1.0]),
-    ]
+    ],
+    [0.33, 0.66],
 )
+
+x = base_mixture_distribution.generate(200)
 
 problem = Problem(
     x,

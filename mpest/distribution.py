@@ -1,17 +1,39 @@
 """Module which represents distribution."""
 
+from abc import ABC, abstractmethod
 import numpy as np
 
-from mpest.models import AModel
+from mpest.types import Samples
+from mpest.models import AModel, AModelWithGenerator
 from mpest.types import Params
 
 
-class Distribution:
+class APDFAble(ABC):
+    """Abstract class which represents probability density function method"""
+
+    # pylint: disable=too-few-public-methods
+
+    @abstractmethod
+    def pdf(self, x: float) -> float:
+        """Probability density function"""
+
+
+class AWithGenerator(ABC):
+    """Abstract class which represents sample generation method"""
+
+    # pylint: disable=too-few-public-methods
+
+    @abstractmethod
+    def generate(self, size=1) -> Samples:
+        """Generates samples"""
+
+
+class Distribution(APDFAble, AWithGenerator):
     """Class which represents all needed data about distribution."""
 
     def __init__(
         self,
-        model: AModel,
+        model: AModel | AModelWithGenerator,
         params: Params,
     ) -> None:
         self._model = model
@@ -28,6 +50,9 @@ class Distribution:
         model_obj = model()
         return cls(model_obj, model_obj.params_convert_to_model(np.array(params)))
 
+    def pdf(self, x: float):
+        return self.model.pdf(x, self.params)
+
     @property
     def model(self):
         """Model of distribution getter."""
@@ -38,6 +63,18 @@ class Distribution:
         """Params getter."""
         return self._params
 
-    def pdf(self, x: float):
-        """Probability density function for distribution."""
-        return self.model.pdf(x, self.params)
+    @property
+    def has_generator(self):
+        """Returns True if contained model has generator"""
+        return isinstance(self.model, AModelWithGenerator)
+
+    def generate(self, size=1):
+        """
+        Generates samples of contained model
+        - Raises TypeError if model hasn't got a generator
+        """
+        if not isinstance(self.model, AModelWithGenerator):
+            raise TypeError(f"Model {self.model} hasn't got a generator")
+        return self.model.generate(
+            self.model.params_convert_from_model(self.params), size=size
+        )

@@ -6,9 +6,10 @@ p(x | list[pdf], list[params], list[prior_probability]) = sum(prior_probability 
 """
 
 from typing import Sized, Iterable, Iterator
+import numpy as np
 
-from mpest.distribution import Distribution
-from mpest.models import AModel
+from mpest.distribution import Distribution, APDFAble, AWithGenerator
+from mpest.models import AModel, AModelWithGenerator
 from mpest.types import Params
 from mpest.utils import IteratorWrapper
 
@@ -40,13 +41,14 @@ class DistributionInMixture(Distribution):
         return self._prior_probability
 
     def pdf(self, x: float):
-        """Probability density function for distribution in mixture."""
         if self.prior_probability is None:
             return 0.0
         return self.prior_probability * super().pdf(x)
 
 
-class MixtureDistribution(Sized, Iterable[DistributionInMixture]):
+class MixtureDistribution(
+    APDFAble, AWithGenerator, Sized, Iterable[DistributionInMixture]
+):
     """
     Class which represents distributions mixture.
 
@@ -87,6 +89,58 @@ class MixtureDistribution(Sized, Iterable[DistributionInMixture]):
             ]
         )
 
+    def __iter__(self) -> Iterator[DistributionInMixture]:
+        def iterate(instance: MixtureDistribution, index: int):
+            if index >= len(instance.distributions):
+                raise StopIteration
+            return instance.distributions[index]
+
+        return IteratorWrapper(self, iterate)
+
+    def __getitem__(self, ind: int):
+        return self.distributions[ind]
+
+    def __len__(self):
+        return len(self.distributions)
+
+    def pdf(self, x: float) -> float:
+        return sum(d.pdf(x) for d in self.distributions)
+
+    @property
+    def has_generator(self):
+        """Returns True if contained model has generator"""
+        return all(
+            isinstance(d.model, AModelWithGenerator)
+            for d in self.distributions
+            if d.prior_probability is not None
+        )
+
+    def generate(self, size=1) -> Params:
+        models: list[tuple[Distribution, float]] = []
+        for d in self.distributions:
+            if d.prior_probability is not None:
+                if d.has_generator:
+                    models.append((d, d.prior_probability))
+                else:
+                    raise TypeError(f"Model {d.model} hasn't got a generator")
+
+        x_models = list(
+            np.random.choice(
+                list(range(len(models))),
+                p=[model[1] for model in models],
+                size=size,
+            )
+        )
+
+        x = []
+        for i, model in enumerate(models):
+            x += list(model[0].generate(x_models.count(i)))
+
+        x = np.array(x)
+        np.random.shuffle(x)
+
+        return x
+
     def _normalize(self):
         """
         Normalizing method, which is used to maintain the invariant:
@@ -112,21 +166,3 @@ class MixtureDistribution(Sized, Iterable[DistributionInMixture]):
     def distributions(self) -> list[DistributionInMixture]:
         """Distributions in mixture getter."""
         return self._distributions
-
-    def __iter__(self) -> Iterator[DistributionInMixture]:
-        def iterate(instance: MixtureDistribution, index: int):
-            if index >= len(instance.distributions):
-                raise StopIteration
-            return instance.distributions[index]
-
-        return IteratorWrapper(self, iterate)
-
-    def __getitem__(self, ind: int):
-        return self.distributions[ind]
-
-    def __len__(self):
-        return len(self.distributions)
-
-    def pdf(self, x: float) -> float:
-        """Probability density function for distributions mixture."""
-        return sum(d.pdf(x) for d in self.distributions)
