@@ -4,11 +4,11 @@ import random
 
 import numpy as np
 
-from examples.mono_test_generator import Clicker
-from examples.utils import Test, run_tests, save_results, init_solver
 from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
+from examples.mono_test_generator import Clicker
+from examples.utils import Test, init_solver, run_tests, save_results
+from mpest import Distribution, MixtureDistribution, Problem
 from mpest.models import GaussianModel, WeibullModelExp
-from mpest import MixtureDistribution, Distribution, Problem
 
 # Gaussian
 

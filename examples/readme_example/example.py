@@ -1,16 +1,15 @@
 """Readme example code"""
 
-import numpy as np
-
 import matplotlib.pyplot as plt
+import numpy as np
 import seaborn as sns
 
 from mpest import Distribution, MixtureDistribution, Problem
-from mpest.models import WeibullModelExp, GaussianModel
-from mpest.optimizers import ScipyTNC
+from mpest.em import EM
 from mpest.em.breakpointers import StepCountBreakpointer
 from mpest.em.distribution_checkers import FiniteChecker
-from mpest.em import EM
+from mpest.models import GaussianModel, WeibullModelExp
+from mpest.optimizers import ScipyTNC
 
 base_mixture_distribution = MixtureDistribution.from_distributions(
     [

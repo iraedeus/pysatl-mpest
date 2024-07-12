@@ -1,11 +1,12 @@
 """Module which contains Newton-CG optimizer"""
 
 from typing import Callable
+
 import numpy as np
 from scipy.optimize import minimize
 
-from mpest.types import Params
 from mpest.optimizers.abstract_optimizer import AOptimizerJacobian
+from mpest.types import Params
 
 
 class ScipyNewtonCG(AOptimizerJacobian):

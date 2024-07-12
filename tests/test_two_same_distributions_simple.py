@@ -1,21 +1,20 @@
 """Unit test module which tests mixture of two distributions parameter estimation"""
 
 from itertools import permutations
-import pytest
-import numpy as np
 
-from mpest.models import (
-    WeibullModelExp,
-    GaussianModel,
-    ExponentialModel,
-    AModelWithGenerator,
-)
+import numpy as np
+import pytest
 
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
+from mpest.models import (
+    AModelWithGenerator,
+    ExponentialModel,
+    GaussianModel,
+    WeibullModelExp,
+)
 from mpest.problem import Problem
 from mpest.utils import Factory
-
 from tests.utils import run_test
 
 

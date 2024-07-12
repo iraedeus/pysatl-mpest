@@ -1,6 +1,7 @@
 """Module which contains unit tests runner with python paths configurator"""
 
 import subprocess
+
 import shared
 
 

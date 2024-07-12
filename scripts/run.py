@@ -1,7 +1,7 @@
 """Module which contains custom command runner with python paths configurator"""
 
-import sys
 import subprocess
+import sys
 
 import shared
 

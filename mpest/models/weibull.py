@@ -3,8 +3,8 @@
 import numpy as np
 from scipy.stats import weibull_min
 
-from mpest.types import Samples, Params
 from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerator
+from mpest.types import Params, Samples
 
 
 class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):

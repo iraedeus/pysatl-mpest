@@ -1,26 +1,25 @@
 """Module which provides many useful utils for improving code writing experience"""
 
-from typing import NamedTuple, Callable
-from functools import partial
-
+import pickle
 import random
 import time
-import pickle
+from functools import partial
+from typing import Callable, NamedTuple
+
 import numpy as np
 from tqdm.contrib.concurrent import process_map
 
-from mpest.types import Samples
-from mpest.mixture_distribution import MixtureDistribution
-from mpest.problem import Problem, Result
+from examples.config import RESULTS_FOLDER
 from mpest.em import EM
-from mpest.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
+from mpest.em.breakpointers import ParamDifferBreakpointer, StepCountBreakpointer
 from mpest.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
+from mpest.mixture_distribution import MixtureDistribution
 from mpest.optimizers import TOptimizer
-
-from examples.config import RESULTS_FOLDER
+from mpest.problem import Problem, Result
+from mpest.types import Samples
 
 np.seterr(all="ignore")
 
