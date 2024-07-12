@@ -1,6 +1,5 @@
 """Unit test module which tests mixture of two distributions parameter estimation"""
 
-from itertools import permutations
 import pytest
 import numpy as np
 
@@ -16,7 +15,7 @@ from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
 from mpest.utils import Factory
 
-from tests.utils import run_test
+from tests.utils import run_test, check_for_error_tolerance
 
 
 @pytest.mark.parametrize(
@@ -48,8 +47,8 @@ from tests.utils import run_test
         ),
         (
             Factory(GaussianModel),
-            [(0.0, 5.0), (5.0, 2.0)],
-            [(1.0, 5.0), (4.0, 5.0)],
+            [(4.0, 5.0), (3.0, 2.0)],
+            [(1.0, 2.0), (2.0, 5.0)],
             500,
             0.01,
             0.2,
@@ -83,6 +82,7 @@ def test_two_same_distributions_simple(
     """Runs mixture of two distributions parameter estimation unit test"""
 
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals
 
     np.random.seed(42)
 
@@ -91,19 +91,23 @@ def test_two_same_distributions_simple(
     params = [np.array(param) for param in params]
     start_params = [np.array(param) for param in start_params]
 
-    x = []
-    for model, param in zip(models, params):
-        x += list(model.generate(param, size))
-
-    np.random.shuffle(x)
-    x = np.array(x)
-
     c_params = [
         model.params_convert_to_model(param) for model, param in zip(models, params)
     ]
     c_start_params = [
-        model.params_convert_to_model(param) for model, param in zip(models, params)
+        model.params_convert_to_model(param)
+        for model, param in zip(models, start_params)
     ]
+
+    x = []
+    for model, param in zip(models, params):
+        x += list(model.generate(param, size))
+    np.random.shuffle(x)
+    x = np.array(x)
+
+    base_mixture = MixtureDistribution.from_distributions(
+        [Distribution(model, param) for model, param in zip(models, c_params)]
+    )
 
     problem = Problem(
         samples=x,
@@ -112,31 +116,5 @@ def test_two_same_distributions_simple(
         ),
     )
 
-    for result in run_test(problem=problem, deviation=deviation):
-        assert result.error is None
-
-        def absolute_diff_params(
-            a: MixtureDistribution,
-            b: MixtureDistribution,
-        ):
-            """Metric which checks absolute differ of gotten distribution mixtures"""
-
-            a_p, b_p = ([d.params for d in ld] for ld in (a, b))
-
-            return min(
-                sum(np.sum(np.abs(x - y)) for x, y in zip(a_p, _b_p))
-                for _b_p in permutations(b_p)
-            )
-
-        assert (
-            absolute_diff_params(
-                result.content,
-                MixtureDistribution.from_distributions(
-                    [
-                        Distribution(model, param)
-                        for model, param in zip(models, c_params)
-                    ]
-                ),
-            )
-            <= expected_error
-        )
+    results = run_test(problem=problem, deviation=deviation)
+    assert check_for_error_tolerance(results, base_mixture, expected_error)

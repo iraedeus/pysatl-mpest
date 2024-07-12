@@ -12,7 +12,7 @@ from mpest.models import (
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
-from tests.utils import run_test
+from tests.utils import run_test, check_for_error_tolerance
 
 
 @pytest.mark.parametrize(
@@ -42,11 +42,11 @@ def test_one_distribution(
 
     params = np.array(params)
     start_params = np.array(start_params)
-
-    x = model.generate(params, size)
-
     c_params = model.params_convert_to_model(params)
     c_start_params = model.params_convert_to_model(start_params)
+
+    base_model = Distribution(model, c_params)
+    x = base_model.generate(size)
 
     problem = Problem(
         samples=x,
@@ -55,8 +55,7 @@ def test_one_distribution(
         ),
     )
 
-    for result in run_test(problem=problem, deviation=deviation):
-        assert result.error is None
-
-        result_params = result.content.distributions[0].params
-        assert float(np.sum(np.abs(c_params - result_params))) <= expected_error
+    results = run_test(problem=problem, deviation=deviation)
+    assert check_for_error_tolerance(
+        results, MixtureDistribution.from_distributions([base_model]), expected_error
+    )
