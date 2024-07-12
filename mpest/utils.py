@@ -1,11 +1,9 @@
 """Module which provides many useful utils for improving code writing experience"""
 
 import functools
-from typing import ParamSpec, TypeVar, Callable, Generic, Iterator
-from abc import ABC, abstractmethod
-
 import time
-
+from abc import ABC, abstractmethod
+from typing import Callable, Generic, Iterator, ParamSpec, TypeVar
 
 P = ParamSpec("P")
 R = TypeVar("R")

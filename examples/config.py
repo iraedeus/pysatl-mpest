@@ -1,13 +1,9 @@
 """Module which describes configuration of experiments"""
 
 import os
+
+from mpest.optimizers import ScipyCG, ScipyNewtonCG, ScipySLSQP, ScipyTNC
 from scripts.shared import EXAMPLES
-from mpest.optimizers import (
-    ScipyCG,
-    ScipyNewtonCG,
-    ScipySLSQP,
-    ScipyTNC,
-)
 
 CPU_COUNT = os.cpu_count()
 MAX_WORKERS_PERCENT = 0.75

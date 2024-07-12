@@ -1,16 +1,16 @@
 """Module which contains mixture distributions of single model tests generator"""
 
-from typing import Iterable
 import random
+from typing import Iterable
+
 import numpy as np
 
 from examples.utils import Clicker, Test
-
-from mpest.problem import Problem
-from mpest.models import AModel, AModelWithGenerator
-from mpest.em import EM
 from mpest.distribution import Distribution
+from mpest.em import EM
 from mpest.mixture_distribution import MixtureDistribution
+from mpest.models import AModel, AModelWithGenerator
+from mpest.problem import Problem
 
 
 def generate_mono_test(

@@ -1,17 +1,17 @@
 """Module which provides source for quick test of mixture distributions of single model"""
 
 import random
+
 import numpy as np
 
-from examples.utils import Test, run_tests, save_results, Clicker, init_solver
-from examples.mono_test_generator import generate_mono_test
 from examples.config import MAX_WORKERS
-
+from examples.mono_test_generator import generate_mono_test
+from examples.utils import Clicker, Test, init_solver, run_tests, save_results
 from mpest.models import (
-    WeibullModelExp,
-    GaussianModel,
-    ExponentialModel,
     AModelWithGenerator,
+    ExponentialModel,
+    GaussianModel,
+    WeibullModelExp,
 )
 from mpest.optimizers import ALL_OPTIMIZERS
 

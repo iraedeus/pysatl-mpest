@@ -5,10 +5,11 @@ Distribution mixture can be defined as
 p(x | list[pdf], list[params], list[prior_probability]) = sum(prior_probability * pdf(x | params))
 """
 
-from typing import Sized, Iterable, Iterator
+from typing import Iterable, Iterator, Sized
+
 import numpy as np
 
-from mpest.distribution import Distribution, APDFAble, AWithGenerator
+from mpest.distribution import APDFAble, AWithGenerator, Distribution
 from mpest.models import AModel, AModelWithGenerator
 from mpest.types import Params
 from mpest.utils import IteratorWrapper

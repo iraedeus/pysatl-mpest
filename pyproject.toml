@@ -39,3 +39,6 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/toxakaz/EM-algo"
+
+[tool.isort]
+profile = "black"
