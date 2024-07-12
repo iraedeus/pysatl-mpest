@@ -1,5 +1,8 @@
 """Unit test module which tests mixture of one distribution parameter estimation"""
 
+# pylint: disable=duplicate-code
+# pylint: disable=too-many-arguments
+
 import pytest
 import numpy as np
 
@@ -12,7 +15,7 @@ from mpest.models import (
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
-from tests.utils import run_test, check_for_error_tolerance
+from tests.utils import run_test, check_for_params_error_tolerance
 
 
 @pytest.mark.parametrize(
@@ -36,8 +39,6 @@ def test_one_distribution(
 ):
     """Runs mixture of one distribution parameter estimation unit test"""
 
-    # pylint: disable=too-many-arguments
-
     np.random.seed(42)
 
     params = np.array(params)
@@ -56,6 +57,6 @@ def test_one_distribution(
     )
 
     results = run_test(problem=problem, deviation=deviation)
-    assert check_for_error_tolerance(
+    assert check_for_params_error_tolerance(
         results, MixtureDistribution.from_distributions([base_model]), expected_error
     )
