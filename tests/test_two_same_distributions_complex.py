@@ -19,8 +19,8 @@ from mpest.problem import Problem
 from mpest.utils import Factory
 from tests.utils import (
     check_for_params_error_tolerance,
-    run_test,
     check_for_priors_error_tolerance,
+    run_test,
 )
 
 

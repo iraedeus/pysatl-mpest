@@ -3,8 +3,8 @@
 # pylint: disable=duplicate-code
 # pylint: disable=too-many-arguments
 
-import pytest
 import numpy as np
+import pytest
 
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
@@ -15,7 +15,7 @@ from mpest.models import (
     WeibullModelExp,
 )
 from mpest.problem import Problem
-from tests.utils import run_test, check_for_params_error_tolerance
+from tests.utils import check_for_params_error_tolerance, run_test
 
 
 @pytest.mark.parametrize(

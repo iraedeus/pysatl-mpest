@@ -20,8 +20,7 @@ from mpest.models import (
 )
 from mpest.problem import Problem
 from mpest.utils import Factory
-
-from tests.utils import run_test, check_for_params_error_tolerance
+from tests.utils import check_for_params_error_tolerance, run_test
 
 
 @pytest.mark.parametrize(

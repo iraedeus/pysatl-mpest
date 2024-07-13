@@ -6,16 +6,16 @@
 import numpy as np
 import pytest
 
-from mpest import MixtureDistribution, Distribution, Problem
-from mpest.models import WeibullModelExp, ExponentialModel, GaussianModel
-from tests.utils import run_test, check_for_params_error_tolerance
+from mpest import Distribution, MixtureDistribution, Problem
+from mpest.models import ExponentialModel, GaussianModel, WeibullModelExp
+from tests.utils import check_for_params_error_tolerance, run_test
 
 
 @pytest.mark.parametrize(
     "models, params, start_params, size, deviation, expected_error",
     [
         (
-            [WeibullModelExp, GaussianModel],
+            [WeibullModelExp(), GaussianModel()],
             [[0.5, 1.0], [5.0, 1.0]],
             [[1.5, 1.0], [1.0, 2.0]],
             1500,
@@ -23,7 +23,7 @@ from tests.utils import run_test, check_for_params_error_tolerance
             0.11,
         ),
         (
-            [ExponentialModel, GaussianModel],
+            [ExponentialModel(), GaussianModel()],
             [[0.5], [5.0, 1.0]],
             [[1.0], [0.0, 5.0]],
             1500,
@@ -31,7 +31,7 @@ from tests.utils import run_test, check_for_params_error_tolerance
             0.25,
         ),
         (
-            [ExponentialModel, WeibullModelExp],
+            [ExponentialModel(), WeibullModelExp()],
             [[0.5], [5.0, 1.0]],
             [[1.0], [3.0, 3.0]],
             1500,
@@ -39,7 +39,7 @@ from tests.utils import run_test, check_for_params_error_tolerance
             0.1,
         ),
         (
-            [ExponentialModel, GaussianModel, WeibullModelExp],
+            [ExponentialModel(), GaussianModel(), WeibullModelExp()],
             [[1.0], [5.0, 1.0], [4.0, 1.0]],
             [[1.0], [1.0, 5.0], [1.0, 2.0]],
             1500,
@@ -64,15 +64,15 @@ def test(
     start_params = [np.array(param) for param in start_params]
 
     c_params = [
-        model().params_convert_to_model(param) for model, param in zip(models, params)
+        model.params_convert_to_model(param) for model, param in zip(models, params)
     ]
     c_start_params = [
-        model().params_convert_to_model(param)
+        model.params_convert_to_model(param)
         for model, param in zip(models, start_params)
     ]
 
     base_mixture = MixtureDistribution.from_distributions(
-        [Distribution(model(), param) for model, param in zip(models, c_params)],
+        [Distribution(model, param) for model, param in zip(models, c_params)],
     )
 
     x = base_mixture.generate(size)
@@ -80,10 +80,7 @@ def test(
     problem = Problem(
         samples=x,
         distributions=MixtureDistribution.from_distributions(
-            [
-                Distribution(model(), param)
-                for model, param in zip(models, c_start_params)
-            ]
+            [Distribution(model, param) for model, param in zip(models, c_start_params)]
         ),
     )
 

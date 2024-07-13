@@ -5,7 +5,7 @@ import numpy as np
 
 from mpest import MixtureDistribution
 from mpest.em import EM
-from mpest.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
+from mpest.em.breakpointers import ParamDifferBreakpointer, StepCountBreakpointer
 from mpest.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
