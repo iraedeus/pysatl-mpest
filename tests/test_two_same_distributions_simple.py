@@ -7,18 +7,17 @@ with equally probable prior probabilities
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 
-import pytest
 import numpy as np
-
-from mpest.models import (
-    WeibullModelExp,
-    GaussianModel,
-    ExponentialModel,
-    AModelWithGenerator,
-)
+import pytest
 
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
+from mpest.models import (
+    AModelWithGenerator,
+    ExponentialModel,
+    GaussianModel,
+    WeibullModelExp,
+)
 from mpest.problem import Problem
 from mpest.utils import Factory
 

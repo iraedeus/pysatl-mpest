@@ -2,8 +2,8 @@
 
 from abc import ABC, abstractmethod
 
-from mpest.types import Samples
 from mpest.mixture_distribution import MixtureDistribution
+from mpest.types import Samples
 from mpest.utils import ResultWithError
 
 

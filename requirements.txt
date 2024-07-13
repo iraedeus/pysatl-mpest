@@ -3,8 +3,6 @@ multiprocess
 numpy
 pandas
 pickleshare
-pre-commit
-pytest
 scikit-learn
 scipy
 seaborn

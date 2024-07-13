@@ -4,26 +4,26 @@ Module which represents EM algorithm and few of it's params:
 - EM.DistributionChecker
 """
 
-from functools import partial
 from abc import ABC, abstractmethod
+from functools import partial
 from typing import Callable
 
 import numpy as np
 
-from mpest.types import Samples
 from mpest.distribution import Distribution
-from mpest.mixture_distribution import MixtureDistribution, DistributionInMixture
+from mpest.mixture_distribution import DistributionInMixture, MixtureDistribution
+from mpest.models import AModel, AModelDifferentiable
+from mpest.optimizers import AOptimizerJacobian, TOptimizer
+from mpest.problem import ASolver, Problem, Result
+from mpest.types import Samples
 from mpest.utils import (
-    logged,
+    ANamed,
     ObjectWrapper,
-    TimerResultWrapper,
     ResultWithError,
     ResultWithLog,
+    TimerResultWrapper,
+    logged,
 )
-from mpest.problem import Problem, Result, ASolver
-from mpest.optimizers import TOptimizer, AOptimizerJacobian
-from mpest.models import AModel, AModelDifferentiable
-from mpest.utils import ANamed
 
 
 class EM(ASolver):

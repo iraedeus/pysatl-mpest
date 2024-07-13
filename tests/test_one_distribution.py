@@ -6,14 +6,14 @@
 import pytest
 import numpy as np
 
-from mpest.models import (
-    WeibullModelExp,
-    GaussianModel,
-    ExponentialModel,
-    AModelWithGenerator,
-)
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
+from mpest.models import (
+    AModelWithGenerator,
+    ExponentialModel,
+    GaussianModel,
+    WeibullModelExp,
+)
 from mpest.problem import Problem
 from tests.utils import run_test, check_for_params_error_tolerance
 

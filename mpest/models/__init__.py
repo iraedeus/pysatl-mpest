@@ -5,6 +5,6 @@ from mpest.models.abstract_model import (
     AModelDifferentiable,
     AModelWithGenerator,
 )
-from mpest.models.weibull import WeibullModelExp
-from mpest.models.gaussian import GaussianModel
 from mpest.models.exponential import ExponentialModel
+from mpest.models.gaussian import GaussianModel
+from mpest.models.weibull import WeibullModelExp

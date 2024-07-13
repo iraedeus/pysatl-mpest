@@ -1,17 +1,17 @@
 """Module which provides source for big test of distribution mixtures of single model"""
 
 import random
+
 import numpy as np
 
-from examples.utils import Test, Clicker, run_tests, save_results, init_solver
-from examples.mono_test_generator import generate_mono_test
 from examples.config import MAX_WORKERS, TESTS_OPTIMIZERS
-
+from examples.mono_test_generator import generate_mono_test
+from examples.utils import Clicker, Test, init_solver, run_tests, save_results
 from mpest.models import (
-    WeibullModelExp,
-    GaussianModel,
-    ExponentialModel,
     AModelWithGenerator,
+    ExponentialModel,
+    GaussianModel,
+    WeibullModelExp,
 )
 
 if __name__ == "__main__":

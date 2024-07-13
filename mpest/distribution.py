@@ -1,11 +1,11 @@
 """Module which represents distribution."""
 
 from abc import ABC, abstractmethod
+
 import numpy as np
 
-from mpest.types import Samples
 from mpest.models import AModel, AModelWithGenerator
-from mpest.types import Params
+from mpest.types import Params, Samples
 
 
 class APDFAble(ABC):

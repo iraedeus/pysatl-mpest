@@ -1,10 +1,11 @@
 """Module which contains COBYLA optimizer"""
 
 from typing import Callable
+
 from scipy.optimize import minimize
 
-from mpest.types import Params
 from mpest.optimizers.abstract_optimizer import AOptimizer
+from mpest.types import Params
 
 
 class ScipyCOBYLA(AOptimizer):

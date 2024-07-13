@@ -4,14 +4,14 @@ from itertools import permutations
 import numpy as np
 
 from mpest import MixtureDistribution
-from mpest.problem import Problem, Result
+from mpest.em import EM
 from mpest.em.breakpointers import StepCountBreakpointer, ParamDifferBreakpointer
 from mpest.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
 from mpest.optimizers import ALL_OPTIMIZERS
-from mpest.em import EM
+from mpest.problem import Problem, Result
 from mpest.utils import ResultWithError
 
 
