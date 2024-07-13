@@ -7,12 +7,27 @@ import numpy as np
 import pytest
 
 from mpest import Distribution, MixtureDistribution, Problem
-from mpest.models import ExponentialModel, GaussianModel, WeibullModelExp
+from mpest.models import (
+    AModelWithGenerator,
+    ExponentialModel,
+    GaussianModel,
+    WeibullModelExp,
+)
 from tests.utils import (
     check_for_params_error_tolerance,
     check_for_priors_error_tolerance,
     run_test,
 )
+
+
+def idfunc(vals):
+    """Function for customizing pytest ids"""
+
+    if isinstance(vals, list):
+        if issubclass(type(vals[0]), AModelWithGenerator):
+            return str([d.name for d in vals])
+        return vals
+    return f"{vals}"
 
 
 @pytest.mark.parametrize(
@@ -60,6 +75,7 @@ from tests.utils import (
             0.1,
         ),
     ],
+    ids=idfunc,
 )
 def test(
     models,

@@ -24,6 +24,16 @@ from tests.utils import (
 )
 
 
+def idfunc(vals):
+    """Function for customizing pytest ids"""
+
+    if isinstance(vals, Factory):
+        return vals.cls().name
+    if isinstance(vals, list):
+        return vals
+    return f"{vals}"
+
+
 @pytest.mark.parametrize(
     "model_factory, params, start_params, prior_probability, size, deviation,"
     "expected_params_error, expected_priors_error",
@@ -89,6 +99,7 @@ from tests.utils import (
             0.3,
         ),
     ],
+    ids=idfunc,
 )
 def test_two_same_distributions_simple(
     model_factory: Factory[AModelWithGenerator],

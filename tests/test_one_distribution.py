@@ -18,6 +18,16 @@ from mpest.problem import Problem
 from tests.utils import check_for_params_error_tolerance, run_test
 
 
+def idfunc(vals):
+    """Function for customizing pytest ids"""
+
+    if issubclass(type(vals), AModelWithGenerator):
+        return vals.name
+    if isinstance(vals, tuple):
+        return vals
+    return f"{vals}"
+
+
 @pytest.mark.parametrize(
     "model, params, start_params, size, deviation, expected_error",
     [
@@ -28,6 +38,7 @@ from tests.utils import check_for_params_error_tolerance, run_test
         (ExponentialModel(), (1.0,), (0.5,), 500, 0.01, 0.05),
         (ExponentialModel(), (2.0,), (3.0,), 500, 0.01, 0.05),
     ],
+    ids=idfunc,
 )
 def test_one_distribution(
     model: AModelWithGenerator,
