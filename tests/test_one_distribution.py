@@ -1,5 +1,8 @@
 """Unit test module which tests mixture of one distribution parameter estimation"""
 
+# pylint: disable=duplicate-code
+# pylint: disable=too-many-arguments
+
 import numpy as np
 import pytest
 
@@ -12,7 +15,17 @@ from mpest.models import (
     WeibullModelExp,
 )
 from mpest.problem import Problem
-from tests.utils import run_test
+from tests.utils import check_for_params_error_tolerance, run_test
+
+
+def idfunc(vals):
+    """Function for customizing pytest ids"""
+
+    if issubclass(type(vals), AModelWithGenerator):
+        return vals.name
+    if isinstance(vals, tuple):
+        return vals
+    return f"{vals}"
 
 
 @pytest.mark.parametrize(
@@ -25,6 +38,7 @@ from tests.utils import run_test
         (ExponentialModel(), (1.0,), (0.5,), 500, 0.01, 0.05),
         (ExponentialModel(), (2.0,), (3.0,), 500, 0.01, 0.05),
     ],
+    ids=idfunc,
 )
 def test_one_distribution(
     model: AModelWithGenerator,
@@ -36,17 +50,15 @@ def test_one_distribution(
 ):
     """Runs mixture of one distribution parameter estimation unit test"""
 
-    # pylint: disable=too-many-arguments
-
     np.random.seed(42)
 
     params = np.array(params)
     start_params = np.array(start_params)
-
-    x = model.generate(params, size)
-
     c_params = model.params_convert_to_model(params)
     c_start_params = model.params_convert_to_model(start_params)
+
+    base_model = Distribution(model, c_params)
+    x = base_model.generate(size)
 
     problem = Problem(
         samples=x,
@@ -55,8 +67,7 @@ def test_one_distribution(
         ),
     )
 
-    for result in run_test(problem=problem, deviation=deviation):
-        assert result.error is None
-
-        result_params = result.content.distributions[0].params
-        assert float(np.sum(np.abs(c_params - result_params))) <= expected_error
+    results = run_test(problem=problem, deviation=deviation)
+    assert check_for_params_error_tolerance(
+        results, MixtureDistribution.from_distributions([base_model]), expected_error
+    )
