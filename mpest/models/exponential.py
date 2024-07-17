@@ -26,8 +26,13 @@ class ExponentialModel(AModelDifferentiable, AModelWithGenerator):
     def params_convert_from_model(self, params: Params) -> Params:
         return np.exp(params)
 
-    def generate(self, params: Params, size: int = 1) -> Samples:
-        return np.array(expon.rvs(scale=1 / params[0], size=size))
+    def generate(self, params: Params, size=1, normalized=0) -> Samples:
+        if normalized == 0:
+            return np.array(expon.rvs(scale=1 / params[0], size=size))
+        if normalized == 1:
+            c_params = self.params_convert_from_model(params)
+            return np.array(expon.rvs(scale=1 / c_params[0], size=size))
+        raise ValueError("Argument normalized must be 0 or 1")
 
     def pdf(self, x: float, params: Params) -> float:
         if x < 0:
