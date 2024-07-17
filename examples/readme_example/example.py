@@ -31,7 +31,9 @@ problem = Problem(
     ),
 )
 
-em = EM(StepCountBreakpointer(max_step=8), FiniteChecker(), ScipyTNC())
+em = EM(
+    StepCountBreakpointer(max_step=8), FiniteChecker(), ScipyTNC(), method="likelihood"
+)
 
 result = em.solve(problem)
 
