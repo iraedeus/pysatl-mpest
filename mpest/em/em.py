@@ -5,17 +5,13 @@ Module which represents EM algorithm and few of it's params:
 """
 
 from abc import ABC, abstractmethod
-from functools import partial
 from typing import Callable
 
-import numpy as np
-
 from mpest.distribution import Distribution
+from mpest.em.em_steps import ExpectationStep, MaximizationStep
 from mpest.mixture_distribution import DistributionInMixture, MixtureDistribution
-from mpest.models import AModel, AModelDifferentiable
-from mpest.optimizers import AOptimizerJacobian, TOptimizer
+from mpest.optimizers import TOptimizer
 from mpest.problem import ASolver, Problem, Result
-from mpest.types import Samples
 from mpest.utils import (
     ANamed,
     ObjectWrapper,
@@ -148,10 +144,12 @@ class EM(ASolver):
         breakpointer: "EM.ABreakpointer",
         distribution_checker: "EM.ADistributionChecker",
         optimizer: TOptimizer,
+        method: str = "likelihood",
     ):
         self.breakpointer = breakpointer
         self.distribution_checker = distribution_checker
         self.optimizer = optimizer
+        self.method = method
 
     class Log:
         """Class which represents EM algorithm log object"""
@@ -208,94 +206,15 @@ class EM(ASolver):
 
     @staticmethod
     def step(
-        samples: Samples,
-        mixture_distribution: MixtureDistribution,
-        optimizer: TOptimizer,
+        problem: Problem, optimizer: TOptimizer, method: str
     ) -> ResultWithError[MixtureDistribution]:
         """EM algo step"""
 
-        # pylint: disable-msg=too-many-locals
+        expectation = ExpectationStep(method)
+        args = expectation.step(problem)
+        maximization = MaximizationStep(method)
 
-        # E part
-
-        p_xij = []
-        active_samples = []
-        for x in samples:
-            p = np.array([d.model.pdf(x, d.params) for d in mixture_distribution])
-            if np.any(p):
-                p_xij.append(p)
-                active_samples.append(x)
-
-        if not active_samples:
-            return ResultWithError(
-                mixture_distribution, Exception("All models can't match")
-            )
-
-        # h[j, i] contains probability of X_i to be a part of distribution j
-        m = len(p_xij)
-        k = len(mixture_distribution)
-        h = np.zeros([k, m], dtype=float)
-        curr_w = np.array([d.prior_probability for d in mixture_distribution])
-        for i, p in enumerate(p_xij):
-            wp = curr_w * p
-            swp = np.sum(wp)
-
-            if not swp:
-                return ResultWithError(
-                    mixture_distribution, Exception("Error in E step")
-                )
-            h[:, i] = wp / swp
-
-        # M part
-
-        # Need attention due creating all w==np.nan problem
-        # instead of removing distribution which is a cause of error
-
-        new_w = np.sum(h, axis=1) / m
-        new_distributions: list[Distribution] = []
-        for j, ch in enumerate(h[:]):
-            d = mixture_distribution[j]
-
-            def log_likelihood(params, ch, model: AModel):
-                return -np.sum(ch * [model.lpdf(x, params) for x in active_samples])
-
-            def jacobian(params, ch, model: AModelDifferentiable):
-                return -np.sum(
-                    ch
-                    * np.swapaxes(
-                        [model.ld_params(x, params) for x in active_samples], 0, 1
-                    ),
-                    axis=1,
-                )
-
-            # maximizing log of likelihood function for every active distribution
-            if isinstance(optimizer, AOptimizerJacobian):
-                if not isinstance(d.model, AModelDifferentiable):
-                    return ResultWithError(
-                        mixture_distribution,
-                        ValueError(
-                            f"Model {d.model.name} can't handle optimizer with jacobian."
-                        ),
-                    )
-                new_params = optimizer.minimize(
-                    partial(log_likelihood, ch=ch, model=d.model),
-                    d.params,
-                    jacobian=partial(jacobian, ch=ch, model=d.model),
-                )
-            else:
-                new_params = optimizer.minimize(
-                    partial(log_likelihood, ch=ch, model=d.model),
-                    d.params,
-                )
-
-            new_distributions.append(Distribution(d.model, new_params))
-
-        return ResultWithError(
-            MixtureDistribution.from_distributions(
-                new_distributions,
-                new_w,
-            )
-        )
+        return ResultWithError(maximization.step(args, optimizer=optimizer))
 
     def solve_logged(
         self,
@@ -328,7 +247,9 @@ class EM(ASolver):
         ) -> ResultWithError[EM._DistributionMixtureAlive]:
             """EM algorithm full step with checking distributions"""
 
-            result = EM.step(problem.samples, distributions, self.optimizer)
+            new_problem = Problem(problem.samples, distributions)
+            result = EM.step(new_problem, self.optimizer, self.method)
+
             if result.error:
                 return ResultWithError(
                     distributions,
