@@ -55,13 +55,15 @@ class AModelWithGenerator(AModel, ABC):
     """
 
     @abstractmethod
-    def generate(self, params: Params, size: int = 1, normalized: int = 0) -> Samples:
+    def generate(
+        self, params: Params, size: int = 1, normalized: bool = False
+    ) -> Samples:
         """
         Method which generates samples by given params
         :param size: sample size
 
-        :param normalize: by default normalized=0 which means params are not normalized,
-         normalized=1 if params normalized
+        :param normalize: by default normalized=False which means params are not normalized,
+         normalized=True if params normalized
 
         :return: Samples with elements that belong to the distribution density of this model
         """

@@ -363,7 +363,7 @@ class EM(ASolver):
             EM.Log(history, step),
         )
 
-    def solve(self, problem: Problem, normalize=1) -> Result:
+    def solve(self, problem: Problem, normalize: bool = True) -> Result:
         """
         Solve problem with EM algorithm
 
@@ -371,7 +371,7 @@ class EM(ASolver):
         :type problem: Problem
 
         :param normalize: Normalize parameters inside EM algo.
-        Default is 1 which means to normalize params, 0 if you don't want to normalize
+        Default is True which means to normalize params, False if you don't want to normalize
         :type normalize: int
         """
 
@@ -404,10 +404,9 @@ class EM(ASolver):
 
             return ResultWithError(new_mixture, result.error)
 
-        if normalize == 1:
+        if normalize:
             new_problem = preprocess_problem(problem)
             result = self.solve_logged(new_problem, False, False).content
             return postprocess_result(result)
-        if normalize == 0:
-            return self.solve_logged(problem, False, False).content
-        raise ValueError("Argument normalize must be 0 or 1")
+
+        return self.solve_logged(problem, False, False).content

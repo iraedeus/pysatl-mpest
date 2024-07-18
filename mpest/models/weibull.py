@@ -28,17 +28,18 @@ class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):
     def params_convert_from_model(self, params: Params) -> Params:
         return np.exp(params)
 
-    def generate(self, params: Params, size=1, normalized=0) -> Samples:
-        if normalized == 0:
+    def generate(
+        self, params: Params, size: int = 1, normalized: bool = False
+    ) -> Samples:
+        if not normalized:
             return np.array(
                 weibull_min.rvs(params[0], loc=0, scale=params[1], size=size)
             )
-        if normalized == 1:
-            c_params = self.params_convert_from_model(params)
-            return np.array(
-                weibull_min.rvs(c_params[0], loc=0, scale=c_params[1], size=size)
-            )
-        raise ValueError("Argument normalized must be 0 or 1")
+
+        c_params = self.params_convert_from_model(params)
+        return np.array(
+            weibull_min.rvs(c_params[0], loc=0, scale=c_params[1], size=size)
+        )
 
     def pdf(self, x: float, params: Params) -> float:
         if x < 0:
