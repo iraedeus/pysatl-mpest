@@ -29,7 +29,7 @@ class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):
         return np.exp(params)
 
     def generate(
-        self, params: Params, size: int = 1, normalized: bool = False
+        self, params: Params, size: int = 1, normalized: bool = True
     ) -> Samples:
         if not normalized:
             return np.array(

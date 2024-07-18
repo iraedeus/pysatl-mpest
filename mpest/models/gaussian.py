@@ -27,7 +27,7 @@ class GaussianModel(AModelDifferentiable, AModelWithGenerator):
         return np.array([params[0], np.exp(params[1])])
 
     def generate(
-        self, params: Params, size: int = 1, normalized: bool = False
+        self, params: Params, size: int = 1, normalized: bool = True
     ) -> Samples:
         if not normalized:
             return np.array(norm.rvs(loc=params[0], scale=params[1], size=size))
