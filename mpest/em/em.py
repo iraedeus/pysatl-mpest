@@ -363,5 +363,50 @@ class EM(ASolver):
             EM.Log(history, step),
         )
 
-    def solve(self, problem: Problem) -> Result:
+    def solve(self, problem: Problem, normalize: bool = True) -> Result:
+        """
+        Solve problem with EM algorithm
+
+        :param problem: Problem with your mixture with initial parameters
+        :type problem: Problem
+
+        :param normalize: Normalize parameters inside EM algo.
+        Default is True which means to normalize params, False if you don't want to normalize
+        :type normalize: int
+        """
+
+        def preprocess_problem(problem: Problem) -> Problem:
+            mixture = problem.distributions
+            new_mixture = MixtureDistribution(
+                [
+                    DistributionInMixture(
+                        d.model,
+                        d.model.params_convert_to_model(d.params),
+                        d.prior_probability,
+                    )
+                    for d in mixture
+                ]
+            )
+            return Problem(problem.samples, new_mixture)
+
+        def postprocess_result(result: ResultWithError) -> ResultWithError:
+            mixture = result.content
+            new_mixture = MixtureDistribution(
+                [
+                    DistributionInMixture(
+                        d.model,
+                        d.model.params_convert_from_model(d.params),
+                        d.prior_probability,
+                    )
+                    for d in mixture
+                ]
+            )
+
+            return ResultWithError(new_mixture, result.error)
+
+        if normalize:
+            new_problem = preprocess_problem(problem)
+            result = self.solve_logged(new_problem, False, False).content
+            return postprocess_result(result)
+
         return self.solve_logged(problem, False, False).content

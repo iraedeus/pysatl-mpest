@@ -20,14 +20,20 @@ class ExponentialModel(AModelDifferentiable, AModelWithGenerator):
     def name(self) -> str:
         return "Exponential"
 
-    def params_convert_to_model(self, params: Params) -> Params:
+    def params_convert_to_model(self, params):
         return np.log(params)
 
-    def params_convert_from_model(self, params: Params) -> Params:
+    def params_convert_from_model(self, params):
         return np.exp(params)
 
-    def generate(self, params: Params, size: int = 1) -> Samples:
-        return np.array(expon.rvs(scale=1 / params[0], size=size))
+    def generate(
+        self, params: Params, size: int = 1, normalized: bool = False
+    ) -> Samples:
+        if not normalized:
+            return np.array(expon.rvs(scale=1 / params[0], size=size))
+
+        c_params = self.params_convert_from_model(params)
+        return np.array(expon.rvs(scale=1 / c_params[0], size=size))
 
     def pdf(self, x: float, params: Params) -> float:
         if x < 0:

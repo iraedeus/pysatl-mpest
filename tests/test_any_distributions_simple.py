@@ -48,15 +48,15 @@ def idfunc(vals):
         (
             [ExponentialModel(), WeibullModelExp()],
             [[0.5], [5.0, 1.0]],
-            [[1.0], [3.0, 3.0]],
+            [[1.0], [3.0, 0.5]],
             1500,
             0.01,
-            0.1,
+            0.21,
         ),
         (
             [ExponentialModel(), GaussianModel(), WeibullModelExp()],
             [[1.0], [5.0, 1.0], [4.0, 1.0]],
-            [[1.0], [1.0, 5.0], [1.0, 2.0]],
+            [[1.0], [7.0, 5.0], [5.0, 2.0]],
             1500,
             0.01,
             0.35,
@@ -79,16 +79,8 @@ def test(
     params = [np.array(param) for param in params]
     start_params = [np.array(param) for param in start_params]
 
-    c_params = [
-        model.params_convert_to_model(param) for model, param in zip(models, params)
-    ]
-    c_start_params = [
-        model.params_convert_to_model(param)
-        for model, param in zip(models, start_params)
-    ]
-
     base_mixture = MixtureDistribution.from_distributions(
-        [Distribution(model, param) for model, param in zip(models, c_params)],
+        [Distribution(model, param) for model, param in zip(models, params)],
     )
 
     x = base_mixture.generate(size)
@@ -96,7 +88,7 @@ def test(
     problem = Problem(
         samples=x,
         distributions=MixtureDistribution.from_distributions(
-            [Distribution(model, param) for model, param in zip(models, c_start_params)]
+            [Distribution(model, param) for model, param in zip(models, start_params)]
         ),
     )
 

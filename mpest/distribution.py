@@ -48,10 +48,10 @@ class Distribution(APDFAble, AWithGenerator):
         """User friendly Distribution initializer"""
 
         model_obj = model()
-        return cls(model_obj, model_obj.params_convert_to_model(np.array(params)))
+        return cls(model_obj, np.array(params))
 
     def pdf(self, x: float):
-        return self.model.pdf(x, self.params)
+        return self.model.pdf(x, self.model.params_convert_to_model(self.params))
 
     @property
     def model(self):
@@ -76,5 +76,5 @@ class Distribution(APDFAble, AWithGenerator):
         if not isinstance(self.model, AModelWithGenerator):
             raise TypeError(f"Model {self.model} hasn't got a generator")
         return self.model.generate(
-            self.model.params_convert_from_model(self.params), size=size
+            self.model.params_convert_to_model(self.params), size=size, normalized=True
         )

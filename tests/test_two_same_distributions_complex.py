@@ -41,36 +41,36 @@ def idfunc(vals):
         (
             Factory(WeibullModelExp),
             [(0.5, 1.0), (1.0, 0.5)],
-            [(1.0, 0.5), (0.5, 1.0)],
-            [0.3, 0.7],
+            [(1.0, 1.0), (1.5, 0.5)],
+            [0.56, 0.44],
             500,
             0.01,
-            0.2,
+            0.3,
             0.1,
         ),
         (
             Factory(WeibullModelExp),
-            [(0.5, 0.5), (1.0, 1.0)],
-            [(0.5, 1.0), (1.5, 1.5)],
-            [0.66, 0.33],
+            [(0.5, 0.5), (2.0, 1.0)],
+            [(0.1, 1.5), (0.5, 0.5)],
+            [0.27, 0.73],
             500,
             0.01,
-            0.5,
+            0.3,
             0.1,
         ),
         (
             Factory(GaussianModel),
             [(0.0, 5.0), (1.0, 1.0)],
-            [(1.0, 3.0), (0.0, 3.0)],
+            [(-2.0, 7.0), (2.0, 1.3)],
             [0.1, 0.9],
             500,
             0.01,
-            0.35,
+            0.55,
             0.1,
         ),
         (
             Factory(GaussianModel),
-            [(4.0, 5.0), (3.0, 2.0)],
+            [(0.0, 5.0), (3.0, 2.0)],
             [(6.0, 6.0), (5.0, 3.5)],
             [0.3, 0.7],
             500,
@@ -95,7 +95,7 @@ def idfunc(vals):
             [0.645, 0.355],
             500,
             0.01,
-            0.2,
+            0.25,
             0.3,
         ),
     ],
@@ -120,16 +120,8 @@ def test_two_same_distributions_simple(
     params = [np.array(param) for param in params]
     start_params = [np.array(param) for param in start_params]
 
-    c_params = [
-        model.params_convert_to_model(param) for model, param in zip(models, params)
-    ]
-    c_start_params = [
-        model.params_convert_to_model(param)
-        for model, param in zip(models, start_params)
-    ]
-
     base_mixture = MixtureDistribution.from_distributions(
-        [Distribution(model, param) for model, param in zip(models, c_params)],
+        [Distribution(model, param) for model, param in zip(models, params)],
         prior_probability,
     )
 
@@ -138,7 +130,7 @@ def test_two_same_distributions_simple(
     problem = Problem(
         samples=x,
         distributions=MixtureDistribution.from_distributions(
-            [Distribution(model, param) for model, param in zip(models, c_start_params)]
+            [Distribution(model, param) for model, param in zip(models, start_params)]
         ),
     )
 

@@ -50,6 +50,7 @@ def check_for_params_error_tolerance(
     for result in results:
         assert result.error is None
         actual_error = absolute_diff_params(result.content, base_mixture)
+        print(actual_error)
         if actual_error <= expected_error:
             return True
     return False
@@ -77,6 +78,7 @@ def check_for_priors_error_tolerance(
     for result in results:
         assert result.error is None
         actual_error = absolute_diff_priors(result.content, base_mixture)
+        print(actual_error)
         if actual_error <= expected_error:
             return True
     return False

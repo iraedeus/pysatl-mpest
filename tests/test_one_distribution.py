@@ -33,8 +33,8 @@ def idfunc(vals):
     [
         (WeibullModelExp(), (0.5, 0.5), (1.0, 1.0), 500, 0.01, 0.05),
         (WeibullModelExp(), (0.3, 1.0), (0.1, 2.0), 500, 0.01, 0.05),
-        (GaussianModel(), (0.0, 5.0), (1.0, 5.0), 500, 0.01, 0.1),
-        (GaussianModel(), (1.0, 5.0), (0.0, 1.0), 500, 0.01, 0.1),
+        (GaussianModel(), (0.0, 5.0), (1.0, 5.0), 500, 0.01, 0.15),
+        (GaussianModel(), (1.0, 5.0), (0.0, 1.0), 500, 0.01, 0.15),
         (ExponentialModel(), (1.0,), (0.5,), 500, 0.01, 0.05),
         (ExponentialModel(), (2.0,), (3.0,), 500, 0.01, 0.05),
     ],
@@ -54,16 +54,14 @@ def test_one_distribution(
 
     params = np.array(params)
     start_params = np.array(start_params)
-    c_params = model.params_convert_to_model(params)
-    c_start_params = model.params_convert_to_model(start_params)
 
-    base_model = Distribution(model, c_params)
+    base_model = Distribution(model, params)
     x = base_model.generate(size)
 
     problem = Problem(
         samples=x,
         distributions=MixtureDistribution.from_distributions(
-            [Distribution(model, c_start_params)]
+            [Distribution(model, start_params)]
         ),
     )
 

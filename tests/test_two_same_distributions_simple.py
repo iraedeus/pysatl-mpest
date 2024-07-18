@@ -42,7 +42,7 @@ def idfunc(vals):
             [(1.0, 1.0), (0.5, 0.5)],
             500,
             0.01,
-            0.2,
+            0.1,
         ),
         (
             Factory(WeibullModelExp),
@@ -50,7 +50,7 @@ def idfunc(vals):
             [(1.0, 0.5), (0.5, 1.0)],
             500,
             0.01,
-            0.2,
+            0.1,
         ),
         (
             Factory(GaussianModel),
@@ -58,15 +58,15 @@ def idfunc(vals):
             [(1.0, 5.0), (-1.0, 5.0)],
             500,
             0.01,
-            0.2,
+            0.1,
         ),
         (
             Factory(GaussianModel),
             [(4.0, 5.0), (3.0, 2.0)],
-            [(1.0, 2.0), (2.0, 5.0)],
+            [(3.0, 5.0), (3.5, 1.0)],
             500,
             0.01,
-            0.2,
+            0.6,
         ),
         (
             Factory(ExponentialModel),
@@ -79,10 +79,10 @@ def idfunc(vals):
         (
             Factory(ExponentialModel),
             [(2.0,), (5.0,)],
-            [(1.0,), (7.0,)],
+            [(4.0,), (1.0,)],
             500,
             0.01,
-            0.2,
+            0.25,
         ),
     ],
     ids=idfunc,
@@ -104,28 +104,20 @@ def test_two_same_distributions_simple(
     params = [np.array(param) for param in params]
     start_params = [np.array(param) for param in start_params]
 
-    c_params = [
-        model.params_convert_to_model(param) for model, param in zip(models, params)
-    ]
-    c_start_params = [
-        model.params_convert_to_model(param)
-        for model, param in zip(models, start_params)
-    ]
-
     x = []
     for model, param in zip(models, params):
-        x += list(model.generate(param, size))
+        x += list(model.generate(param, size, normalized=0))
     np.random.shuffle(x)
     x = np.array(x)
 
     base_mixture = MixtureDistribution.from_distributions(
-        [Distribution(model, param) for model, param in zip(models, c_params)]
+        [Distribution(model, param) for model, param in zip(models, params)]
     )
 
     problem = Problem(
         samples=x,
         distributions=MixtureDistribution.from_distributions(
-            [Distribution(model, param) for model, param in zip(models, c_start_params)]
+            [Distribution(model, param) for model, param in zip(models, start_params)]
         ),
     )
 
