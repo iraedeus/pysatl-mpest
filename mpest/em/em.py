@@ -8,9 +8,8 @@ from abc import ABC, abstractmethod
 from typing import Callable
 
 from mpest.distribution import Distribution
-from mpest.em.em_steps import ExpectationStep, MaximizationStep
+from mpest.em.methods.abstract_method import AMethod
 from mpest.mixture_distribution import DistributionInMixture, MixtureDistribution
-from mpest.optimizers import TOptimizer
 from mpest.problem import ASolver, Problem, Result
 from mpest.utils import (
     ANamed,
@@ -143,12 +142,10 @@ class EM(ASolver):
         self,
         breakpointer: "EM.ABreakpointer",
         distribution_checker: "EM.ADistributionChecker",
-        optimizer: TOptimizer,
-        method: str = "likelihood",
+        method: AMethod,
     ):
         self.breakpointer = breakpointer
         self.distribution_checker = distribution_checker
-        self.optimizer = optimizer
         self.method = method
 
     class Log:
@@ -205,16 +202,10 @@ class EM(ASolver):
             return self._steps
 
     @staticmethod
-    def step(
-        problem: Problem, optimizer: TOptimizer, method: str
-    ) -> ResultWithError[MixtureDistribution]:
+    def step(problem: Problem, method: AMethod) -> ResultWithError[MixtureDistribution]:
         """EM algo step"""
 
-        expectation = ExpectationStep(method)
-        args = expectation.step(problem)
-        maximization = MaximizationStep(method)
-
-        return ResultWithError(maximization.step(args, optimizer=optimizer))
+        return method.step(problem)
 
     def solve_logged(
         self,
@@ -248,7 +239,7 @@ class EM(ASolver):
             """EM algorithm full step with checking distributions"""
 
             new_problem = Problem(problem.samples, distributions)
-            result = EM.step(new_problem, self.optimizer, self.method)
+            result = EM.step(new_problem, self.method)
 
             if result.error:
                 return ResultWithError(
@@ -289,11 +280,9 @@ class EM(ASolver):
         Solve problem with EM algorithm
 
         :param problem: Problem with your mixture with initial parameters
-        :type problem: Problem
 
         :param normalize: Normalize parameters inside EM algo.
         Default is True which means to normalize params, False if you don't want to normalize
-        :type normalize: int
         """
 
         def preprocess_problem(problem: Problem) -> Problem:

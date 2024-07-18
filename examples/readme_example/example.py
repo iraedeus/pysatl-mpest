@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from mpest import Distribution, MixtureDistribution, Problem
+from mpest.distribution import Distribution
 from mpest.em import EM
 from mpest.em.breakpointers import StepCountBreakpointer
 from mpest.em.distribution_checkers import FiniteChecker
+from mpest.em.methods.likelihood_method import LikelihoodMethod
+from mpest.mixture_distribution import MixtureDistribution
 from mpest.models import GaussianModel, WeibullModelExp
-from mpest.optimizers import ScipyTNC
+from mpest.optimizers import ScipyCOBYLA
+from mpest.problem import Problem
 
 base_mixture_distribution = MixtureDistribution.from_distributions(
     [
@@ -19,7 +22,7 @@ base_mixture_distribution = MixtureDistribution.from_distributions(
     [0.33, 0.66],
 )
 
-x = base_mixture_distribution.generate(200)
+x = base_mixture_distribution.generate(2000)
 
 problem = Problem(
     x,
@@ -31,9 +34,10 @@ problem = Problem(
     ),
 )
 
-em = EM(
-    StepCountBreakpointer(max_step=8), FiniteChecker(), ScipyTNC(), method="likelihood"
-)
+e = LikelihoodMethod.BayesEStep()
+m = LikelihoodMethod.LikelihoodMStep(ScipyCOBYLA())
+method = LikelihoodMethod(e, m)
+em = EM(StepCountBreakpointer(max_step=8), FiniteChecker(), method=method)
 
 result = em.solve(problem)
 
