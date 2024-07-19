@@ -16,6 +16,7 @@ from mpest.em.distribution_checkers import (
     FiniteChecker,
     PriorProbabilityThresholdChecker,
 )
+from mpest.em.methods.likelihood_method import LikelihoodMethod
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.optimizers import TOptimizer
 from mpest.problem import Problem, Result
@@ -161,6 +162,9 @@ def init_solver(
     """TODO"""
 
     breakpointer = StepCountBreakpointer(max_step)
+    e = LikelihoodMethod.BayesEStep()
+    m = LikelihoodMethod.LikelihoodMStep(optimizer)
+    method = LikelihoodMethod(e, m)
     if max_deviation is not None:
         breakpointer += ParamDifferBreakpointer(max_deviation)
     return EM(
@@ -169,5 +173,5 @@ def init_solver(
         + PriorProbabilityThresholdChecker(
             prior_probability_threshold, prior_probability_threshold_step
         ),
-        optimizer,
+        method,
     )

@@ -5,9 +5,7 @@ from typing import Any
 
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
-from mpest.utils import ANamed
-
-EStepResult = Any
+from mpest.utils import ANamed, ResultWithError
 
 
 class AExpectation(ABC):
@@ -31,7 +29,7 @@ class AMaximization(ABC):
     """
 
     @abstractmethod
-    def step(self, e_result: Any) -> MixtureDistribution:
+    def step(self, e_result: Any) -> ResultWithError[MixtureDistribution]:
         """
         Function which performs M step
 
@@ -57,8 +55,11 @@ class AMethod(ANamed, ABC):
         :param m_step: The object of the internal subclass in which the M step is performed
         """
 
+        self.e_step = e_step
+        self.m_step = m_step
+
     @abstractmethod
-    def step(self, problem: Problem) -> MixtureDistribution:
+    def step(self, problem: Problem) -> ResultWithError[MixtureDistribution]:
         """
         A function that performs the E and M steps
 

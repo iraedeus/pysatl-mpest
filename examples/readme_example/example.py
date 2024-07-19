@@ -53,7 +53,7 @@ axs_.set_yscale("log")
 
 X = np.linspace(0.001, max(x), 2048)
 axs_.plot(X, [base_mixture_distribution.pdf(x) for x in X], color="green", label="base")
-axs_.plot(X, [result.content.pdf(x) for x in X], color="red", label="result")
+axs_.plot(X, [result.result.pdf(x) for x in X], color="red", label="result")
 
 plt.legend()
 plt.show()

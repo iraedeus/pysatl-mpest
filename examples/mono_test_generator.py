@@ -46,7 +46,7 @@ def generate_mono_test(
                     [random.uniform(border[0], border[1]) for border in params_borders]
                 )
                 model = model_t()
-                x += list(model.generate(params, per_model))
+                x += list(model.generate(params, per_model, normalized=False))
 
                 true_params.append(params)
                 models.append(model)
@@ -78,7 +78,7 @@ def generate_mono_test(
                                     [
                                         Distribution(
                                             model,
-                                            model.params_convert_to_model(params),
+                                            params,
                                         )
                                         for model, params in zip(models, true_params)
                                     ]
@@ -89,7 +89,7 @@ def generate_mono_test(
                                         [
                                             Distribution(
                                                 model,
-                                                model.params_convert_to_model(params),
+                                                params,
                                             )
                                             for model, params in zip(
                                                 models, start_params

@@ -26,10 +26,12 @@ weibull = WeibullModelExp()
 tests = []
 
 for sp in gaussian_start_params:
-    main_distr = list(gaussian.generate(np.array(sp), BASE_SIZE // 2))
+    main_distr = list(gaussian.generate(np.array(sp), BASE_SIZE // 2, normalized=False))
     for second_sp in np.linspace(sp[0] - 5, sp[0] + 5, num=8, endpoint=True):
         x = main_distr + list(
-            gaussian.generate(np.array((second_sp, 3.0)), BASE_SIZE // 2)
+            gaussian.generate(
+                np.array((second_sp, 3.0)), BASE_SIZE // 2, normalized=False
+            )
         )
         random.shuffle(x)
 
@@ -59,13 +61,11 @@ for sp in gaussian_start_params:
                                 [
                                     Distribution(
                                         gaussian,
-                                        gaussian.params_convert_to_model(np.array(sp)),
+                                        np.array(sp),
                                     ),
                                     Distribution(
                                         gaussian,
-                                        gaussian.params_convert_to_model(
-                                            np.array((second_sp, 3.0))
-                                        ),
+                                        np.array((second_sp, 3.0)),
                                     ),
                                 ]
                             ),
@@ -75,7 +75,7 @@ for sp in gaussian_start_params:
                                     [
                                         Distribution(
                                             gaussian,
-                                            gaussian.params_convert_to_model(params),
+                                            params,
                                         )
                                         for params in start_params
                                     ]
@@ -90,10 +90,12 @@ for sp in gaussian_start_params:
                     )
 
 for sp in weibull_start_params:
-    main_distr = list(weibull.generate(np.array(sp), BASE_SIZE // 2))
+    main_distr = list(weibull.generate(np.array(sp), BASE_SIZE // 2, normalized=False))
     for second_sp in np.linspace(max(sp[0] - 5, 0.1), sp[0] + 5, num=8, endpoint=True):
         x = main_distr + list(
-            weibull.generate(np.array((second_sp, 1.0)), BASE_SIZE // 2)
+            weibull.generate(
+                np.array((second_sp, 1.0)), BASE_SIZE // 2, normalized=False
+            )
         )
         random.shuffle(x)
 
@@ -123,13 +125,11 @@ for sp in weibull_start_params:
                                 [
                                     Distribution(
                                         weibull,
-                                        weibull.params_convert_to_model(np.array(sp)),
+                                        np.array(sp),
                                     ),
                                     Distribution(
                                         weibull,
-                                        weibull.params_convert_to_model(
-                                            np.array((second_sp, 3.0))
-                                        ),
+                                        np.array((second_sp, 3.0)),
                                     ),
                                 ]
                             ),
@@ -139,7 +139,7 @@ for sp in weibull_start_params:
                                     [
                                         Distribution(
                                             weibull,
-                                            weibull.params_convert_to_model(params),
+                                            params,
                                         )
                                         for params in start_params
                                     ]

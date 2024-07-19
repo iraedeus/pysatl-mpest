@@ -6,12 +6,7 @@ from typing import Any
 import numpy as np
 
 from mpest.distribution import Distribution
-from mpest.em.methods.abstract_method import (
-    AExpectation,
-    AMaximization,
-    AMethod,
-    EStepResult,
-)
+from mpest.em.methods.abstract_method import AExpectation, AMaximization, AMethod
 from mpest.exceptions import SampleError
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.models import AModel, AModelDifferentiable
@@ -77,7 +72,7 @@ class LikelihoodMethod(AMethod):
         Class which represents ML method for calculating matrix for M step in likelihood method
         """
 
-        def step(self, problem: Problem) -> EStepResult:
+        def step(self, problem: Problem) -> Any:
             """
             A function that performs E step
 
@@ -106,6 +101,9 @@ class LikelihoodMethod(AMethod):
             :param e_result: A tuple containing the arguments obtained from step E:
             active_samples, matrix with probabilities and problem.
             """
+
+            if isinstance(e_result, ResultWithError):
+                return e_result
 
             samples, h, problem = e_result
             optimizer = self.optimizer
@@ -168,7 +166,7 @@ class LikelihoodMethod(AMethod):
 
         return "Likelihood"
 
-    def step(self, problem: Problem) -> MixtureDistribution:
+    def step(self, problem: Problem) -> ResultWithError[MixtureDistribution]:
         """
         Function which performs E and M steps
 
