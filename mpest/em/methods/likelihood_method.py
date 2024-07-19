@@ -1,12 +1,12 @@
 """ The module in which the maximum likelihood method is presented """
 
 from functools import partial
-from typing import Any
 
 import numpy as np
 
 from mpest.distribution import Distribution
-from mpest.em.methods.abstract_method import AExpectation, AMaximization, AMethod
+from mpest.em.methods.abstract_method import AMethod
+from mpest.em.methods.types import AExpectation, AMaximization
 from mpest.exceptions import SampleError
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.models import AModel, AModelDifferentiable
@@ -15,7 +15,7 @@ from mpest.problem import Problem
 from mpest.utils import ResultWithError
 
 
-class LikelihoodMethod(AMethod):
+class LikelihoodMethod(AMethod[tuple]):
     """
     Class which represents likelihood method
 
@@ -28,7 +28,7 @@ class LikelihoodMethod(AMethod):
         Class which represents Bayesian method for calculating matrix for M step in likelihood method
         """
 
-        def step(self, problem: Problem) -> Any:
+        def step(self, problem: Problem) -> tuple | ResultWithError:
             """
             A function that performs E step
 
@@ -72,7 +72,7 @@ class LikelihoodMethod(AMethod):
         Class which represents ML method for calculating matrix for M step in likelihood method
         """
 
-        def step(self, problem: Problem) -> Any:
+        def step(self, problem: Problem) -> tuple:
             """
             A function that performs E step
 
@@ -94,7 +94,7 @@ class LikelihoodMethod(AMethod):
             """
             self.optimizer = optimizer
 
-        def step(self, e_result: Any) -> ResultWithError[MixtureDistribution]:
+        def step(self, e_result: tuple) -> ResultWithError[MixtureDistribution]:
             """
             A function that performs E step
 
