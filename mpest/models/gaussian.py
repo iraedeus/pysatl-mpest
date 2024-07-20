@@ -7,7 +7,18 @@ from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerato
 from mpest.types import Params, Samples
 
 
-class GaussianModel(AModelDifferentiable, AModelWithGenerator):
+class ParamsCalculator:
+    def calc_mean(self, m1, m2):
+        return m1
+
+    def calc_median(self, m1, m2):
+        return m2 * np.pi
+
+    def calc_params(self, m1, m2):
+        return np.array([self.calc_mean(m1, m2), self.calc_median(m1, m2)])
+
+
+class GaussianModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):
     """
     f(x) = e^(-1/2 * ((x - m) / sd)^2) / (sd * sqrt(2pi))
 

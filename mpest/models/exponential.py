@@ -7,7 +7,15 @@ from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerato
 from mpest.types import Params, Samples
 
 
-class ExponentialModel(AModelDifferentiable, AModelWithGenerator):
+class ParamsCalculator:
+    def calc_lambda(self, m1, m2):
+        return 1 / m1
+
+    def calc_params(self, m1, m2):
+        return np.array([self.calc_lambda(m1, m2)])
+
+
+class ExponentialModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):
     """
     f(x) = l * e^(-lx)
 

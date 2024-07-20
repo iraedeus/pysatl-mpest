@@ -1,4 +1,5 @@
 """Module which contains Weibull model class"""
+import math
 
 import numpy as np
 from scipy.stats import weibull_min
@@ -7,7 +8,19 @@ from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerato
 from mpest.types import Params, Samples
 
 
-class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):
+class ParamsCalculator:
+    def calc_k(self, m1, m2):
+        return -np.log(2) / np.log(1 - (m2 / m1))
+
+    def calc_lambda(self, m1, m2):
+        k = self.calc_k(m1, m2)
+        return m1 / math.gamma(1 + 1 / k)
+
+    def calc_params(self, m1, m2):
+        return np.array([self.calc_k(m1, m2), self.calc_lambda(m1, m2)])
+
+
+class WeibullModelExp(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):
     """
     f(x) = (k / l) * (x / l)^(k - 1) / e^((x / l)^k)
 
