@@ -8,14 +8,31 @@ from mpest.types import Params, Samples
 
 
 class ParamsCalculator:
-    def calc_mean(self, m1, m2):
-        return m1
+    """
+    A class representing functions for calculating distribution parameters for the first two L moments
+    """
 
-    def calc_variance(self, m1, m2):
+    def calc_mean(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter mean for the Gaussian distribution
+        """
+
+        return moments[0]
+
+    def calc_variance(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter variance for the Gaussian distribution
+        """
+
+        m2 = moments[1]
         return m2 * np.sqrt(np.pi)
 
-    def calc_params(self, m1, m2):
-        return np.array([self.calc_mean(m1, m2), self.calc_variance(m1, m2)])
+    def calc_params(self, moments: list[float]) -> np.ndarray:
+        """
+        The function for calculating params using L moments
+        """
+
+        return np.array([self.calc_mean(moments), self.calc_variance(moments)])
 
 
 class GaussianModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):

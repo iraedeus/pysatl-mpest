@@ -8,11 +8,22 @@ from mpest.types import Params, Samples
 
 
 class ParamsCalculator:
-    def calc_lambda(self, m1, m2):
-        return 1 / m1
+    """
+    A class representing functions for calculating distribution parameters for the first two L moments
+    """
 
-    def calc_params(self, m1, m2):
-        return np.array([self.calc_lambda(m1, m2)])
+    def calc_lambda(self, moments: list[float]):
+        """
+        The function for calculating the parameter lambda for the Exponential distribution
+        """
+
+        return 1 / moments[0]
+
+    def calc_params(self, moments: list[float]):
+        """
+        The function for calculating params using L moments
+        """
+        return np.array([self.calc_lambda(moments)])
 
 
 class ExponentialModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):

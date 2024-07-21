@@ -20,7 +20,7 @@ def run_test(problem: Problem, deviation: float) -> list[Result]:
     """TODO"""
     result = []
     for optimizer in ALL_OPTIMIZERS:
-        method = method = LikelihoodMethod(
+        method = LikelihoodMethod(
             LikelihoodMethod.BayesEStep(), LikelihoodMethod.LikelihoodMStep(optimizer)
         )
         em_algo = EM(

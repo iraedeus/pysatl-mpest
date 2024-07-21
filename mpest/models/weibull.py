@@ -9,15 +9,33 @@ from mpest.types import Params, Samples
 
 
 class ParamsCalculator:
-    def calc_k(self, m1, m2):
+    """
+    A class representing functions for calculating distribution parameters for the first two L moments
+    """
+
+    def calc_k(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter k for the Weibull distribution
+        """
+
+        m1, m2 = moments
         return -np.log(2) / np.log(1 - (m2 / m1))
 
-    def calc_lambda(self, m1, m2):
-        k = self.calc_k(m1, m2)
+    def calc_lambda(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter lambda for the Weibull distribution
+        """
+
+        m1 = moments[0]
+        k = self.calc_k(moments)
         return m1 / math.gamma(1 + 1 / k)
 
-    def calc_params(self, m1, m2):
-        return np.array([self.calc_k(m1, m2), self.calc_lambda(m1, m2)])
+    def calc_params(self, moments: list[float]):
+        """
+        The function for calculating params using L moments
+        """
+
+        return np.array([self.calc_k(moments), self.calc_lambda(moments)])
 
 
 class WeibullModelExp(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):

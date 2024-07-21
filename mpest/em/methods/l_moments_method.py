@@ -1,7 +1,8 @@
 """ The module in which the L moments method is presented """
 import numpy as np
+from scipy.stats import dirichlet
 
-from mpest import Distribution, Samples
+from mpest import Distribution
 from mpest.em.methods.abstract_method import AMethod
 from mpest.em.methods.types import AExpectation, AMaximization
 from mpest.mixture_distribution import MixtureDistribution
@@ -22,40 +23,64 @@ class LMomentsMethod(AMethod[tuple]):
         Class which represents method for performing E step in L moments method.
         """
 
+        def __init__(self):
+            """
+            Object constructor
+            """
+
+            self.indicators = []
+
+        def init_indicators(self, problem: Problem) -> None:
+            """
+            A function that initializes a matrix with indicators
+
+            :param problem: Object of class Problem, which contains samples and mixture.
+            """
+
+            k, m = len(problem.distributions), len(problem.samples)
+            self.indicators = np.transpose(dirichlet.rvs([1 for _ in range(k)], m))
+
         def calc_indicators(self, problem: Problem):
+            """
+            A function that recalculates the matrix with indicators.
+
+            :param problem: Object of class Problem, which contains samples and mixture.
+            """
+
             samples, mixture = problem.samples, problem.distributions
-            priors = [mixture[i].prior_probability for i in range(len(mixture))]
+            priors = np.array([dist.prior_probability for dist in mixture])
             k, m = len(mixture), len(samples)
 
-            z = np.zeros([k, m], dtype=float)
+            z = np.zeros((k, m), dtype=float)
+
+            pdf_values = np.zeros((k, m), dtype=float)
+            for j, d_j in enumerate(mixture):
+                pdf_values[j] = [
+                    d_j.model.pdf(samples[i], d_j.params) for i in range(m)
+                ]
+
+            denominators = np.sum(priors[:, np.newaxis] * pdf_values, axis=0)
 
             for j in range(k):
-                z_j = np.zeros([1, m])
-                for i in range(m):
-                    x_i = samples[i]
-                    d_j = mixture[j]
+                numerators = priors[j] * pdf_values[j]
+                z[j] = numerators / denominators
 
-                    denominator = np.sum(
-                        [
-                            priors[_j] * d.model.pdf(x_i, d.params)
-                            for _j, d in enumerate(mixture)
-                        ]
-                    )
-                    numerator = priors[j] * d_j.model.pdf(x_i, d_j.params)
-                    z_ji = numerator / denominator
-                    z_j[:, i] = z_ji
+            self.indicators = z
 
-                z[j] = z_j
+        def update_priors(self, problem: Problem) -> list[float]:
+            """
+            A function that recalculates the list with prior probabilities.
 
-            return z
+            :param problem: Object of class Problem, which contains samples and mixture.
+            :return: List with prior probabilities
+            """
 
-        def update_priors(self, problem: Problem, indicators):
             samples, mixture = problem.samples, problem.distributions
             k, m = len(mixture), len(samples)
 
             new_priors = []
             for j in range(k):
-                p_j = np.sum([indicators[j][i] for i in range(m)])
+                p_j = np.sum([self.indicators[j][i] for i in range(m)])
                 new_priors.append(p_j / m)
 
             return new_priors
@@ -65,19 +90,37 @@ class LMomentsMethod(AMethod[tuple]):
             A function that performs E step
 
             :param problem: Object of class Problem, which contains samples and mixture.
-            :return: ???
+            :return: Tuple with problem, new_priors and indicators.
             """
 
-            indicators = self.calc_indicators(problem)
-            new_priors = self.update_priors(problem, indicators)
-            return problem, new_priors, indicators
+            if not hasattr(self, "indicators"):
+                self.init_indicators(problem)
+            else:
+                self.calc_indicators(problem)
+
+            new_priors = self.update_priors(problem)
+            new_problem = Problem(
+                problem.samples,
+                MixtureDistribution.from_distributions(
+                    problem.distributions, new_priors
+                ),
+            )
+            return new_problem, new_priors, self.indicators
 
     class MStep(AMaximization):
         """
         Class which calculate new params using matrix with indicator from E step.
         """
 
-        def calculate_m1(self, problem: Problem, indicators):
+        def calculate_m1(self, problem: Problem, indicators: np.ndarray) -> list[float]:
+            """
+            A function that calculates the list of first moments of each distribution.
+
+            :param problem: Object of class Problem, which contains samples and mixture.
+            :param indicators: Matrix with indicators
+            :return: List with first moments
+            """
+
             samples, mixture = problem.samples, problem.distributions
             ordered_samples = np.sort(samples)
             k, m = len(mixture), len(samples)
@@ -92,7 +135,17 @@ class LMomentsMethod(AMethod[tuple]):
 
             return moments
 
-        def calculate_m2(self, problem: Problem, indicators, m1):
+        def calculate_m2(
+            self, problem: Problem, indicators: np.ndarray, m1: list[float]
+        ) -> list[float]:
+            """
+            A function that calculates the list of second moments of each distribution.
+
+            :param problem: Object of class Problem, which contains samples and mixture.
+            :param indicators: Matrix with indicators
+            :return: List with second moments
+            """
+
             samples, mixture = problem.samples, problem.distributions
             ordered_samples = np.sort(samples)
             k, m = len(mixture), len(samples)
@@ -116,7 +169,7 @@ class LMomentsMethod(AMethod[tuple]):
             """
             A function that performs E step
 
-            :param e_result: ???
+            :param e_result: Tuple with problem, new_priors and indicators.
             """
 
             problem, new_priors, indicators = e_result
@@ -127,7 +180,8 @@ class LMomentsMethod(AMethod[tuple]):
             new_distributions = []
 
             for j, d in enumerate(mixture):
-                new_params = d.model.calc_params(m1[j], m2[j])
+                moments = [m1[j], m2[j]]
+                new_params = d.model.calc_params(moments)
                 new_d = Distribution(
                     d.model, d.model.params_convert_to_model(new_params)
                 )
@@ -153,7 +207,7 @@ class LMomentsMethod(AMethod[tuple]):
     def name(self) -> str:
         """name getter"""
 
-        return "Likelihood"
+        return "L moments"
 
     def step(self, problem: Problem) -> ResultWithError[MixtureDistribution]:
         """
