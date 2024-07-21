@@ -47,7 +47,7 @@ class LMomentsMethod(AMethod[tuple]):
             :param problem: Object of class Problem, which contains samples and mixture.
             """
 
-            samples, mixture = problem.samples, problem.distributions
+            samples, mixture = np.sort(problem.samples), problem.distributions
             priors = np.array([dist.prior_probability for dist in mixture])
             k, m = len(mixture), len(samples)
 
