@@ -11,11 +11,11 @@ class ParamsCalculator:
     def calc_mean(self, m1, m2):
         return m1
 
-    def calc_median(self, m1, m2):
-        return m2 * np.pi
+    def calc_variance(self, m1, m2):
+        return m2 * np.sqrt(np.pi)
 
     def calc_params(self, m1, m2):
-        return np.array([self.calc_mean(m1, m2), self.calc_median(m1, m2)])
+        return np.array([self.calc_mean(m1, m2), self.calc_variance(m1, m2)])
 
 
 class GaussianModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):
