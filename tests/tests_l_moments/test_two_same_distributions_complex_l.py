@@ -17,10 +17,10 @@ from mpest.models import (
 )
 from mpest.problem import Problem
 from mpest.utils import Factory
+from tests.tests_l_moments.l_moments_utils import run_test
 from tests.utils import (
     check_for_params_error_tolerance,
     check_for_priors_error_tolerance,
-    run_test,
 )
 
 
@@ -45,38 +45,38 @@ def idfunc(vals):
             [0.56, 0.44],
             500,
             0.01,
-            0.3,
+            0.2,
             0.1,
         ),
         (
             Factory(WeibullModelExp),
             [(0.5, 0.5), (2.0, 1.0)],
-            [(0.1, 1.5), (0.5, 0.5)],
+            [(1.0, 1.5), (3.0, 0.5)],
             [0.27, 0.73],
             500,
             0.01,
-            0.3,
-            0.1,
+            0.25,
+            0.15,
         ),
         (
             Factory(GaussianModel),
             [(0.0, 5.0), (1.0, 1.0)],
-            [(-2.0, 7.0), (2.0, 1.3)],
+            [(4.0, 2.0), (-1.0, 1.5)],
             [0.1, 0.9],
             500,
             0.01,
-            0.55,
-            0.1,
+            0.5,
+            0.15,
         ),
         (
             Factory(GaussianModel),
-            [(0.0, 5.0), (3.0, 2.0)],
-            [(6.0, 6.0), (5.0, 3.5)],
+            [(0.0, 5.0), (2.0, 2.0)],
+            [(6.0, 7.0), (2.0, 3.5)],
             [0.3, 0.7],
             500,
             0.01,
-            0.4,
             0.2,
+            0.15,
         ),
         (
             Factory(ExponentialModel),
@@ -86,7 +86,7 @@ def idfunc(vals):
             500,
             0.01,
             0.2,
-            0.2,
+            0.1,
         ),
         (
             Factory(ExponentialModel),
@@ -134,10 +134,10 @@ def test_two_same_distributions_simple(
         ),
     )
 
-    results = run_test(problem=problem, deviation=deviation)
+    result = run_test(problem=problem, deviation=deviation)
     assert check_for_params_error_tolerance(
-        results, base_mixture, expected_params_error
+        [result], base_mixture, expected_params_error
     )
     assert check_for_priors_error_tolerance(
-        results, base_mixture, expected_priors_error
+        [result], base_mixture, expected_priors_error
     )

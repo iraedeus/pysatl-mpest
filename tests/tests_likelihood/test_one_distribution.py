@@ -15,7 +15,8 @@ from mpest.models import (
     WeibullModelExp,
 )
 from mpest.problem import Problem
-from tests.utils import check_for_params_error_tolerance, run_test
+from tests.tests_likelihood.likelihood_utils import run_test
+from tests.utils import check_for_params_error_tolerance
 
 
 def idfunc(vals):
