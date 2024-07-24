@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Callable
 
 from mpest.distribution import Distribution
-from mpest.em.methods.abstract_method import AMethod
+from mpest.em.methods.method import Method
 from mpest.mixture_distribution import DistributionInMixture, MixtureDistribution
 from mpest.problem import ASolver, Problem, Result
 from mpest.utils import (
@@ -142,7 +142,7 @@ class EM(ASolver):
         self,
         breakpointer: "EM.ABreakpointer",
         distribution_checker: "EM.ADistributionChecker",
-        method: AMethod,
+        method: Method,
     ):
         self.breakpointer = breakpointer
         self.distribution_checker = distribution_checker
@@ -202,7 +202,7 @@ class EM(ASolver):
             return self._steps
 
     @staticmethod
-    def step(problem: Problem, method: AMethod) -> ResultWithError[MixtureDistribution]:
+    def step(problem: Problem, method: Method) -> ResultWithError[MixtureDistribution]:
         """EM algo step"""
 
         return method.step(problem)

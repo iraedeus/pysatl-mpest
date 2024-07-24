@@ -31,7 +31,7 @@ The package can work with mixture distribution of any combination of models, whi
 Given samples should be wrapped in `MixtureDistribution` then by using `EM.solve` the result will be calculated. `EM` class depends on `ABreakpointer`, `ADistributionChecker` and `AMethod` objects. :
 - `ABreakpointer` class $-$ the EM algorithm breakpointer function. There are few basic realizations of that abstract class in that package.
 - `ADistributionChecker` class $-$ sometimes because of using math optimizers in M-step of EM algorithm, some distributions inside mixture distribution can become degenerated. Such distributions may be detected and removed from calculations. There are few basic realizations of that abstract class in that package.
-- `AMethod` class $-$ methods for E and M steps. In each method there are few variants of E step. Sometimes M step object uses `AOptimizer` :
+- `Method` class $-$ for E and M steps. In each method there are few variants of E step. Sometimes M step object uses `AOptimizer` :
 - - `AOptimizer`/`AOptimizerJacobian` classes $-$ math optimizers for M step of algorithm. There are few SciPy optimizers made follow the given interfaces.
 
 ### Code example
@@ -44,7 +44,8 @@ import seaborn as sns
 
 from mpest import Distribution, MixtureDistribution, Problem
 from mpest.models import WeibullModelExp, GaussianModel
-from mpest.em.methods.likelihood_method import LikelihoodMethod
+from mpest.em.methods.method import Method
+from mpest.em.methods.likelihood_method import BayesEStep, LikelihoodMStep
 from mpest.optimizers.scipy_cobyla import ScipyCOBYLA
 from mpest.em.breakpointers import StepCountBreakpointer
 from mpest.em.distribution_checkers import FiniteChecker
@@ -70,9 +71,9 @@ problem = Problem(
     ),
 )
 
-e = LikelihoodMethod.BayesEStep()
-m = LikelihoodMethod.LikelihoodMStep(ScipyCOBYLA())
-method = LikelihoodMethod(e, m)
+e = BayesEStep()
+m = LikelihoodMStep(ScipyCOBYLA())
+method = Method(e, m)
 em = EM(StepCountBreakpointer(max_step=32), FiniteChecker(), method=method)
 
 result = em.solve(problem)
