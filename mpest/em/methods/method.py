@@ -1,9 +1,12 @@
 """Module that represents method class"""
+from typing import TypeVar
 
 from mpest.em.methods.abstract_steps import AExpectation, AMaximization
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
 from mpest.utils import ResultWithError
+
+T = TypeVar("T")
 
 
 class Method:
@@ -11,7 +14,7 @@ class Method:
     Class that performs E and M steps.
     """
 
-    def __init__(self, e_step: AExpectation, m_step: AMaximization):
+    def __init__(self, e_step: AExpectation[T], m_step: AMaximization[T]):
         """
         Object constructor.
 

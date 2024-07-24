@@ -7,17 +7,16 @@ from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
 from mpest.utils import ResultWithError
 
-X = TypeVar("X")
-Y = TypeVar("Y")
+T = TypeVar("T")
 
 
-class AExpectation(Generic[X], ABC):
+class AExpectation(Generic[T], ABC):
     """
     Abstract class which represents E step for EM
     """
 
     @abstractmethod
-    def step(self, problem: Problem) -> X:
+    def step(self, problem: Problem) -> T:
         """
         Function which performs E step
 
@@ -26,13 +25,13 @@ class AExpectation(Generic[X], ABC):
         """
 
 
-class AMaximization(Generic[Y], ABC):
+class AMaximization(Generic[T], ABC):
     """
     Abstract class which represents M step for EM
     """
 
     @abstractmethod
-    def step(self, e_result: Y) -> ResultWithError[MixtureDistribution]:
+    def step(self, e_result: T) -> ResultWithError[MixtureDistribution]:
         """
         Function which performs M step
 

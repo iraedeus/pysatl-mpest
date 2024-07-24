@@ -13,16 +13,15 @@ from mpest.optimizers import AOptimizerJacobian, TOptimizer
 from mpest.problem import Problem
 from mpest.utils import ResultWithError
 
-BayesResult = tuple | ResultWithError
-MLResult = tuple
+EResult = tuple[list[float], np.ndarray, Problem] | ResultWithError[MixtureDistribution]
 
 
-class BayesEStep(AExpectation[BayesResult]):
+class BayesEStep(AExpectation[EResult]):
     """
     Class which represents Bayesian method for calculating matrix for M step in likelihood method
     """
 
-    def step(self, problem: Problem) -> BayesResult:
+    def step(self, problem: Problem) -> EResult:
         """
         A function that performs E step
 
@@ -62,12 +61,12 @@ class BayesEStep(AExpectation[BayesResult]):
         return active_samples, h, problem
 
 
-class ML(AExpectation[MLResult]):
+class ML(AExpectation[EResult]):
     """
     Class which represents ML method for calculating matrix for M step in likelihood method
     """
 
-    def step(self, problem: Problem) -> MLResult:
+    def step(self, problem: Problem) -> EResult:
         """
         A function that performs E step
 
@@ -75,7 +74,7 @@ class ML(AExpectation[MLResult]):
         """
 
 
-class LikelihoodMStep(AMaximization[MLResult | BayesResult]):
+class LikelihoodMStep(AMaximization[EResult]):
     """
     Class which calculate new params using logarithm od likelihood function
 
@@ -90,9 +89,7 @@ class LikelihoodMStep(AMaximization[MLResult | BayesResult]):
         """
         self.optimizer = optimizer
 
-    def step(
-        self, e_result: MLResult | BayesResult
-    ) -> ResultWithError[MixtureDistribution]:
+    def step(self, e_result: EResult) -> ResultWithError[MixtureDistribution]:
         """
         A function that performs E step
 

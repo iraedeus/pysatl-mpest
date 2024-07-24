@@ -8,10 +8,10 @@ from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
 from mpest.utils import ResultWithError
 
-IndicatorResult = tuple[Problem, list[float], np.ndarray]
+EResult = tuple[Problem, list[float], np.ndarray]
 
 
-class IndicatorEStep(AExpectation[IndicatorResult]):
+class IndicatorEStep(AExpectation[EResult]):
     """
     Class which represents method for performing E step in L moments method.
     """
@@ -76,7 +76,7 @@ class IndicatorEStep(AExpectation[IndicatorResult]):
 
         return new_priors
 
-    def step(self, problem: Problem) -> IndicatorResult:
+    def step(self, problem: Problem) -> EResult:
         """
         A function that performs E step
 
@@ -97,7 +97,7 @@ class IndicatorEStep(AExpectation[IndicatorResult]):
         return new_problem, new_priors, self.indicators
 
 
-class MStep(AMaximization[IndicatorResult]):
+class MStep(AMaximization[EResult]):
     """
     Class which calculate new params using matrix with indicator from E step.
     """
@@ -155,7 +155,7 @@ class MStep(AMaximization[IndicatorResult]):
 
         return moments
 
-    def step(self, e_result: IndicatorResult) -> ResultWithError[MixtureDistribution]:
+    def step(self, e_result: EResult) -> ResultWithError[MixtureDistribution]:
         """
         A function that performs E step
 
