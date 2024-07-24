@@ -7,7 +7,7 @@ from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerato
 from mpest.types import Params, Samples
 
 
-class ParamsCalculator:
+class LMomentsParameterMixin:
     """
     A class representing functions for calculating distribution parameters for the first two L moments
     """
@@ -19,14 +19,10 @@ class ParamsCalculator:
 
         return 1 / moments[0]
 
-    def calc_params(self, moments: list[float]):
-        """
-        The function for calculating params using L moments
-        """
-        return np.array([self.calc_lambda(moments)])
 
-
-class ExponentialModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):
+class ExponentialModel(
+    AModelDifferentiable, AModelWithGenerator, LMomentsParameterMixin
+):
     """
     f(x) = l * e^(-lx)
 
@@ -76,3 +72,9 @@ class ExponentialModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculat
 
     def ld_params(self, x: float, params: Params) -> np.ndarray:
         return np.array([self.ldl(x, params)])
+
+    def calc_params(self, moments: list[float]):
+        """
+        The function for calculating params using L moments
+        """
+        return np.array([self.calc_lambda(moments)])

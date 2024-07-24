@@ -7,7 +7,7 @@ from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerato
 from mpest.types import Params, Samples
 
 
-class ParamsCalculator:
+class LMomentsParameterMixin:
     """
     A class representing functions for calculating distribution parameters for the first two L moments
     """
@@ -27,15 +27,8 @@ class ParamsCalculator:
         m2 = moments[1]
         return m2 * np.sqrt(np.pi)
 
-    def calc_params(self, moments: list[float]) -> np.ndarray:
-        """
-        The function for calculating params using L moments
-        """
 
-        return np.array([self.calc_mean(moments), self.calc_variance(moments)])
-
-
-class GaussianModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator):
+class GaussianModel(AModelDifferentiable, AModelWithGenerator, LMomentsParameterMixin):
     """
     f(x) = e^(-1/2 * ((x - m) / sd)^2) / (sd * sqrt(2pi))
 
@@ -88,3 +81,10 @@ class GaussianModel(AModelDifferentiable, AModelWithGenerator, ParamsCalculator)
 
     def ld_params(self, x: float, params: Params) -> np.ndarray:
         return np.array([self.ldm(x, params), self.ldsd(x, params)])
+
+    def calc_params(self, moments: list[float]) -> np.ndarray:
+        """
+        The function for calculating params using L moments
+        """
+
+        return np.array([self.calc_mean(moments), self.calc_variance(moments)])
