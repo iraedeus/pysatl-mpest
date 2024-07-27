@@ -4,11 +4,12 @@ from scipy.stats import dirichlet
 
 from mpest.distribution import Distribution
 from mpest.em.methods.abstract_steps import AExpectation, AMaximization
+from mpest.exceptions import EStepError, MStepError
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem
 from mpest.utils import ResultWithError
 
-EResult = tuple[Problem, list[float], np.ndarray]
+EResult = tuple[Problem, list[float], np.ndarray] | ResultWithError[MixtureDistribution]
 
 
 class IndicatorEStep(AExpectation[EResult]):
@@ -51,12 +52,16 @@ class IndicatorEStep(AExpectation[EResult]):
             pdf_values[j] = [d_j.model.pdf(samples[i], d_j.params) for i in range(m)]
 
         denominators = np.sum(priors[:, np.newaxis] * pdf_values, axis=0)
+        if 0.0 in denominators:
+            self.indicators = []
+            return None
 
         for j in range(k):
             numerators = priors[j] * pdf_values[j]
             z[j] = numerators / denominators
 
         self.indicators = z
+        return None
 
     def update_priors(self, problem: Problem) -> list[float]:
         """
@@ -88,6 +93,9 @@ class IndicatorEStep(AExpectation[EResult]):
             self.init_indicators(problem)
         else:
             self.calc_indicators(problem)
+            if len(self.indicators) == 0:
+                error = EStepError("The indicators could not be calculated")
+                return ResultWithError(problem.distributions, error)
 
         new_priors = self.update_priors(problem)
         new_problem = Problem(
@@ -118,6 +126,9 @@ class MStep(AMaximization[EResult]):
         moments = []
         for j in range(k):
             denominator = np.sum([indicators[j][i] for i in range(m)])
+            if denominator == 0:
+                return []
+
             numerator = np.sum(
                 [indicators[j][i] * ordered_samples[i] for i in range(m)]
             )
@@ -144,6 +155,8 @@ class MStep(AMaximization[EResult]):
         for j in range(k):
             sum_z_ji = np.sum([indicators[j][i] for i in range(m)])
             denominator = sum_z_ji**2 - sum_z_ji
+            if denominator == 0:
+                return []
 
             numerator = 0
             for i in range(m):
@@ -165,6 +178,10 @@ class MStep(AMaximization[EResult]):
         problem, new_priors, indicators = e_result
         m1 = self.calculate_m1(problem, indicators)
         m2 = self.calculate_m2(problem, indicators, m1)
+
+        if len(m1) == 0 or len(m2) == 0:
+            error = MStepError("It was not possible to calculate one of the L moments")
+            return ResultWithError(problem.distributions, error)
 
         mixture = problem.distributions
         new_distributions = []
