@@ -175,6 +175,9 @@ class MStep(AMaximization[EResult]):
         :param e_result: Tuple with problem, new_priors and indicators.
         """
 
+        if isinstance(e_result, ResultWithError):
+            return e_result
+
         problem, new_priors, indicators = e_result
         m1 = self.calculate_m1(problem, indicators)
         m2 = self.calculate_m2(problem, indicators, m1)

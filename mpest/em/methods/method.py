@@ -1,5 +1,5 @@
 """Module that represents method class"""
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 from mpest.em.methods.abstract_steps import AExpectation, AMaximization
 from mpest.mixture_distribution import MixtureDistribution
@@ -9,7 +9,7 @@ from mpest.utils import ResultWithError
 T = TypeVar("T")
 
 
-class Method:
+class Method(Generic[T]):
     """
     Class that performs E and M steps.
     """
