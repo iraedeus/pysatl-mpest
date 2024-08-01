@@ -7,7 +7,28 @@ from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerato
 from mpest.types import Params, Samples
 
 
-class GaussianModel(AModelDifferentiable, AModelWithGenerator):
+class LMomentsParameterMixin:
+    """
+    A class representing functions for calculating distribution parameters for the first two L moments
+    """
+
+    def calc_mean(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter mean for the Gaussian distribution
+        """
+
+        return moments[0]
+
+    def calc_variance(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter variance for the Gaussian distribution
+        """
+
+        m2 = moments[1]
+        return m2 * np.sqrt(np.pi)
+
+
+class GaussianModel(AModelDifferentiable, AModelWithGenerator, LMomentsParameterMixin):
     """
     f(x) = e^(-1/2 * ((x - m) / sd)^2) / (sd * sqrt(2pi))
 
@@ -27,7 +48,7 @@ class GaussianModel(AModelDifferentiable, AModelWithGenerator):
         return np.array([params[0], np.exp(params[1])])
 
     def generate(
-        self, params: Params, size: int = 1, normalized: bool = False
+        self, params: Params, size: int = 1, normalized: bool = True
     ) -> Samples:
         if not normalized:
             return np.array(norm.rvs(loc=params[0], scale=params[1], size=size))
@@ -60,3 +81,10 @@ class GaussianModel(AModelDifferentiable, AModelWithGenerator):
 
     def ld_params(self, x: float, params: Params) -> np.ndarray:
         return np.array([self.ldm(x, params), self.ldsd(x, params)])
+
+    def calc_params(self, moments: list[float]) -> np.ndarray:
+        """
+        The function for calculating params using L moments
+        """
+
+        return np.array([self.calc_mean(moments), self.calc_variance(moments)])

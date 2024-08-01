@@ -1,4 +1,5 @@
 """Module which contains Weibull model class"""
+import math
 
 import numpy as np
 from scipy.stats import weibull_min
@@ -7,7 +8,32 @@ from mpest.models.abstract_model import AModelDifferentiable, AModelWithGenerato
 from mpest.types import Params, Samples
 
 
-class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):
+class LMomentsParameterMixin:
+    """
+    A class representing functions for calculating distribution parameters for the first two L moments
+    """
+
+    def calc_k(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter k for the Weibull distribution
+        """
+
+        m1, m2 = moments
+        return -np.log(2) / np.log(1 - (m2 / m1))
+
+    def calc_lambda(self, moments: list[float]) -> float:
+        """
+        The function for calculating the parameter lambda for the Weibull distribution
+        """
+
+        m1 = moments[0]
+        k = self.calc_k(moments)
+        return m1 / math.gamma(1 + 1 / k)
+
+
+class WeibullModelExp(
+    AModelDifferentiable, AModelWithGenerator, LMomentsParameterMixin
+):
     """
     f(x) = (k / l) * (x / l)^(k - 1) / e^((x / l)^k)
 
@@ -29,7 +55,7 @@ class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):
         return np.exp(params)
 
     def generate(
-        self, params: Params, size: int = 1, normalized: bool = False
+        self, params: Params, size: int = 1, normalized: bool = True
     ) -> Samples:
         if not normalized:
             return np.array(
@@ -75,3 +101,10 @@ class WeibullModelExp(AModelDifferentiable, AModelWithGenerator):
 
     def ld_params(self, x: float, params: Params) -> np.ndarray:
         return np.array([self.ldk(x, params), self.ldl(x, params)])
+
+    def calc_params(self, moments: list[float]):
+        """
+        The function for calculating params using L moments
+        """
+
+        return np.array([self.calc_k(moments), self.calc_lambda(moments)])

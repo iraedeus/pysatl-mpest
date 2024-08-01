@@ -89,7 +89,7 @@ def result_to_df_diff(result: SingleSolverResult):
 
     return {
         "test_index": result.test.index,
-        "optimizer": result.solver.optimizer.name,
+        "optimizer": result.solver.method.m_step.optimizer,
         "k": len(result.test.true_mixture),
         "sample": result.test.problem.samples,
         "true_mixture": result.test.true_mixture,

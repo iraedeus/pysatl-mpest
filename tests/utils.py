@@ -1,33 +1,11 @@
 """TODO"""
+
 from itertools import permutations
 
 import numpy as np
 
-from mpest import MixtureDistribution
-from mpest.em import EM
-from mpest.em.breakpointers import ParamDifferBreakpointer, StepCountBreakpointer
-from mpest.em.distribution_checkers import (
-    FiniteChecker,
-    PriorProbabilityThresholdChecker,
-)
-from mpest.optimizers import ALL_OPTIMIZERS
-from mpest.problem import Problem, Result
+from mpest.mixture_distribution import MixtureDistribution
 from mpest.utils import ResultWithError
-
-
-def run_test(problem: Problem, deviation: float) -> list[Result]:
-    """TODO"""
-    result = []
-    for optimizer in ALL_OPTIMIZERS:
-        em_algo = EM(
-            StepCountBreakpointer() + ParamDifferBreakpointer(deviation=deviation),
-            FiniteChecker() + PriorProbabilityThresholdChecker(),
-            optimizer,
-        )
-
-        result.append(em_algo.solve(problem=problem))
-
-    return result
 
 
 def check_for_params_error_tolerance(
@@ -49,8 +27,7 @@ def check_for_params_error_tolerance(
 
     for result in results:
         assert result.error is None
-        actual_error = absolute_diff_params(result.content, base_mixture)
-        print(actual_error)
+        actual_error = absolute_diff_params(result.result, base_mixture)
         if actual_error <= expected_error:
             return True
     return False
@@ -77,8 +54,7 @@ def check_for_priors_error_tolerance(
 
     for result in results:
         assert result.error is None
-        actual_error = absolute_diff_priors(result.content, base_mixture)
-        print(actual_error)
+        actual_error = absolute_diff_priors(result.result, base_mixture)
         if actual_error <= expected_error:
             return True
     return False

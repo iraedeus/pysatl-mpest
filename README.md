@@ -28,10 +28,11 @@ This package uses EM algorithm tuned to work with different distributions models
 
 The package can work with mixture distribution of any combination of models, which implements `AModel` abstract class. EM algorithm result can be calculated by using `EM` class with `AOptimizer` implementation and guessed or random initial approximation.
 
-Given samples should be wrapped in `MixtureDistribution` then by using `EM.solve` the result will be calculated. `EM` class depends on `TOptimizer`, `ABreakpointer` and `ADistributionChecker` objects. :
+Given samples should be wrapped in `MixtureDistribution` then by using `EM.solve` the result will be calculated. `EM` class depends on `ABreakpointer`, `ADistributionChecker` and `AMethod` objects. :
 - `ABreakpointer` class $-$ the EM algorithm breakpointer function. There are few basic realizations of that abstract class in that package.
 - `ADistributionChecker` class $-$ sometimes because of using math optimizers in M-step of EM algorithm, some distributions inside mixture distribution can become degenerated. Such distributions may be detected and removed from calculations. There are few basic realizations of that abstract class in that package.
-- `AOptimizer`/`AOptimizerJacobian` classes $-$ math optimizers for M step of algorithm. There are few SciPy optimizers made follow the given interfaces.
+- `Method` class $-$ for E and M steps. In each method there are few variants of E step. Sometimes M step object uses `AOptimizer` :
+- - `AOptimizer`/`AOptimizerJacobian` classes $-$ math optimizers for M step of algorithm. There are few SciPy optimizers made follow the given interfaces.
 
 ### Code example
 
@@ -43,7 +44,9 @@ import seaborn as sns
 
 from mpest import Distribution, MixtureDistribution, Problem
 from mpest.models import WeibullModelExp, GaussianModel
-from mpest.optimizers import ScipyTNC
+from mpest.em.methods.method import Method
+from mpest.em.methods.likelihood_method import BayesEStep, LikelihoodMStep
+from mpest.optimizers.scipy_cobyla import ScipyCOBYLA
 from mpest.em.breakpointers import StepCountBreakpointer
 from mpest.em.distribution_checkers import FiniteChecker
 from mpest.em import EM
@@ -68,7 +71,10 @@ problem = Problem(
     ),
 )
 
-em = EM(StepCountBreakpointer(max_step=8), FiniteChecker(), ScipyTNC())
+e = BayesEStep()
+m = LikelihoodMStep(ScipyCOBYLA())
+method = Method(e, m)
+em = EM(StepCountBreakpointer(max_step=32), FiniteChecker(), method=method)
 
 result = em.solve(problem)
 
@@ -84,7 +90,7 @@ axs_.set_yscale("log")
 
 X = np.linspace(0.001, max(x), 2048)
 axs_.plot(X, [base_mixture_distribution.pdf(x) for x in X], color="green", label="base")
-axs_.plot(X, [result.content.pdf(x) for x in X], color="red", label="result")
+axs_.plot(X, [result.result.pdf(x) for x in X], color="red", label="result")
 
 plt.legend()
 plt.show()

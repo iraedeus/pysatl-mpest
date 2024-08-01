@@ -121,7 +121,7 @@ class ResultWithError(ResultWrapper[T | None]):
         self._error = error
 
     @property
-    def content(self) -> T:
+    def result(self) -> T:
         """
         Overrides ObjectWrapper.content
         - Raises contained error if exist

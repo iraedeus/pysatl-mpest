@@ -43,8 +43,6 @@ class ASolver(ABC):
     the parameter estimation of mixture distribution problem.
     """
 
-    # pylint: disable=too-few-public-methods
-
     @abstractmethod
     def solve(self, problem: Problem) -> Result:
         """

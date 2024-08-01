@@ -8,8 +8,10 @@ from mpest import Distribution, MixtureDistribution, Problem
 from mpest.em import EM
 from mpest.em.breakpointers import StepCountBreakpointer
 from mpest.em.distribution_checkers import FiniteChecker
+from mpest.em.methods.likelihood_method import BayesEStep, LikelihoodMStep
+from mpest.em.methods.method import Method
 from mpest.models import GaussianModel, WeibullModelExp
-from mpest.optimizers import ScipyTNC
+from mpest.optimizers.scipy_cobyla import ScipyCOBYLA
 
 base_mixture_distribution = MixtureDistribution.from_distributions(
     [
@@ -31,7 +33,10 @@ problem = Problem(
     ),
 )
 
-em = EM(StepCountBreakpointer(max_step=8), FiniteChecker(), ScipyTNC())
+e = BayesEStep()
+m = LikelihoodMStep(ScipyCOBYLA())
+method = Method(e, m)
+em = EM(StepCountBreakpointer(max_step=32), FiniteChecker(), method=method)
 
 result = em.solve(problem)
 
@@ -47,7 +52,7 @@ axs_.set_yscale("log")
 
 X = np.linspace(0.001, max(x), 2048)
 axs_.plot(X, [base_mixture_distribution.pdf(x) for x in X], color="green", label="base")
-axs_.plot(X, [result.content.pdf(x) for x in X], color="red", label="result")
+axs_.plot(X, [result.result.pdf(x) for x in X], color="red", label="result")
 
 plt.legend()
 plt.show()

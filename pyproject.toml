@@ -42,3 +42,6 @@ Homepage = "https://github.com/toxakaz/EM-algo"
 
 [tool.isort]
 profile = "black"
+
+[tool.pylint]
+disable = "too-few-public-methods, too-many-locals, line-too-long"
