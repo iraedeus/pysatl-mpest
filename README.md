@@ -6,7 +6,7 @@
 ## Installation
 
 ```
-pip install reliability
+pip install mpest
 ```
 
 ## Abstract
