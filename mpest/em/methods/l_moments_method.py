@@ -116,7 +116,7 @@ class LMomentsMStep(AMaximization[EResult]):
     """
 
     def __init__(self):
-        with open(find_file("binoms.json", "/")) as f:
+        with open(find_file("binoms.json", "/"), "r", encoding="utf-8") as f:
             self.binoms = json.load(f)
 
     def calculate_mr_j(
