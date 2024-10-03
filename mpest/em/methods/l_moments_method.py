@@ -102,6 +102,9 @@ class IndicatorEStep(AExpectation[EResult]):
                 error = EStepError("The indicators could not be calculated")
                 return ResultWithError(sorted_problem.distributions, error)
 
+        if np.isnan(self.indicators).any():
+            return ResultWithError(sorted_problem.distributions, EStepError(""))
+
         new_priors = self.update_priors(sorted_problem)
         new_problem = Problem(
             sorted_problem.samples,
@@ -150,7 +153,6 @@ class LMomentsMStep(AMaximization[EResult]):
 
             ind_sum = np.sum(indicators[j])
             b_den = ind_sum * binoms[f"{ceil(ind_sum)} {k}"]
-
             b_k = b_num / b_den
             p_rk = (
                 (-1) ** (r - k - 1)
