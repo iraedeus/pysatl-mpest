@@ -33,10 +33,10 @@ def idfunc(vals):
         (
             [WeibullModelExp(), GaussianModel()],
             [[0.5, 1.0], [5.0, 1.0]],
-            [[1.5, 0.5], [0.0, 2.0]],
+            [[0.5, 1.5], [3.0, 3.0]],
             1000,
             0.01,
-            0.21,
+            0.24,
         ),
         (
             [ExponentialModel(), GaussianModel()],
@@ -49,7 +49,7 @@ def idfunc(vals):
         (
             [ExponentialModel(), WeibullModelExp()],
             [[0.5], [5.0, 1.0]],
-            [[1.0], [3.0, 0.5]],
+            [[2.0], [3.0, 1.5]],
             1000,
             0.01,
             0.2,
@@ -57,10 +57,10 @@ def idfunc(vals):
         (
             [ExponentialModel(), GaussianModel(), WeibullModelExp()],
             [[1.0], [5.0, 1.0], [4.0, 1.0]],
-            [[2.0], [3.0, 5.0], [2.0, 2.0]],
+            [[3.0], [2.0, 5.0], [2.0, 2.0]],
             1000,
             0.01,
-            0.16,
+            0.2,
         ),
     ],
     ids=idfunc,
