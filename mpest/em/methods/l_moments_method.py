@@ -1,4 +1,5 @@
 """ The module in which the L moments method is presented """
+
 import json
 
 import numpy as np

@@ -1,4 +1,5 @@
 """Module which contains Weibull model class"""
+
 import math
 
 import numpy as np
