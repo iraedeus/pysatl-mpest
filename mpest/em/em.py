@@ -303,6 +303,11 @@ class EM(ASolver):
                 break
             step += 1
 
+        history = [
+            TimerResultWrapper(postprocess_result(result.content), result.runtime)
+            for result in history
+        ]
+
         return ResultWithLog(
             postprocess_result(ResultWithError(distributions.all_distributions)),
             EM.Log(history, step),
