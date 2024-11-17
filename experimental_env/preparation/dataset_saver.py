@@ -7,8 +7,6 @@ import numpy as np
 import yaml
 
 from experimental_env.preparation.dataset_description import DatasetDescrciption
-from mpest.mixture_distribution import MixtureDistribution
-from mpest.types import Samples
 
 
 class DatasetSaver:
@@ -26,7 +24,7 @@ class DatasetSaver:
         """
         Save dataset
         """
-        samples, mixture = descr.samples, descr.base_mixture
+        samples = descr.samples
 
         # Save samples
         samples_file: Path = self._out_dir.joinpath("samples.csv")

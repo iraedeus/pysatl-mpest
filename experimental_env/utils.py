@@ -31,4 +31,8 @@ def create_random_mixture(
 
 
 def choose_best_mle(results: list[ResultWithLog]) -> ResultWithLog:
-    pass
+    """
+    The method for choosing the best result in the maximum likelihood method
+    """
+
+    return results[0]

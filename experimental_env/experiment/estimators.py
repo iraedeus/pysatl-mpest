@@ -1,3 +1,5 @@
+"""Estimators for estimating parameters in second stage of experiment"""
+
 import multiprocessing
 from abc import abstractmethod
 from concurrent.futures import as_completed
@@ -13,7 +15,7 @@ from mpest.em.methods.l_moments_method import IndicatorEStep, LMomentsMStep
 from mpest.em.methods.likelihood_method import BayesEStep, LikelihoodMStep
 from mpest.em.methods.method import Method
 from mpest.optimizers import ALL_OPTIMIZERS
-from mpest.utils import ResultWithLog, ANamed
+from mpest.utils import ANamed, ResultWithLog
 
 METHODS = {
     "Likelihood": [
@@ -30,6 +32,7 @@ class AEstimator(ANamed):
     An abstract class to describe the estimator.
     Implements the second stage of the experiment, evaluating the parameters of the mixture.
     """
+
     @abstractmethod
     def estimate(self, problems: list[Problem]) -> list[ResultWithLog]:
         """
@@ -39,9 +42,17 @@ class AEstimator(ANamed):
 
 
 class LikelihoodEstimator(AEstimator):
+    """
+    An estimator using the maximum likelihood method with various optimizers.
+    During the estimating process, the result with the best approximation is returned.
+    """
+
     def __init__(
         self, brkpointer: EM.ABreakpointer, dst_checker: EM.ADistributionChecker
     ):
+        """
+        Class constructor
+        """
         self.ems = [
             EM(brkpointer, dst_checker, method) for method in METHODS["Likelihood"]
         ]
@@ -71,6 +82,10 @@ class LikelihoodEstimator(AEstimator):
 
 
 class LMomentsEstimator(AEstimator):
+    """
+    An estimator using the L-moments method.
+    """
+
     def __init__(self, brkpointer, dst_checker):
         self.em = EM(brkpointer, dst_checker, METHODS["L-moments"])
 

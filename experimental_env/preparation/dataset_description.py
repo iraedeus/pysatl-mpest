@@ -1,4 +1,4 @@
-"""Class which describes dataset"""
+"""Module which describes dataset"""
 import copy
 
 from mpest.mixture_distribution import MixtureDistribution
@@ -20,21 +20,27 @@ class DatasetDescrciption:
     @property
     def samples_size(self) -> int:
         """
-        Property for sample_size
+        Property for sample size
         """
         return self._samples_size
 
     @property
     def base_mixture(self) -> MixtureDistribution:
+        """
+        Property for base mixture
+        """
         return self._base_mixture
 
     @property
     def samples(self):
+        """
+        Property for samples
+        """
         return self._samples
 
     def get_dataset_name(self) -> str:
         """
-        Create dataset name
+        Get dataset name
         """
         return "".join(d.model.name for d in self._base_mixture)
 
