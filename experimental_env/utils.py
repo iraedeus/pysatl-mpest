@@ -6,6 +6,7 @@ import numpy as np
 
 from mpest import Distribution, MixtureDistribution
 from mpest.models import AModel, ExponentialModel, GaussianModel
+from mpest.utils import ResultWithLog
 
 
 def create_random_mixture(
@@ -27,3 +28,7 @@ def create_random_mixture(
         dists.append(Distribution.from_params(m, params))
 
     return MixtureDistribution.from_distributions(dists, priors)
+
+
+def choose_best_mle(results: list[ResultWithLog]) -> ResultWithLog:
+    pass

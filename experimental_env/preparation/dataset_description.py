@@ -1,4 +1,6 @@
 """Class which describes dataset"""
+import copy
+
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.types import Samples
 
@@ -13,7 +15,7 @@ class DatasetDescrciption:
     ):
         self._samples_size = samples_size
         self._samples = samples
-        self._base_mixture = base_mixture
+        self._base_mixture = copy.deepcopy(base_mixture)
 
     @property
     def samples_size(self) -> int:
@@ -43,6 +45,7 @@ class DatasetDescrciption:
         output = {}
         # Add name
         output["name"] = self.get_dataset_name()
+        output["samples_size"] = self.samples_size
 
         # Get params of distributions
         dists = {}

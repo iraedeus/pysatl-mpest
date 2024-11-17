@@ -23,26 +23,29 @@ class RandomDatasetGenerator:
         Setting seed for determined result.
         """
         random.seed(seed)
+        self._seed = seed
 
     def generate(
         self,
         samples_size: int,
         models: list[type[AModel]],
         working_path: Path,
-        exp_count: int = 100,
+        exp_count: int = 10,
     ):
         """
         A function that generates datasets based on random mixture.
         """
 
         with tqdm(total=exp_count) as tbar:
-            for _ in range(exp_count):
+            for i in range(exp_count):
                 tbar.update()
-                mixture = create_random_mixture(models)
+                mixture = create_random_mixture(models, self._seed + i)
                 samples = mixture.generate(samples_size)
-
                 descr = DatasetDescrciption(samples_size, samples, mixture)
-                saver = DatasetSaver(working_path)
+
+                mixture_name_dir: Path = working_path.joinpath(descr.get_dataset_name())
+                exp_dir: Path = mixture_name_dir.joinpath(f"experiment_{i + 1}")
+                saver = DatasetSaver(exp_dir)
                 saver.save_dataset(descr)
 
 
@@ -66,14 +69,18 @@ class ConcreteDatasetGenerator:
         self._dists.append(Distribution.from_params(model, params))
         self._priors.append(prior)
 
-    def generate(self, samples_size: int, working_path: Path):
+    def generate(self, samples_size: int, working_path: Path, exp_count: int):
         """
         A function that generates a dataset based on a user's mixture.
         """
 
-        mixture = MixtureDistribution.from_distributions(self._dists, self._priors)
-        samples = mixture.generate(samples_size)
+        for i in range(exp_count):
+            mixture = MixtureDistribution.from_distributions(self._dists, self._priors)
+            samples = mixture.generate(samples_size)
 
-        descr = DatasetDescrciption(samples_size, samples, mixture)
-        saver = DatasetSaver(working_path)
-        saver.save_dataset(descr)
+            descr = DatasetDescrciption(samples_size, samples, mixture)
+            mixture_name_dir: Path = working_path.joinpath(descr.get_dataset_name())
+            exp_dir: Path = mixture_name_dir.joinpath(f"experiment_{i+1}")
+
+            saver = DatasetSaver(exp_dir)
+            saver.save_dataset(descr)
