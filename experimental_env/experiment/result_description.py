@@ -11,9 +11,9 @@ class StepDescription:
     A class containing information about each step of the algorithm
     """
 
-    def __init__(self, step):
-        self._result_mixture = step.result.content
-        self._time = step.time
+    def __init__(self, mixture, time):
+        self._result_mixture = mixture
+        self._time = time
 
     @property
     def result_mixture(self) -> MixtureDistribution:
@@ -53,8 +53,22 @@ class ExperimentDescription(Iterable):
     A class containing information about all the steps of the algorithm.
     """
 
-    def __init__(self, result: ResultWithLog):
-        self._steps = [StepDescription(step) for step in result.log.log]
+    def __init__(self):
+        self._steps = []
+
+    @classmethod
+    def from_result(cls, result: ResultWithLog):
+        instance = cls()
+        instance._steps = [
+            StepDescription(step.result.content, step.time) for step in result.log.log
+        ]
+        return instance
+
+    @classmethod
+    def from_steps(cls, steps: list[StepDescription]):
+        instance = cls()
+        instance._steps = steps
+        return instance
 
     @property
     def steps(self) -> list[StepDescription]:
@@ -62,6 +76,9 @@ class ExperimentDescription(Iterable):
         A property that contains all the steps of the EM algorithm in this experiment
         """
         return self._steps
+
+    def __next__(self):
+        return self._steps[0]
 
     def __iter__(self) -> Iterator:
         """

@@ -17,7 +17,11 @@ class AnalysisStrategy(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def compare_methods(self, result_1: ExtendedResultDescription, result_2: ExtendedResultDescription, method_1: str, method_2: str):
+    def compare_methods(
+        self,
+        result_1: ExtendedResultDescription,
+        result_2: ExtendedResultDescription,
+        method_1: str,
+        method_2: str,
+    ):
         raise NotImplementedError
-
-

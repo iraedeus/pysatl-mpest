@@ -61,5 +61,5 @@ class RandomExperimentExecutor:
                 exp_dir: Path = mixture_name_dir.joinpath(item[0])
                 DatasetSaver(exp_dir).save_dataset(item[1])
 
-                descr = ExperimentDescription(results[i])
+                descr = ExperimentDescription.from_result(results[i])
                 ExperimentSaver(exp_dir).save(descr)

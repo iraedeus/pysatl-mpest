@@ -3,7 +3,13 @@ from mpest import MixtureDistribution, Samples
 
 
 class ExtendedResultDescription:
-    def __init__(self, base_mixture: MixtureDistribution, result_descr: ExperimentDescription, samples: Samples, method_name: str):
+    def __init__(
+        self,
+        base_mixture: MixtureDistribution,
+        result_descr: ExperimentDescription,
+        samples: Samples,
+        method_name: str,
+    ):
         self._base_mixture = base_mixture
         self._steps = result_descr
         self._samples = samples
