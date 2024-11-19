@@ -15,21 +15,13 @@ class AMetric(ANamed, ABC):
     """
 
     @abstractmethod
-    def _single_error(
-        self, base_mixture: MixtureDistribution, result_mixture: MixtureDistribution
-    ) -> float:
-        """
-        A function for calculating the error for one pair of mixtures
-        """
-
-    @abstractmethod
     def error(
         self,
-        base_mixtures: list[MixtureDistribution],
-        result_mixtures: list[MixtureDistribution],
-    ) -> list[float]:
+        base_mixture: MixtureDistribution,
+        result_mixture: MixtureDistribution,
+    ) -> float:
         """
-        A public function for calculating the error of multiple pairs of mixtures
+        A public function for calculating the error of pair of mixtures
         """
 
 
@@ -42,14 +34,8 @@ class MSE(AMetric):
     def name(self) -> str:
         return "MSE"
 
-    def _single_error(self, base_mixture, result_mixture):
+    def error(self, base_mixture, result_mixture):
         pass
-
-    def error(self, base_mixtures, result_mixtures):
-        return sum(
-            self._single_error(base, result)
-            for base, result in zip(base_mixtures, result_mixtures)
-        ) / len(result_mixtures)
 
 
 class Parametric(AMetric):
@@ -61,7 +47,7 @@ class Parametric(AMetric):
     def name(self) -> str:
         return "ParamsError"
 
-    def _single_error(self, base_mixture, result_mixture):
+    def error(self, base_mixture, result_mixture):
         base_p, res_p = (
             [d.params for d in ld] for ld in (base_mixture, result_mixture)
         )
@@ -72,12 +58,6 @@ class Parametric(AMetric):
         )
 
         return param_diff
-
-    def error(self, base_mixtures, result_mixtures):
-        return sum(
-            self._single_error(base, result)
-            for base, result in zip(base_mixtures, result_mixtures)
-        ) / len(result_mixtures)
 
 
 class PDFMetric(AMetric):
@@ -93,19 +73,11 @@ class PDFMetric(AMetric):
     def name(self) -> str:
         return "PDFError"
 
-    def _single_error(
-        self, base_mixture: MixtureDistribution, result_mixture: MixtureDistribution
-    ) -> float:
+    def error(self, base_mixture, result_mixture):
         x_linspace = np.linspace(self.start, self.end, 30)
         errors = [abs(base_mixture.pdf(x) - result_mixture.pdf(x)) for x in x_linspace]
 
         return sum(errors)
-
-    def error(self, base_mixtures, result_mixtures):
-        return sum(
-            self._single_error(base, result)
-            for base, result in zip(base_mixtures, result_mixtures)
-        ) / len(result_mixtures)
 
 
 METRICS = {

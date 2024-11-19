@@ -14,7 +14,7 @@ class Analysis:
     A class that provides a method for analyzing a method or for comparing two methods
     """
 
-    def __init__(self, path: Path, actions: list[type[AnalysisStrategy]]):
+    def __init__(self, path: Path, actions: list[AnalysisStrategy]):
         self._out_dir = path
         self._actions = actions
 
@@ -40,7 +40,6 @@ class Analysis:
                     exp_dir.mkdir()
 
                 for action in self._actions:
-                    action = action()
                     action.set_path(exp_dir)
                     action.analyze_method(result, method)
 
@@ -76,6 +75,5 @@ class Analysis:
                     exp_dir.mkdir()
 
                 for action in self._actions:
-                    action = action()
                     action.set_path(exp_dir)
                     action.compare_methods(res[0], res[1], method_1, method_2)
