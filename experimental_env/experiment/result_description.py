@@ -36,12 +36,15 @@ class StepDescription:
         output = {}
 
         # Get params of distributions
-        dists = {}
+        dists = []
         for d in self._result_mixture:
-            dists[d.model.name] = {
-                "params": d.params.tolist(),
-                "prior": float(d.prior_probability),
-            }
+            dists.append(
+                {
+                    "type": d.model.name,
+                    "params": d.params.tolist(),
+                    "prior": float(d.prior_probability),
+                }
+            )
         output["distributions"] = dists
         output["time"] = self._time
 

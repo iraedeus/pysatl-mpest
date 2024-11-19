@@ -12,6 +12,7 @@ class TimePlot(AnalysisStrategy):
     """
     A class that saves a time graph at each step.
     """
+
     def save_analysis(self):
         plt.legend()
         plt.yscale("log")

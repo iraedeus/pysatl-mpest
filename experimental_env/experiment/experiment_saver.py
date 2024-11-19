@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-import yaml
+from ruamel.yaml import YAML
 
 from experimental_env.experiment.result_description import ResultDescription
 
@@ -26,6 +26,9 @@ class ExperimentSaver:
             if not step_dir.exists():
                 step_dir.mkdir()
 
+            # Save step config
             yaml_path: Path = step_dir.joinpath("config.yaml")
+            yaml = YAML()
+            yaml.default_flow_style = False
             with open(yaml_path, "w", encoding="utf-8") as config:
-                yaml.dump(step_descr.to_yaml_format(), config, default_flow_style=False)
+                yaml.dump(step_descr.to_yaml_format(), config)

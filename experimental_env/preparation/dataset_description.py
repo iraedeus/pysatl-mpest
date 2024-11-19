@@ -48,18 +48,23 @@ class DatasetDescrciption:
         """
         Convert info about mixture to yaml format
         """
+        # pylint: disable=duplicate-code
+
         output = {}
         # Add name
         output["name"] = self.get_dataset_name()
         output["samples_size"] = self.samples_size
 
         # Get params of distributions
-        dists = {}
+        dists = []
         for d in self._base_mixture:
-            dists[d.model.name] = {
-                "params": d.params.tolist(),
-                "prior": float(d.prior_probability),
-            }
+            dists.append(
+                {
+                    "type": d.model.name,
+                    "params": d.params.tolist(),
+                    "prior": float(d.prior_probability),
+                }
+            )
         output["distributions"] = dists
 
         return output

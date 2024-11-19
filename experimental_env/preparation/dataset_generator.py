@@ -54,11 +54,10 @@ class ConcreteDatasetGenerator:
     A preparation class that allows you to generate datasets based on user-selected mixtures
     """
 
-    _dists = []
-    _priors = []
-
     def __init__(self, seed: int = 42):
         random.seed(seed)
+        self._dists = []
+        self._priors = []
 
     def add_distribution(
         self, model: type[AModel], params: list[float], prior: float
@@ -74,7 +73,11 @@ class ConcreteDatasetGenerator:
         A function that generates a dataset based on a user's mixture.
         """
 
-        for i in range(exp_count):
+        saved_exp_count = 0
+        for i in range(1000):
+            if saved_exp_count >= exp_count:
+                break
+
             mixture = MixtureDistribution.from_distributions(self._dists, self._priors)
             samples = mixture.generate(samples_size)
 
@@ -82,5 +85,9 @@ class ConcreteDatasetGenerator:
             mixture_name_dir: Path = working_path.joinpath(descr.get_dataset_name())
             exp_dir: Path = mixture_name_dir.joinpath(f"experiment_{i+1}")
 
+            if exp_dir.exists():
+                continue
+
             saver = DatasetSaver(exp_dir)
             saver.save_dataset(descr)
+            saved_exp_count += 1

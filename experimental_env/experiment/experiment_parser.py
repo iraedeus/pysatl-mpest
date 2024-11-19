@@ -27,10 +27,14 @@ class ExperimentParser:
         """
         with open(config_p, "r", encoding="utf-8") as config_file:
             config = yaml.safe_load(config_file)
-            priors = [d["prior"] for d in config["distributions"].values()]
+            # Read even one component mixture as list
+            if not isinstance(config["distributions"], list):
+                config["distributions"] = [config["distributions"]]
+
+            priors = [d["prior"] for d in config["distributions"]]
             dists = [
-                Distribution.from_params(ALL_MODELS[d_name], d_item["params"])
-                for d_name, d_item in config["distributions"].items()
+                Distribution.from_params(ALL_MODELS[d["type"]], d["params"])
+                for d in config["distributions"]
             ]
 
             return MixtureDistribution.from_distributions(dists, priors)

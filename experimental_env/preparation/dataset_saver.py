@@ -4,7 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import yaml
+from ruamel.yaml import YAML
 
 from experimental_env.preparation.dataset_description import DatasetDescrciption
 
@@ -31,9 +31,11 @@ class DatasetSaver:
         np.savetxt(samples_file, samples, delimiter=",")
 
         # Save config
+        yaml = YAML()
+        yaml.default_flow_style = False
         config_file: Path = self._out_dir.joinpath("config.yaml")
         with open(config_file, "w", encoding="utf-8") as config:
-            yaml.dump(descr.to_yaml_format(), config, default_flow_style=False)
+            yaml.dump(descr.to_yaml_format(), config)
 
         # Save config
         hist_file = self._out_dir.joinpath("hist.png")

@@ -14,6 +14,7 @@ class ErrorConvergence(AnalysisStrategy):
     A class that saves graphs with errors at each step.
     The constructor accepts an error function that satisfies the AMetric interface.
     """
+
     def __init__(self, metric: AMetric):
         super().__init__()
         self._metric = metric
@@ -62,11 +63,11 @@ class ErrorConvergence(AnalysisStrategy):
 
         plt.plot(
             metric_errors_1,
-            label=f"{method_1}. Average: {sum(metric_errors_1) / len(metric_errors_1)}s",
+            label=f"{method_1}. Average: {sum(metric_errors_1) / len(metric_errors_1)}",
         )
         plt.plot(
             metric_errors_2,
-            label=f"{method_2}. Average: {sum(metric_errors_2) / len(metric_errors_2)}s",
+            label=f"{method_2}. Average: {sum(metric_errors_2) / len(metric_errors_2)}",
         )
 
         self.save_analysis()
