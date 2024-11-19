@@ -7,7 +7,7 @@ from pathlib import Path
 
 from experimental_env.experiment.estimators import AEstimator
 from experimental_env.experiment.experiment_saver import ExperimentSaver
-from experimental_env.experiment.result_description import ExperimentDescription
+from experimental_env.experiment.result_description import ResultDescription
 from experimental_env.preparation.dataset_saver import DatasetSaver
 from experimental_env.utils import create_random_mixture
 from mpest import Problem
@@ -53,13 +53,15 @@ class RandomExperimentExecutor:
                 for i, item in enumerate(descriptions.items())
             ]
 
+            # Disable warnings and estimating params.
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 results = estimator.estimate(problems)
 
+            # Saving results
             for i, item in enumerate(descriptions.items()):
                 exp_dir: Path = mixture_name_dir.joinpath(item[0])
                 DatasetSaver(exp_dir).save_dataset(item[1])
 
-                descr = ExperimentDescription.from_result(results[i])
+                descr = ResultDescription.from_result(results[i])
                 ExperimentSaver(exp_dir).save(descr)

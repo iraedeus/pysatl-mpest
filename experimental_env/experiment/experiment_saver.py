@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from experimental_env.experiment.result_description import ExperimentDescription
+from experimental_env.experiment.result_description import ResultDescription
 
 
 class ExperimentSaver:
@@ -15,7 +15,7 @@ class ExperimentSaver:
     def __init__(self, path: Path):
         self._out_dir = path
 
-    def save(self, descr: ExperimentDescription):
+    def save(self, descr: ResultDescription):
         """
         A function that implements saving.
 

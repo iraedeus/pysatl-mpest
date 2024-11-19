@@ -1,4 +1,4 @@
-""" A module containing classes for storing information about the results of the second stage """
+""" A module containing classes for storing information about the results of estimating at the second stage """
 
 from typing import Iterable, Iterator
 
@@ -48,7 +48,7 @@ class StepDescription:
         return output
 
 
-class ExperimentDescription(Iterable):
+class ResultDescription(Iterable):
     """
     A class containing information about all the steps of the algorithm.
     """
@@ -58,6 +58,9 @@ class ExperimentDescription(Iterable):
 
     @classmethod
     def from_result(cls, result: ResultWithLog):
+        """
+        Class method for initializing a class through an estimating result with logs
+        """
         instance = cls()
         instance._steps = [
             StepDescription(step.result.content, step.time) for step in result.log.log
@@ -66,6 +69,9 @@ class ExperimentDescription(Iterable):
 
     @classmethod
     def from_steps(cls, steps: list[StepDescription]):
+        """
+        Class method for initializing a class through the estimating results of each step
+        """
         instance = cls()
         instance._steps = steps
         return instance

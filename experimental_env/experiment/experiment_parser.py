@@ -1,12 +1,15 @@
+""" A module containing a class for parsing the second stage of the experiment"""
+
 import os
 from pathlib import Path
 
 import yaml
 from numpy import genfromtxt
 
-from experimental_env.analysis.experiment_result import ExtendedResultDescription
+from experimental_env.analysis.analysis import ParserOutput
+from experimental_env.experiment.experiment_description import ExperimentDescription
 from experimental_env.experiment.result_description import (
-    ExperimentDescription,
+    ResultDescription,
     StepDescription,
 )
 from mpest import Distribution, MixtureDistribution
@@ -14,7 +17,30 @@ from mpest.models import ALL_MODELS
 
 
 class ExperimentParser:
-    def parse(self, path: Path) -> dict:
+    """
+    A class that parses the second stage of the experiment.
+    """
+
+    def get_base_mixture(self, config_p: Path) -> MixtureDistribution:
+        """
+        Get base mixture from config
+        """
+        with open(config_p, "r", encoding="utf-8") as config_file:
+            config = yaml.safe_load(config_file)
+            priors = [d["prior"] for d in config["distributions"].values()]
+            dists = [
+                Distribution.from_params(ALL_MODELS[d_name], d_item["params"])
+                for d_name, d_item in config["distributions"].items()
+            ]
+
+            return MixtureDistribution.from_distributions(dists, priors)
+
+    def parse(self, path: Path) -> ParserOutput:
+        """
+        The parsing method
+
+        :param path: The path to the directory of the second stage of the experiment
+        """
         output = {}
 
         # Open each mixture dir
@@ -31,26 +57,18 @@ class ExperimentParser:
                 # Get samples
                 samples = genfromtxt(samples_p, delimiter=",")
 
-                # Get mixture
-                with open(config_p, "r", encoding="utf-8") as config_file:
-                    config = yaml.safe_load(config_file)
-                    samples_size = config["samples_size"]
-                    priors = [d["prior"] for d in config["distributions"].values()]
-                    dists = [
-                        Distribution.from_params(ALL_MODELS[d_name], d_item["params"])
-                        for d_name, d_item in config["distributions"].items()
-                    ]
+                # Get base mixture
+                base_mixture = self.get_base_mixture(config_p)
 
-                    base_mixture = MixtureDistribution.from_distributions(dists, priors)
-
+                # Get all steps
                 steps = []
-
                 for step in os.listdir(experiment_dir):
                     if not "step" in step:
                         continue
                     step_dir = experiment_dir.joinpath(step)
                     step_config_p = step_dir.joinpath("config.yaml")
 
+                    # Get step
                     with open(step_config_p, "r", encoding="utf-8") as config_file:
                         config = yaml.safe_load(config_file)
                         step_time = config["time"]
@@ -69,10 +87,11 @@ class ExperimentParser:
 
                     steps.append(StepDescription(step_mixture, step_time))
 
+                # Save results of experiment
                 mixture_name_list.append(
-                    ExtendedResultDescription(
+                    ExperimentDescription(
                         base_mixture,
-                        ExperimentDescription.from_steps(steps),
+                        ResultDescription.from_steps(steps),
                         samples,
                         "OFF",
                     )
