@@ -15,13 +15,14 @@ from mpest.em.methods.l_moments_method import IndicatorEStep, LMomentsMStep
 from mpest.em.methods.likelihood_method import BayesEStep, LikelihoodMStep
 from mpest.em.methods.method import Method
 from mpest.optimizers import ALL_OPTIMIZERS
-from mpest.utils import ANamed, ResultWithLog
+from mpest.utils import ANamed, ResultWithLog, Factory
 
 METHODS = {
     "Likelihood": [
-        Method(BayesEStep(), LikelihoodMStep(optimizer)) for optimizer in ALL_OPTIMIZERS
+        [Factory(BayesEStep), Factory(LikelihoodMStep, optimizer)]
+        for optimizer in ALL_OPTIMIZERS
     ],
-    "L-moments": Method(IndicatorEStep(), LMomentsMStep()),
+    "L-moments": [Factory(IndicatorEStep), Factory(LMomentsMStep)],
 }
 
 CPU_COUNT = multiprocessing.cpu_count()
@@ -54,7 +55,12 @@ class LikelihoodEstimator(AEstimator):
         Class constructor
         """
         self.ems = [
-            EM(brkpointer, dst_checker, method) for method in METHODS["Likelihood"]
+            EM(
+                brkpointer,
+                dst_checker,
+                Method(steps[0].construct(), steps[1].construct()),
+            )
+            for steps in METHODS["Likelihood"]
         ]
 
     @property
@@ -87,19 +93,32 @@ class LMomentsEstimator(AEstimator):
     """
 
     def __init__(self, brkpointer, dst_checker):
-        self.em = EM(brkpointer, dst_checker, METHODS["L-moments"])
+        self._brkpointer = brkpointer
+        self._dst_checker = dst_checker
 
     @property
     def name(self):
         return "LMoments"
 
+    def helper(self, problem):
+        steps = METHODS["L-moments"]
+        new_method = Method(steps[0].construct(), steps[1].construct())
+        em_factory = Factory(EM, self._brkpointer, self._dst_checker, new_method)
+
+        return em_factory.construct().solve_logged(problem, True, True, True)
+
     def estimate(self, problems: list[Problem]) -> list[ResultWithLog]:
         output = []
         print("Starting L-moments estimation")
         with tqdm(total=len(problems)) as pbar:
-            for problem in problems:
-                res = self.em.solve_logged(problem, True, True, True)
-                output.append(res)
-                pbar.update(1)
+            with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
+                fs = [executor.submit(self.helper, problem) for problem in problems]
+                for f in as_completed(fs):
+                    output.append(f.result())
+                    pbar.update(1)
+
+            # for problem in problems:
+            #     output.append(self.helper(problem))
+            #     pbar.update()
 
         return output

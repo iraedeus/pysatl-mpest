@@ -5,7 +5,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from experimental_env.preparation.dataset_saver import DatasetDescrciption, DatasetSaver
-from experimental_env.utils import create_random_mixture
+from experimental_env.utils import DatasetMixtureGenerator
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.models.abstract_model import AModel
@@ -39,9 +39,11 @@ class RandomDatasetGenerator:
         with tqdm(total=exp_count) as tbar:
             for i in range(exp_count):
                 tbar.update()
-                mixture = create_random_mixture(models, self._seed + i)
+                mixture = DatasetMixtureGenerator().create_random_mixture(
+                    models, self._seed + i
+                )
                 samples = mixture.generate(samples_size)
-                descr = DatasetDescrciption(samples_size, samples, mixture)
+                descr = DatasetDescrciption(samples_size, samples, mixture, i + 1)
 
                 mixture_name_dir: Path = working_path.joinpath(descr.get_dataset_name())
                 exp_dir: Path = mixture_name_dir.joinpath(f"experiment_{i + 1}")

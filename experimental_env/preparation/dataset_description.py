@@ -11,11 +11,16 @@ class DatasetDescrciption:
     """
 
     def __init__(
-        self, samples_size: int, samples: Samples, base_mixture: MixtureDistribution
+        self,
+        samples_size: int,
+        samples: Samples,
+        base_mixture: MixtureDistribution,
+        exp_num: int,
     ):
         self._samples_size = samples_size
         self._samples = samples
         self._base_mixture = copy.deepcopy(base_mixture)
+        self._exp_num = exp_num
 
     @property
     def samples_size(self) -> int:
@@ -38,11 +43,15 @@ class DatasetDescrciption:
         """
         return self._samples
 
+    @property
+    def exp_num(self):
+        return self._exp_num
+
     def get_dataset_name(self) -> str:
         """
         Get dataset name
         """
-        return "".join(d.model.name for d in self._base_mixture)
+        return "_".join(d.model.name for d in self._base_mixture)
 
     def to_yaml_format(self) -> dict:
         """
@@ -53,7 +62,8 @@ class DatasetDescrciption:
         output = {}
         # Add name
         output["name"] = self.get_dataset_name()
-        output["samples_size"] = self.samples_size
+        output["samples_size"] = self._samples_size
+        output["exp_num"] = self._exp_num
 
         # Get params of distributions
         dists = []

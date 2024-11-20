@@ -1,6 +1,8 @@
 """ A module that provides a class for performing the third stage of the experiment """
 from pathlib import Path
 
+from tqdm import tqdm
+
 from experimental_env.analysis.analyze_strategies.analysis_strategy import (
     AnalysisStrategy,
 )
@@ -34,14 +36,16 @@ class Analysis:
             if not mixture_dir.exists():
                 mixture_dir.mkdir()
 
-            for i, result in enumerate(results[mixture_name]):
-                exp_dir = mixture_dir.joinpath(f"experiment_{i + 1}")
-                if not exp_dir.exists():
-                    exp_dir.mkdir()
+            with tqdm(total = len(results)) as bar:
+                for i, result in enumerate(results[mixture_name]):
+                    bar.update()
+                    exp_dir = mixture_dir.joinpath(f"experiment_{i + 1}")
+                    if not exp_dir.exists():
+                        exp_dir.mkdir()
 
-                for action in self._actions:
-                    action.set_path(exp_dir)
-                    action.analyze_method(result, method)
+                    for action in self._actions:
+                        action.set_path(exp_dir)
+                        action.analyze_method(result, method)
 
     def compare(
         self,
@@ -67,13 +71,15 @@ class Analysis:
             if not mixture_dir.exists():
                 mixture_dir.mkdir()
 
-            for i, res in enumerate(
-                zip(results_1[mixture_name], results_2[mixture_name])
-            ):
-                exp_dir = mixture_dir.joinpath(f"experiment_{i + 1}")
-                if not exp_dir.exists():
-                    exp_dir.mkdir()
+            with tqdm(total = len(results_1)) as bar:
+                for i, res in enumerate(
+                    zip(results_1[mixture_name], results_2[mixture_name])
+                ):
+                    bar.update()
+                    exp_dir = mixture_dir.joinpath(f"experiment_{i + 1}")
+                    if not exp_dir.exists():
+                        exp_dir.mkdir()
 
-                for action in self._actions:
-                    action.set_path(exp_dir)
-                    action.compare_methods(res[0], res[1], method_1, method_2)
+                    for action in self._actions:
+                        action.set_path(exp_dir)
+                        action.compare_methods(res[0], res[1], method_1, method_2)

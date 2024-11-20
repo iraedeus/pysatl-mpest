@@ -75,14 +75,15 @@ class ExperimentParser:
                     # Get step
                     with open(step_config_p, "r", encoding="utf-8") as config_file:
                         config = yaml.safe_load(config_file)
+                        error = config["error"]
                         step_time = config["time"]
 
-                        priors = [d["prior"] for d in config["distributions"].values()]
+                        priors = [d["prior"] for d in config["distributions"]]
                         dists = [
                             Distribution.from_params(
-                                ALL_MODELS[d_name], d_item["params"]
+                                ALL_MODELS[d["type"]], d["params"]
                             )
-                            for d_name, d_item in config["distributions"].items()
+                            for d in config["distributions"]
                         ]
 
                         step_mixture = MixtureDistribution.from_distributions(
@@ -95,7 +96,7 @@ class ExperimentParser:
                 mixture_name_list.append(
                     ExperimentDescription(
                         base_mixture,
-                        ResultDescription.from_steps(steps),
+                        ResultDescription.from_steps(steps, error),
                         samples,
                         "OFF",
                     )

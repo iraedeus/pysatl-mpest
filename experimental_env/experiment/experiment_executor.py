@@ -8,8 +8,7 @@ from pathlib import Path
 from experimental_env.experiment.estimators import AEstimator
 from experimental_env.experiment.experiment_saver import ExperimentSaver
 from experimental_env.experiment.result_description import ResultDescription
-from experimental_env.preparation.dataset_saver import DatasetSaver
-from experimental_env.utils import create_random_mixture
+from experimental_env.utils import ExperimentMixtureGenerator
 from mpest import Problem
 from mpest.models import ALL_MODELS
 
@@ -40,17 +39,18 @@ class RandomExperimentExecutor:
         """
         method_dir: Path = self._out_dir.joinpath(estimator.name)
 
-        for mixture_name in preparation_results.keys():
+        for mixture_name, ds_descriptions in preparation_results.items():
             mixture_name_dir: Path = method_dir.joinpath(mixture_name)
-            descriptions = OrderedDict(preparation_results[mixture_name].items())
-            models = [
-                ALL_MODELS[d.model.name]
-                for d in next(iter(descriptions.values())).base_mixture
-            ]
+            models = [ALL_MODELS[model_name] for model_name in mixture_name.split("_")]
 
             problems = [
-                Problem(item[1].samples, create_random_mixture(models, self._seed + i))
-                for i, item in enumerate(descriptions.items())
+                Problem(
+                    descr.samples,
+                    ExperimentMixtureGenerator().create_random_mixture(
+                        models, self._seed + i
+                    ),
+                )
+                for i, descr in enumerate(ds_descriptions)
             ]
 
             # Disable warnings and estimating params.
@@ -59,9 +59,13 @@ class RandomExperimentExecutor:
                 results = estimator.estimate(problems)
 
             # Saving results
-            for i, item in enumerate(descriptions.items()):
-                exp_dir: Path = mixture_name_dir.joinpath(item[0])
-                DatasetSaver(exp_dir).save_dataset(item[1])
+            for i, ds_descr in enumerate(ds_descriptions):
+                exp_dir: Path = mixture_name_dir.joinpath(
+                    f"experiment_{ds_descr.exp_num}"
+                )
+                result = results[i]
 
-                descr = ResultDescription.from_result(results[i])
-                ExperimentSaver(exp_dir).save(descr)
+                result_descr = ResultDescription(
+                    problems[i].distributions, result, ds_descr
+                )
+                ExperimentSaver(exp_dir).save(result_descr)
