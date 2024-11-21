@@ -6,7 +6,7 @@ import numpy as np
 from experimental_env.analysis.analyze_strategies.analysis_strategy import (
     AnalysisStrategy,
 )
-from experimental_env.experiment.experiment_description import ExperimentDescription
+from experimental_env.experiment.result_description import ResultDescription
 
 
 class DensityPlot(AnalysisStrategy):
@@ -23,7 +23,7 @@ class DensityPlot(AnalysisStrategy):
         plt.savefig(self._out_dir / "density_plot.png")
         plt.close()
 
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def analyze_method(self, result: ResultDescription, method: str):
         x_linspace = np.linspace(-10, 10, 200)
 
         plt.hist(result.samples, color="lightsteelblue", density=True)
@@ -35,7 +35,7 @@ class DensityPlot(AnalysisStrategy):
         )
         plt.plot(
             x_linspace,
-            [next(result.steps).result_mixture.pdf(x) for x in x_linspace],
+            [next(result).result_mixture.pdf(x) for x in x_linspace],
             color="green",
             label="estimated",
         )
@@ -43,8 +43,8 @@ class DensityPlot(AnalysisStrategy):
 
     def compare_methods(
         self,
-        result_1: ExperimentDescription,
-        result_2: ExperimentDescription,
+        result_1: ResultDescription,
+        result_2: ResultDescription,
         method_1: str,
         method_2: str,
     ):
@@ -59,13 +59,13 @@ class DensityPlot(AnalysisStrategy):
         )
         plt.plot(
             x_linspace,
-            [next(result_1.steps).result_mixture.pdf(x) for x in x_linspace],
+            [next(result_1).result_mixture.pdf(x) for x in x_linspace],
             color="green",
             label=method_1,
         )
         plt.plot(
             x_linspace,
-            [next(result_2.steps).result_mixture.pdf(x) for x in x_linspace],
+            [next(result_2).result_mixture.pdf(x) for x in x_linspace],
             color="purple",
             label=method_2,
         )

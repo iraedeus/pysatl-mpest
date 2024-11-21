@@ -83,7 +83,7 @@ class ConcreteDatasetGenerator:
             mixture = MixtureDistribution.from_distributions(self._dists, self._priors)
             samples = mixture.generate(samples_size)
 
-            descr = DatasetDescrciption(samples_size, samples, mixture)
+            descr = DatasetDescrciption(samples_size, samples, mixture, i + 1)
             mixture_name_dir: Path = working_path.joinpath(descr.get_dataset_name())
             exp_dir: Path = mixture_name_dir.joinpath(f"experiment_{i+1}")
 

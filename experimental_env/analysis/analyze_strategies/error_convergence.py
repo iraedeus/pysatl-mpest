@@ -6,7 +6,7 @@ from experimental_env.analysis.analyze_strategies.analysis_strategy import (
     AnalysisStrategy,
 )
 from experimental_env.analysis.metrics import AMetric
-from experimental_env.experiment.experiment_description import ExperimentDescription
+from experimental_env.experiment.result_description import ResultDescription
 
 
 class ErrorConvergence(AnalysisStrategy):
@@ -25,7 +25,7 @@ class ErrorConvergence(AnalysisStrategy):
         plt.savefig(self._out_dir / "error_convergence_plot.png")
         plt.close()
 
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def analyze_method(self, result: ResultDescription, method: str):
         steps = result.steps
         base_mixture = result.base_mixture
         mixtures = [step.result_mixture for step in steps]
@@ -36,15 +36,15 @@ class ErrorConvergence(AnalysisStrategy):
         plt.ylabel("Error")
 
         plt.plot(
-            metric_errors, label=f"Average: {sum(metric_errors) / len(metric_errors)}s"
+            metric_errors, label=f"Average: {sum(metric_errors) / len(metric_errors)}"
         )
 
         self.save_analysis()
 
     def compare_methods(
         self,
-        result_1: ExperimentDescription,
-        result_2: ExperimentDescription,
+        result_1: ResultDescription,
+        result_2: ResultDescription,
         method_1: str,
         method_2: str,
     ):

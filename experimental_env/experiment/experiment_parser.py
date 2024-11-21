@@ -7,13 +7,12 @@ import yaml
 from numpy import genfromtxt
 
 from experimental_env.analysis.analysis import ParserOutput
-from experimental_env.experiment.experiment_description import ExperimentDescription
 from experimental_env.experiment.result_description import (
     ResultDescription,
     StepDescription,
 )
-from mpest import Distribution, MixtureDistribution
-from mpest.models import ALL_MODELS
+from experimental_env.preparation.dataset_description import DatasetDescrciption
+from experimental_env.utils import create_mixture_by_key
 
 
 class ExperimentParser:
@@ -21,23 +20,23 @@ class ExperimentParser:
     A class that parses the second stage of the experiment.
     """
 
-    def get_base_mixture(self, config_p: Path) -> MixtureDistribution:
-        """
-        Get base mixture from config
-        """
-        with open(config_p, "r", encoding="utf-8") as config_file:
-            config = yaml.safe_load(config_file)
-            # Read even one component mixture as list
-            if not isinstance(config["distributions"], list):
-                config["distributions"] = [config["distributions"]]
+    def _get_steps(self, exp_dir: Path):
+        steps = []
+        for step in os.listdir(exp_dir):
+            if not "step" in step:
+                continue
+            step_dir = exp_dir.joinpath(step)
+            step_config_p = step_dir.joinpath("config.yaml")
 
-            priors = [d["prior"] for d in config["distributions"]]
-            dists = [
-                Distribution.from_params(ALL_MODELS[d["type"]], d["params"])
-                for d in config["distributions"]
-            ]
+            # Get step
+            with open(step_config_p, "r", encoding="utf-8") as config_file:
+                config = yaml.safe_load(config_file)
+                step_time = config["time"]
+                step_mixture = create_mixture_by_key(config, "step_distributions")
 
-            return MixtureDistribution.from_distributions(dists, priors)
+            steps.append(StepDescription(step_mixture, step_time))
+
+        return steps
 
     def parse(self, path: Path) -> ParserOutput:
         """
@@ -62,45 +61,28 @@ class ExperimentParser:
                 samples = genfromtxt(samples_p, delimiter=",")
 
                 # Get base mixture
-                base_mixture = self.get_base_mixture(config_p)
+                with open(config_p, "r", encoding="utf-8") as config_file:
+                    config = yaml.safe_load(config_file)
+                    samples_size = config["samples_size"]
+                    exp_num = config["exp_num"]
+                    error = config["error"]
+
+                    base_mixture = create_mixture_by_key(config, "distributions")
+                    init_mixture = create_mixture_by_key(config, "init_distributions")
 
                 # Get all steps
-                steps = []
-                for step in os.listdir(experiment_dir):
-                    if not "step" in step:
-                        continue
-                    step_dir = experiment_dir.joinpath(step)
-                    step_config_p = step_dir.joinpath("config.yaml")
-
-                    # Get step
-                    with open(step_config_p, "r", encoding="utf-8") as config_file:
-                        config = yaml.safe_load(config_file)
-                        error = config["error"]
-                        step_time = config["time"]
-
-                        priors = [d["prior"] for d in config["distributions"]]
-                        dists = [
-                            Distribution.from_params(
-                                ALL_MODELS[d["type"]], d["params"]
-                            )
-                            for d in config["distributions"]
-                        ]
-
-                        step_mixture = MixtureDistribution.from_distributions(
-                            dists, priors
-                        )
-
-                    steps.append(StepDescription(step_mixture, step_time))
+                steps = self._get_steps(experiment_dir)
 
                 # Save results of experiment
-                mixture_name_list.append(
-                    ExperimentDescription(
-                        base_mixture,
-                        ResultDescription.from_steps(steps, error),
-                        samples,
-                        "OFF",
-                    )
+                ds_descr = DatasetDescrciption(
+                    samples_size, samples, base_mixture, exp_num
                 )
+
+                result_descr = ResultDescription.from_steps(
+                    init_mixture, steps, ds_descr, error
+                )
+
+                mixture_name_list.append(result_descr)
 
             output[mixture_name] = mixture_name_list
         return output

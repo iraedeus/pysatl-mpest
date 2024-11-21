@@ -45,6 +45,9 @@ class DatasetDescrciption:
 
     @property
     def exp_num(self):
+        """
+        Property for experiment number
+        """
         return self._exp_num
 
     def get_dataset_name(self) -> str:

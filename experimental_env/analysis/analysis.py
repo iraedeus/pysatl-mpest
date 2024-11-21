@@ -6,9 +6,9 @@ from tqdm import tqdm
 from experimental_env.analysis.analyze_strategies.analysis_strategy import (
     AnalysisStrategy,
 )
-from experimental_env.experiment.experiment_description import ExperimentDescription
+from experimental_env.experiment.result_description import ResultDescription
 
-ParserOutput = dict[str, list[ExperimentDescription]]
+ParserOutput = dict[str, list[ResultDescription]]
 
 
 class Analysis:
@@ -31,21 +31,21 @@ class Analysis:
         if not method_dir.exists():
             method_dir.mkdir()
 
-        for mixture_name in results.keys():
+        for mixture_name, exp_descriptions in results.items():
             mixture_dir: Path = method_dir.joinpath(mixture_name)
             if not mixture_dir.exists():
                 mixture_dir.mkdir()
 
-            with tqdm(total = len(results)) as bar:
-                for i, result in enumerate(results[mixture_name]):
-                    bar.update()
-                    exp_dir = mixture_dir.joinpath(f"experiment_{i + 1}")
+            with tqdm(total=len(exp_descriptions)) as pbar:
+                for exp_descr in exp_descriptions:
+                    pbar.update()
+                    exp_dir = mixture_dir.joinpath(f"experiment_{exp_descr.exp_num}")
                     if not exp_dir.exists():
                         exp_dir.mkdir()
 
                     for action in self._actions:
                         action.set_path(exp_dir)
-                        action.analyze_method(result, method)
+                        action.analyze_method(exp_descr, method)
 
     def compare(
         self,
@@ -71,12 +71,10 @@ class Analysis:
             if not mixture_dir.exists():
                 mixture_dir.mkdir()
 
-            with tqdm(total = len(results_1)) as bar:
-                for i, res in enumerate(
-                    zip(results_1[mixture_name], results_2[mixture_name])
-                ):
-                    bar.update()
-                    exp_dir = mixture_dir.joinpath(f"experiment_{i + 1}")
+            with tqdm(total=len(results_1[mixture_name])) as pbar:
+                for res in zip(results_1[mixture_name], results_2[mixture_name]):
+                    pbar.update()
+                    exp_dir = mixture_dir.joinpath(f"experiment_{res[0].exp_num}")
                     if not exp_dir.exists():
                         exp_dir.mkdir()
 

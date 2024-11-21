@@ -308,11 +308,8 @@ class EM(ASolver):
             for result in history
         ]
 
-        if len(history) == 1:
-            a = 0
-
         return ResultWithLog(
-            postprocess_result(ResultWithError(distributions.all_distributions, history[-1].result.error)),
+            postprocess_result(ResultWithError(distributions.all_distributions)),
             EM.Log(history, step),
         )
 

@@ -6,8 +6,7 @@ import yaml
 from numpy import genfromtxt
 
 from experimental_env.preparation.dataset_description import DatasetDescrciption
-from mpest import Distribution, MixtureDistribution
-from mpest.models import ALL_MODELS
+from experimental_env.utils import create_mixture_by_key
 
 
 class SamplesDatasetParser:
@@ -21,6 +20,7 @@ class SamplesDatasetParser:
 
         :param path: Path to datasets
         """
+        # pylint: disable = duplicate-code
         output = {}
         # Open each mixture dir
         for mixture_name in os.listdir(path):
@@ -39,21 +39,9 @@ class SamplesDatasetParser:
                 # Get mixture
                 with open(config_p, "r", encoding="utf-8") as config_file:
                     config = yaml.safe_load(config_file)
-
-                    # Read even one component mixture as list
-                    if not isinstance(config["distributions"], list):
-                        config["distributions"] = [config["distributions"]]
-
                     exp_count = config["exp_num"]
-
                     samples_size = config["samples_size"]
-
-                    priors = [d["prior"] for d in config["distributions"]]
-                    dists = [
-                        Distribution.from_params(ALL_MODELS[d["type"]], d["params"])
-                        for d in config["distributions"]
-                    ]
-                    base_mixture = MixtureDistribution.from_distributions(dists, priors)
+                    base_mixture = create_mixture_by_key(config, "distributions")
 
                 mixture_name_dict.append(
                     DatasetDescrciption(samples_size, samples, base_mixture, exp_count)

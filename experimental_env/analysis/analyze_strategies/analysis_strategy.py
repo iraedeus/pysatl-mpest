@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from experimental_env.experiment.experiment_description import ExperimentDescription
+from experimental_env.experiment.result_description import ResultDescription
 
 
 class AnalysisStrategy(ABC):
@@ -32,7 +32,7 @@ class AnalysisStrategy(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def analyze_method(self, result: ResultDescription, method: str):
         """
         Analyze the method
 
@@ -45,8 +45,8 @@ class AnalysisStrategy(ABC):
     @abstractmethod
     def compare_methods(
         self,
-        result_1: ExperimentDescription,
-        result_2: ExperimentDescription,
+        result_1: ResultDescription,
+        result_2: ResultDescription,
         method_1: str,
         method_2: str,
     ):

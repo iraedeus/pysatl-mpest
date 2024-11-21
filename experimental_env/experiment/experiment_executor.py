@@ -2,7 +2,6 @@
 
 import random
 import warnings
-from collections import OrderedDict
 from pathlib import Path
 
 from experimental_env.experiment.estimators import AEstimator
@@ -65,7 +64,7 @@ class RandomExperimentExecutor:
                 )
                 result = results[i]
 
-                result_descr = ResultDescription(
+                result_descr = ResultDescription.from_result(
                     problems[i].distributions, result, ds_descr
                 )
                 ExperimentSaver(exp_dir).save(result_descr)

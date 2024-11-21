@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from experimental_env.analysis.analyze_strategies.analysis_strategy import (
     AnalysisStrategy,
 )
-from experimental_env.experiment.experiment_description import ExperimentDescription
+from experimental_env.experiment.result_description import ResultDescription
 
 
 class TimePlot(AnalysisStrategy):
@@ -19,7 +19,7 @@ class TimePlot(AnalysisStrategy):
         plt.savefig(self._out_dir / "time_plot.png")
         plt.close()
 
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def analyze_method(self, result: ResultDescription, method: str):
         steps = result.steps
         time = [step.time for step in steps]
         plt.plot(time, label=f"Total: {sum(time)}s")
@@ -29,8 +29,8 @@ class TimePlot(AnalysisStrategy):
 
     def compare_methods(
         self,
-        result_1: ExperimentDescription,
-        result_2: ExperimentDescription,
+        result_1: ResultDescription,
+        result_2: ResultDescription,
         method_1: str,
         method_2: str,
     ):

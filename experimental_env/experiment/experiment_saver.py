@@ -31,9 +31,7 @@ class ExperimentSaver:
         with open(self._out_dir / "config.yaml", "w", encoding="utf-8") as config:
             yaml.dump(descr.to_yaml_format(), config)
 
-        np.savetxt(
-            self._out_dir / "samples.csv", descr._ds_descr.samples, delimiter=","
-        )
+        np.savetxt(self._out_dir / "samples.csv", descr.samples, delimiter=",")
 
         for i, step_descr in enumerate(descr):
             step_dir: Path = self._out_dir.joinpath(f"step_{i + 1}")
