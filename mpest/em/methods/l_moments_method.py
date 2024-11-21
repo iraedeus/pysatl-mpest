@@ -1,7 +1,6 @@
 """ The module in which the L moments method is presented """
 
 import json
-import random
 from math import ceil
 
 import numpy as np
@@ -27,7 +26,7 @@ class IndicatorEStep(AExpectation[EResult]):
         Object constructor
         """
 
-        self.indicators: np.ndarray
+        self.indicators: np.ndarray = []
 
     def init_indicators(self, problem: Problem) -> None:
         """
@@ -36,7 +35,6 @@ class IndicatorEStep(AExpectation[EResult]):
         :param problem: Object of class Problem, which contains samples and mixture.
         """
 
-        random.seed(random.randint(1, 10000))
         k, m = len(problem.distributions), len(problem.samples)
         self.indicators = np.transpose(np.random.dirichlet([1 for _ in range(k)], m))
 

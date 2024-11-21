@@ -1,33 +1,43 @@
-"""A module with classes performing the second stage of the experiment."""
+""" A module that provides an abstract class for performing the 2nd stage of the experiment """
 
 import random
 import warnings
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 from experimental_env.experiment.estimators import AEstimator
 from experimental_env.experiment.experiment_saver import ExperimentSaver
 from experimental_env.experiment.result_description import ResultDescription
-from experimental_env.utils import ExperimentMixtureGenerator
+from experimental_env.preparation.dataset_description import DatasetDescrciption
 from mpest import Problem
-from mpest.models import ALL_MODELS
+from mpest.models import ALL_MODELS, AModel
 
 
-class RandomExperimentExecutor:
+class AExecutor(ABC):
     """
-    A performer who randomly generates the initial conditions for the algorithm.
+    An abstract class that provides an interface for generating a mixture,
+    as well as the implementation of the execute method, to implement the 2nd stage of the experiment.
     """
 
-    def __init__(self, path: Path, seed: int = 42):
+    def __init__(self, path: Path, seed: int):
         """
         Class constructor
 
         :param path: The path in which the results of the second stage of the experiment will lie
         :param seed: Seed for determined results.
         """
-        self._out_dir = path
-        self._seed = 42
 
-        random.seed(seed)
+        self._out_dir = path
+        self._seed = seed
+        random.seed(self._seed)
+
+    @abstractmethod
+    def init_problems(
+        self, ds_descriptions: list[DatasetDescrciption], models: list[type[AModel]]
+    ) -> list[Problem]:
+        """
+        Function for generate problem any method user want.
+        """
 
     def execute(self, preparation_results: dict, estimator: AEstimator) -> None:
         """
@@ -42,15 +52,7 @@ class RandomExperimentExecutor:
             mixture_name_dir: Path = method_dir.joinpath(mixture_name)
             models = [ALL_MODELS[model_name] for model_name in mixture_name.split("_")]
 
-            problems = [
-                Problem(
-                    descr.samples,
-                    ExperimentMixtureGenerator().create_random_mixture(
-                        models, self._seed + i
-                    ),
-                )
-                for i, descr in enumerate(ds_descriptions)
-            ]
+            problems = self.init_problems(ds_descriptions, models)
 
             # Disable warnings and estimating params.
             with warnings.catch_warnings():

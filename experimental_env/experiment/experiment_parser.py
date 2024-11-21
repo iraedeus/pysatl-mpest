@@ -22,7 +22,7 @@ class ExperimentParser:
 
     def _get_steps(self, exp_dir: Path):
         steps = []
-        for step in os.listdir(exp_dir):
+        for step in sorted(os.listdir(exp_dir)):
             if not "step" in step:
                 continue
             step_dir = exp_dir.joinpath(step)

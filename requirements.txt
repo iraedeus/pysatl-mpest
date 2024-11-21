@@ -3,8 +3,8 @@ multiprocess
 numpy
 pandas
 pickleshare
+ruamel.yaml
 scikit-learn
 scipy
 seaborn
 tqdm
-ruamel.yaml

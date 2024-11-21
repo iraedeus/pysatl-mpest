@@ -1,13 +1,14 @@
 """Estimators for estimating parameters in second stage of experiment"""
 
 import multiprocessing
+import random
 from abc import abstractmethod
 from concurrent.futures import as_completed
 from concurrent.futures.process import ProcessPoolExecutor
 
 from tqdm import tqdm
 
-from experimental_env.utils import choose_best_mle
+from experimental_env.utils import OrderedProblem, choose_best_mle
 from mpest import Problem
 from mpest.em import EM
 from mpest.em.methods.l_moments_method import IndicatorEStep, LMomentsMStep
@@ -60,7 +61,7 @@ class LikelihoodEstimator(AEstimator):
     def name(self):
         return "Likelihood"
 
-    def helper(self, problem):
+    def helper(self, problem: OrderedProblem):
         """
         Helper function for multiprocessed estimation
         """
@@ -70,19 +71,26 @@ class LikelihoodEstimator(AEstimator):
         ]
         ems = [EM(self._brkpointer, self._dst_checker, method) for method in methods]
         results = [em.solve_logged(problem, True, True, True) for em in ems]
-        return choose_best_mle(problem.distributions, results)
+        return choose_best_mle(problem.distributions, results), problem.number
 
     def estimate(self, problems: list[Problem]) -> list[ResultWithLog]:
-        output = []
+        output = {}
         print("Starting Likelihood estimation")
+        ordered_problem = [
+            OrderedProblem(problem.samples, problem.distributions, i)
+            for i, problem in enumerate(problems)
+        ]
         with tqdm(total=len(problems)) as pbar:
             with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
-                fs = [executor.submit(self.helper, problem) for problem in problems]
+                fs = [
+                    executor.submit(self.helper, problem) for problem in ordered_problem
+                ]
 
-                for res in as_completed(fs):
+                for f in as_completed(fs):
                     pbar.update()
-                    output.append(res.result())
-        return output
+                    res = f.result()
+                    output[res[1]] = res[0]
+        return [res for num, res in sorted(output.items())]
 
 
 class LMomentsEstimator(AEstimator):
@@ -90,16 +98,15 @@ class LMomentsEstimator(AEstimator):
     An estimator using the L-moments method.
     """
 
-    def __init__(self, brkpointer, dst_checker, seed: int = 42):
+    def __init__(self, brkpointer, dst_checker):
         self._brkpointer = brkpointer
         self._dst_checker = dst_checker
-        self._seed = seed
 
     @property
     def name(self):
         return "LMoments"
 
-    def helper(self, problem):
+    def helper(self, problem: OrderedProblem):
         """
         Helper function for multiprocessed estimation
         """
@@ -107,19 +114,27 @@ class LMomentsEstimator(AEstimator):
         new_method = Method(steps[0].construct(), steps[1].construct())
         em_factory = Factory(EM, self._brkpointer, self._dst_checker, new_method)
 
-        return em_factory.construct().solve_logged(problem, True, True, True)
+        return (
+            em_factory.construct().solve_logged(problem, True, True, True),
+            problem.number,
+        )
 
-    def estimate(self, problems: list[Problem]) -> list[ResultWithLog]:
-        output = []
+    def estimate(self, problems: list[Problem], seed: int = 42) -> list[ResultWithLog]:
+        output = {}
+        random.seed(seed)
         print("Starting L-moments estimation")
+        ordered_problem = [
+            OrderedProblem(problem.samples, problem.distributions, i)
+            for i, problem in enumerate(problems)
+        ]
         with tqdm(total=len(problems)) as pbar:
             with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
                 fs = [
-                    executor.submit(self.helper, problem)
-                    for i, problem in enumerate(problems)
+                    executor.submit(self.helper, problem) for problem in ordered_problem
                 ]
                 for f in as_completed(fs):
-                    output.append(f.result())
-                    pbar.update(1)
+                    pbar.update()
+                    res = f.result()
+                    output[res[1]] = res[0]
 
-        return output
+        return [res for num, res in sorted(output.items())]

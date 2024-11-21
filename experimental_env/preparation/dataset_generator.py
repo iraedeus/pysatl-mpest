@@ -4,8 +4,10 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from experimental_env.mixture_generators.dataset_mixture_generator import (
+    DatasetMixtureGenerator,
+)
 from experimental_env.preparation.dataset_saver import DatasetDescrciption, DatasetSaver
-from experimental_env.utils import DatasetMixtureGenerator
 from mpest.distribution import Distribution
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.models.abstract_model import AModel
