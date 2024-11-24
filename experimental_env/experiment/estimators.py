@@ -35,11 +35,10 @@ class AEstimator(ANamed):
     """
 
     @abstractmethod
-    def estimate(self, problems: list[Problem]) -> list[ResultWithLog]:
+    def estimate(self, problems: list[Problem], seed: int) -> list[ResultWithLog]:
         """
         The process of estimating the parameters of the mixture
         """
-        raise NotImplementedError
 
 
 class LikelihoodEstimator(AEstimator):
@@ -73,8 +72,9 @@ class LikelihoodEstimator(AEstimator):
         results = [em.solve_logged(problem, True, True, True) for em in ems]
         return choose_best_mle(problem.distributions, results), problem.number
 
-    def estimate(self, problems: list[Problem]) -> list[ResultWithLog]:
+    def estimate(self, problems: list[Problem], seed: int = 42) -> list[ResultWithLog]:
         output = {}
+        random.seed(seed)
         print("Starting Likelihood estimation")
         ordered_problem = [
             OrderedProblem(problem.samples, problem.distributions, i)

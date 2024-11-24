@@ -1,4 +1,6 @@
 """Functions for experimental environment"""
+import re
+
 from experimental_env.analysis.metrics import Parametric
 from mpest import Distribution, MixtureDistribution, Problem
 from mpest.models import ALL_MODELS
@@ -56,3 +58,15 @@ class OrderedProblem(Problem):
         Property of number.
         """
         return self._number
+
+
+def sort_human(l: list):
+    """
+    Function for sorting list in alphanumerical order.
+    """
+    # pylint: disable = [unnecessary-lambda-assignment]
+    convert = lambda text: float(text) if text.isdigit() else text
+    alphanum = lambda key: [
+        convert(c) for c in re.split(r"([-+]?[0-9]*\.?[0-9]*)", key)
+    ]
+    return sorted(l, key=alphanum)

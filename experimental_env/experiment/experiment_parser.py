@@ -12,7 +12,7 @@ from experimental_env.experiment.result_description import (
     StepDescription,
 )
 from experimental_env.preparation.dataset_description import DatasetDescrciption
-from experimental_env.utils import create_mixture_by_key
+from experimental_env.utils import create_mixture_by_key, sort_human
 
 
 class ExperimentParser:
@@ -22,7 +22,7 @@ class ExperimentParser:
 
     def _get_steps(self, exp_dir: Path):
         steps = []
-        for step in sorted(os.listdir(exp_dir)):
+        for step in sort_human(os.listdir(exp_dir)):
             if not "step" in step:
                 continue
             step_dir = exp_dir.joinpath(step)
