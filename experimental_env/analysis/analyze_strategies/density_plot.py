@@ -14,17 +14,18 @@ class DensityPlot(AnalysisStrategy):
     A class providing a methods for saving a distribution density graph.
     """
 
-    def __init__(self, y_scale="log"):
+    def __init__(self, y_scale="linear"):
         super().__init__()
         self._y_scale = y_scale
 
     def save_analysis(self):
         plt.legend()
+        plt.yscale(self._y_scale)
         plt.savefig(self._out_dir / "density_plot.png")
         plt.close()
 
     def analyze_method(self, result: ResultDescription, method: str):
-        x_linspace = np.linspace(-10, 10, 200)
+        x_linspace = np.linspace(-10, 10, 1000)
 
         plt.hist(result.samples, color="lightsteelblue", density=True)
         plt.plot(
@@ -35,7 +36,7 @@ class DensityPlot(AnalysisStrategy):
         )
         plt.plot(
             x_linspace,
-            [next(result).result_mixture.pdf(x) for x in x_linspace],
+            [result.steps[-1].result_mixture.pdf(x) for x in x_linspace],
             color="green",
             label="estimated",
         )
@@ -48,7 +49,7 @@ class DensityPlot(AnalysisStrategy):
         method_1: str,
         method_2: str,
     ):
-        x_linspace = np.linspace(-10, 10, 200)
+        x_linspace = np.linspace(-10, 10, 1000)
 
         plt.hist(result_1.samples, color="lightsteelblue", density=True)
         plt.plot(
@@ -59,13 +60,13 @@ class DensityPlot(AnalysisStrategy):
         )
         plt.plot(
             x_linspace,
-            [next(result_1).result_mixture.pdf(x) for x in x_linspace],
+            [result_1.steps[-1].result_mixture.pdf(x) for x in x_linspace],
             color="green",
             label=method_1,
         )
         plt.plot(
             x_linspace,
-            [next(result_2).result_mixture.pdf(x) for x in x_linspace],
+            [result_2.steps[-1].result_mixture.pdf(x) for x in x_linspace],
             color="purple",
             label=method_2,
         )

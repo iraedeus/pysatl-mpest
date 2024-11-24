@@ -32,7 +32,7 @@ def generate_uniform_params(models: list[type[AModel]]) -> list[Distribution]:
         if m == ExponentialModel:
             params = [uniform(0.1, 5.0)]
         elif m == GaussianModel:
-            params = [uniform(0.0, 5.0), uniform(0.1, 5.0)]
+            params = [uniform(-5.0, 5.0), uniform(0.1, 5.0)]
         else:
             params = [uniform(0.1, 5.0), uniform(0.1, 5.0)]
 

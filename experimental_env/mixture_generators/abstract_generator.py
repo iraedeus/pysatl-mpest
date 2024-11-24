@@ -25,7 +25,7 @@ class AMixtureGenerator(ABC):
         A method for choosing how a params will be generated.
         """
 
-    def create_random_mixture(
+    def create_mixture(
         self, models: list[type[AModel]], seed: int = 42
     ) -> MixtureDistribution:
         """
