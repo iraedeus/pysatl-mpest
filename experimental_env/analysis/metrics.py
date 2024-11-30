@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from itertools import permutations
 
 import numpy as np
+from scipy.integrate import quad
 
 from mpest import MixtureDistribution
 from mpest.utils import ANamed
@@ -25,17 +26,21 @@ class AMetric(ANamed, ABC):
         """
 
 
-class MSE(AMetric):
+class SquaredError(AMetric):
     """
-    The class that calculates the MSE
+    The class that calculates the SquaredError
     """
 
     @property
     def name(self) -> str:
-        return "MSE"
+        return "SquaredError"
 
     def error(self, base_mixture, result_mixture):
-        pass
+        def integrand(x, base_mixture, result_mixture):
+            return (base_mixture.pdf(x) - result_mixture.pdf(x)) ** 2
+
+        output = quad(integrand, -np.inf, +np.inf, args=(base_mixture, result_mixture))
+        return output[0]
 
 
 class Parametric(AMetric):
@@ -60,28 +65,7 @@ class Parametric(AMetric):
         return param_diff
 
 
-class PDFMetric(AMetric):
-    """
-    A class that calculates the absolute difference in the densities of mixtures at different points
-    """
-
-    def __init__(self, a, b):
-        self.start = a
-        self.end = b
-
-    @property
-    def name(self) -> str:
-        return "PDFError"
-
-    def error(self, base_mixture, result_mixture):
-        x_linspace = np.linspace(self.start, self.end, 30)
-        errors = [abs(base_mixture.pdf(x) - result_mixture.pdf(x)) for x in x_linspace]
-
-        return sum(errors)
-
-
 METRICS = {
-    MSE().name: MSE,
+    SquaredError().name: SquaredError,
     Parametric().name: Parametric,
-    PDFMetric(-np.inf, np.inf).name: PDFMetric,
 }

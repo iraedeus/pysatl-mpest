@@ -1,11 +1,10 @@
 """Estimators for estimating parameters in second stage of experiment"""
 
-import multiprocessing
-import random
 from abc import abstractmethod
 from concurrent.futures import as_completed
 from concurrent.futures.process import ProcessPoolExecutor
 
+import numpy as np
 from tqdm import tqdm
 
 from experimental_env.utils import OrderedProblem, choose_best_mle
@@ -25,8 +24,6 @@ METHODS = {
     "L-moments": [Factory(IndicatorEStep), Factory(LMomentsMStep)],
 }
 
-CPU_COUNT = multiprocessing.cpu_count()
-
 
 class AEstimator(ANamed):
     """
@@ -35,7 +32,9 @@ class AEstimator(ANamed):
     """
 
     @abstractmethod
-    def estimate(self, problems: list[Problem], seed: int) -> list[ResultWithLog]:
+    def estimate(
+        self, problems: list[Problem], cpu_count: int, seed: int
+    ) -> list[ResultWithLog]:
         """
         The process of estimating the parameters of the mixture
         """
@@ -60,7 +59,7 @@ class LikelihoodEstimator(AEstimator):
     def name(self):
         return "Likelihood"
 
-    def helper(self, problem: OrderedProblem):
+    def _helper(self, problem: OrderedProblem):
         """
         Helper function for multiprocessed estimation
         """
@@ -72,18 +71,21 @@ class LikelihoodEstimator(AEstimator):
         results = [em.solve_logged(problem, True, True, True) for em in ems]
         return choose_best_mle(problem.distributions, results), problem.number
 
-    def estimate(self, problems: list[Problem], seed: int = 42) -> list[ResultWithLog]:
+    def estimate(
+        self, problems: list[Problem], cpu_count: int, seed: int = 42
+    ) -> list[ResultWithLog]:
         output = {}
-        random.seed(seed)
+        np.random.seed(seed)
         print("Starting Likelihood estimation")
         ordered_problem = [
             OrderedProblem(problem.samples, problem.distributions, i)
             for i, problem in enumerate(problems)
         ]
         with tqdm(total=len(problems)) as pbar:
-            with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
+            with ProcessPoolExecutor(max_workers=cpu_count) as executor:
                 fs = [
-                    executor.submit(self.helper, problem) for problem in ordered_problem
+                    executor.submit(self._helper, problem)
+                    for problem in ordered_problem
                 ]
 
                 for f in as_completed(fs):
@@ -106,7 +108,7 @@ class LMomentsEstimator(AEstimator):
     def name(self):
         return "LMoments"
 
-    def helper(self, problem: OrderedProblem):
+    def _helper(self, problem: OrderedProblem):
         """
         Helper function for multiprocessed estimation
         """
@@ -119,18 +121,21 @@ class LMomentsEstimator(AEstimator):
             problem.number,
         )
 
-    def estimate(self, problems: list[Problem], seed: int = 42) -> list[ResultWithLog]:
+    def estimate(
+        self, problems: list[Problem], cpu_count: int, seed: int = 42
+    ) -> list[ResultWithLog]:
         output = {}
-        random.seed(seed)
+        np.random.seed(seed)
         print("Starting L-moments estimation")
         ordered_problem = [
             OrderedProblem(problem.samples, problem.distributions, i)
             for i, problem in enumerate(problems)
         ]
         with tqdm(total=len(problems)) as pbar:
-            with ProcessPoolExecutor(max_workers=CPU_COUNT) as executor:
+            with ProcessPoolExecutor(max_workers=cpu_count) as executor:
                 fs = [
-                    executor.submit(self.helper, problem) for problem in ordered_problem
+                    executor.submit(self._helper, problem)
+                    for problem in ordered_problem
                 ]
                 for f in as_completed(fs):
                     pbar.update()

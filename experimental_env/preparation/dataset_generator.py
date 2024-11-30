@@ -1,7 +1,8 @@
 """Module from generating datasets with the given sample size, experimental counts and mixture"""
-import random
+
 from pathlib import Path
 
+import numpy as np
 from tqdm import tqdm
 
 from experimental_env.mixture_generators.dataset_mixture_generator import (
@@ -24,7 +25,7 @@ class RandomDatasetGenerator:
         """
         Setting seed for determined result.
         """
-        random.seed(seed)
+        np.random.seed(seed)
         self._seed = seed
 
     def generate(
@@ -59,7 +60,7 @@ class ConcreteDatasetGenerator:
     """
 
     def __init__(self, seed: int = 42):
-        random.seed(seed)
+        np.random.seed(seed)
         self._dists = []
         self._priors = []
 
@@ -75,6 +76,8 @@ class ConcreteDatasetGenerator:
     def generate(self, samples_size: int, working_path: Path, exp_count: int):
         """
         A function that generates a dataset based on a user's mixture.
+
+        TODO: Figure out how to implement overwriting or adding additional experiments to existing ones.
         """
 
         saved_exp_count = 0

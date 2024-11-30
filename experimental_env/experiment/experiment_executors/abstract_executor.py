@@ -1,9 +1,10 @@
 """ A module that provides an abstract class for performing the 2nd stage of the experiment """
 
-import random
 import warnings
 from abc import ABC, abstractmethod
 from pathlib import Path
+
+import numpy as np
 
 from experimental_env.experiment.estimators import AEstimator
 from experimental_env.experiment.experiment_saver import ExperimentSaver
@@ -19,7 +20,7 @@ class AExecutor(ABC):
     as well as the implementation of the execute method, to implement the 2nd stage of the experiment.
     """
 
-    def __init__(self, path: Path, seed: int):
+    def __init__(self, path: Path, cpu_count: int, seed):
         """
         Class constructor
 
@@ -28,8 +29,9 @@ class AExecutor(ABC):
         """
 
         self._out_dir = path
+        self._cpu_count = cpu_count
         self._seed = seed
-        random.seed(self._seed)
+        np.random.seed(self._seed)
 
     @abstractmethod
     def init_problems(
@@ -57,7 +59,7 @@ class AExecutor(ABC):
             # Disable warnings and estimating params.
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                results = estimator.estimate(problems)
+                results = estimator.estimate(problems, self._cpu_count, self._seed)
 
             # Saving results
             for i, ds_descr in enumerate(ds_descriptions):

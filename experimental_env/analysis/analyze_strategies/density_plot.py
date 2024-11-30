@@ -69,5 +69,7 @@ class DensityPlot(AnalysisStrategy):
             [result_2.steps[-1].result_mixture.pdf(x) for x in x_linspace],
             color="purple",
             label=method_2,
+            marker="+",
+            markevery=range(1, 1000, 30),
         )
         self.save_analysis()

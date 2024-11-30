@@ -12,8 +12,8 @@ class RandomExperimentExecutor(AExecutor):
     A performer who randomly generates the initial conditions for the algorithm.
     """
 
-    def __init__(self, path, seed=42):
-        super().__init__(path, seed)
+    def __init__(self, path, cpu_count, seed=42):
+        super().__init__(path, cpu_count, seed)
 
     def init_problems(self, ds_descriptions, models):
         return [

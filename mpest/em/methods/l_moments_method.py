@@ -8,7 +8,7 @@ import numpy as np
 from mpest import Samples
 from mpest.distribution import Distribution
 from mpest.em.methods.abstract_steps import AExpectation, AMaximization
-from mpest.exceptions import EStepError
+from mpest.exceptions import EStepError, MStepError
 from mpest.mixture_distribution import MixtureDistribution
 from mpest.problem import Problem, Result
 from mpest.utils import ResultWithError, find_file
@@ -26,17 +26,7 @@ class IndicatorEStep(AExpectation[EResult]):
         Object constructor
         """
 
-        self.indicators: np.ndarray = []
-
-    def init_indicators(self, problem: Problem) -> None:
-        """
-        A function that initializes a matrix with indicators
-
-        :param problem: Object of class Problem, which contains samples and mixture.
-        """
-
-        k, m = len(problem.distributions), len(problem.samples)
-        self.indicators = np.transpose(np.random.dirichlet([1 for _ in range(k)], m))
+        self.indicators: np.ndarray
 
     def calc_indicators(self, problem: Problem) -> None:
         """
@@ -57,7 +47,7 @@ class IndicatorEStep(AExpectation[EResult]):
 
         denominators = np.sum(priors[:, np.newaxis] * pdf_values, axis=0)
         if 0.0 in denominators:
-            self.indicators = []
+            self.indicators = np.ndarray([])
             return None
 
         for j in range(k):
@@ -93,13 +83,20 @@ class IndicatorEStep(AExpectation[EResult]):
         """
         sorted_problem = Problem(np.sort(problem.samples), problem.distributions)
 
-        if not hasattr(self, "indicators"):
-            self.init_indicators(sorted_problem)
+        if (
+            any(d.model.name == "Gaussian" for d in sorted_problem.distributions)
+            and sorted_problem.samples[0] < 0
+            and not hasattr(self, "indicators")
+        ):
+            self.indicators = distribute_numbers_transposed(
+                sorted_problem.samples, sorted_problem.distributions
+            )
         else:
             self.calc_indicators(sorted_problem)
-            if len(self.indicators) == 0:
-                error = EStepError("The indicators could not be calculated")
-                return ResultWithError(sorted_problem.distributions, error)
+
+        if self.indicators.shape == ():
+            error = EStepError("The indicators could not be calculated")
+            return ResultWithError(sorted_problem.distributions, error)
 
         if np.isnan(self.indicators).any():
             return ResultWithError(sorted_problem.distributions, EStepError(""))
@@ -181,6 +178,13 @@ class LMomentsMStep(AMaximization[EResult]):
             for r in range(len(d.params)):
                 l_moments[j][r] = self.calculate_mr_j(r + 1, j, samples, indicators)
 
+        for i, d in enumerate(mixture):
+            if d.model.name == "WeibullExp" and (l_moments[i][0] * l_moments[i][1] < 0):
+                error = MStepError(
+                    "The weibul distribution degenerated in the first step."
+                )
+                return ResultWithError(mixture.distributions, error)
+
         new_distributions = []
 
         for j, d in enumerate(mixture):
@@ -192,3 +196,29 @@ class LMomentsMStep(AMaximization[EResult]):
             new_distributions, new_priors
         )
         return ResultWithError(new_mixture)
+
+
+def distribute_numbers_transposed(numbers, mixture: MixtureDistribution):
+    """
+    A function that implements a heuristic for negative elements
+    """
+    n = len(numbers)
+    m = len(mixture)
+
+    gaussian_indices = [
+        i for i, dist in enumerate(mixture) if dist.model.name == "Gaussian"
+    ]
+    gaussian_index = gaussian_indices[0]
+
+    # Инициализируем результат
+    result = np.zeros((m, n))
+
+    for i, num in enumerate(numbers):
+        if num < 0:
+            result[gaussian_index, i] = 1
+        else:
+            uniform_probability = 1 / len(mixture)
+            for j in range(len(mixture)):
+                result[j, i] = uniform_probability
+
+    return result

@@ -30,7 +30,7 @@ class ErrorConvergence(AnalysisStrategy):
         base_mixture = result.base_mixture
         mixtures = [step.result_mixture for step in steps]
 
-        metric_errors = [self._metric.error(mxt, base_mixture) for mxt in mixtures]
+        metric_errors = [self._metric.error(base_mixture, mxt) for mxt in mixtures]
         plt.title(self._metric.name)
         plt.xlabel("Step")
         plt.ylabel("Error")
@@ -54,8 +54,8 @@ class ErrorConvergence(AnalysisStrategy):
         mixtures_1 = [step.result_mixture for step in steps_1]
         mixtures_2 = [step.result_mixture for step in steps_2]
 
-        metric_errors_1 = [self._metric.error(mxt, base_mixture) for mxt in mixtures_1]
-        metric_errors_2 = [self._metric.error(mxt, base_mixture) for mxt in mixtures_2]
+        metric_errors_1 = [self._metric.error(base_mixture, mxt) for mxt in mixtures_1]
+        metric_errors_2 = [self._metric.error(base_mixture, mxt) for mxt in mixtures_2]
 
         plt.title(self._metric.name)
         plt.xlabel("Step")
