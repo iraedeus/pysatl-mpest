@@ -1,5 +1,5 @@
 """Estimators for estimating parameters in second stage of experiment"""
-
+import random
 from abc import abstractmethod
 from concurrent.futures import as_completed
 from concurrent.futures.process import ProcessPoolExecutor
@@ -75,7 +75,7 @@ class LikelihoodEstimator(AEstimator):
         self, problems: list[Problem], cpu_count: int, seed: int = 42
     ) -> list[ResultWithLog]:
         output = {}
-        np.random.seed(seed)
+        random.seed(seed)
         print("Starting Likelihood estimation")
         ordered_problem = [
             OrderedProblem(problem.samples, problem.distributions, i)
@@ -125,7 +125,7 @@ class LMomentsEstimator(AEstimator):
         self, problems: list[Problem], cpu_count: int, seed: int = 42
     ) -> list[ResultWithLog]:
         output = {}
-        np.random.seed(seed)
+        random.seed(seed)
         print("Starting L-moments estimation")
         ordered_problem = [
             OrderedProblem(problem.samples, problem.distributions, i)

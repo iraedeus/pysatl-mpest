@@ -1,5 +1,5 @@
 """Module from generating datasets with the given sample size, experimental counts and mixture"""
-
+import random
 from pathlib import Path
 
 import numpy as np
@@ -25,7 +25,7 @@ class RandomDatasetGenerator:
         """
         Setting seed for determined result.
         """
-        np.random.seed(seed)
+        random.seed(seed)
         self._seed = seed
 
     def generate(
