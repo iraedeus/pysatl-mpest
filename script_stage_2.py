@@ -1,7 +1,6 @@
-import random
-from pathlib import Path
+"""The script implements the second step of the experiment"""
 
-import numpy as np
+from pathlib import Path
 
 from experimental_env.experiment.estimators import (
     LikelihoodEstimator,
@@ -10,9 +9,6 @@ from experimental_env.experiment.estimators import (
 from experimental_env.experiment.experiment_executors.random_executor import (
     RandomExperimentExecutor,
 )
-from experimental_env.experiment.experiment_executors.standart_executor import (
-    StandartExperimentExecutor,
-)
 from experimental_env.preparation.dataset_parser import SamplesDatasetParser
 from mpest.em.breakpointers import StepCountBreakpointer
 from mpest.em.distribution_checkers import (
@@ -20,17 +16,15 @@ from mpest.em.distribution_checkers import (
     PriorProbabilityThresholdChecker,
 )
 
-SOURCE_DIR = Path("/home/danil/PycharmProjects/Projects/EM-algo-DT/experiment/stage_1")
-WORKING_DIR = Path("/home/danil/PycharmProjects/Projects/EM-algo-DT/experiment/stage_2")
-
-random.seed(42)
+SOURCE_DIR = Path(dir_stage_1)
+WORKING_DIR = Path(dir_stage_2)
 
 # Parse stage 1
 parser = SamplesDatasetParser()
 datasets = parser.parse(SOURCE_DIR)
 
 # Execute stage 2
-executor = RandomExperimentExecutor(WORKING_DIR, 5)
+executor = RandomExperimentExecutor(WORKING_DIR, 5, 43)
 executor.execute(
     datasets,
     LMomentsEstimator(
@@ -39,7 +33,7 @@ executor.execute(
     ),
 )
 
-executor = RandomExperimentExecutor(WORKING_DIR, 5)
+executor = RandomExperimentExecutor(WORKING_DIR, 5, 43)
 executor.execute(
     datasets,
     LikelihoodEstimator(
