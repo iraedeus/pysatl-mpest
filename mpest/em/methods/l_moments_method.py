@@ -202,6 +202,9 @@ def distribute_numbers_transposed(numbers, mixture: MixtureDistribution):
     """
     A function that implements a heuristic for negative elements
     """
+
+    # TODO: To complete the heuristic approach
+
     n = len(numbers)
     m = len(mixture)
 
@@ -210,7 +213,6 @@ def distribute_numbers_transposed(numbers, mixture: MixtureDistribution):
     ]
     gaussian_index = gaussian_indices[0]
 
-    # Инициализируем результат
     result = np.zeros((m, n))
 
     for i, num in enumerate(numbers):

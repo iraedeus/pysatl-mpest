@@ -8,7 +8,7 @@ from experimental_env.experiment.experiment_description import ExperimentDescrip
 
 class AnalysisSummarizer(ABC):
     """
-    An abstract strategy class that contains methods for analysis and comparison, as well as a method for establishing a directory
+    A class that provides functionality for analyzing methods by examining the overall set of experimental results for a given mixture.
     """
 
     def __init__(self):
@@ -29,7 +29,7 @@ class AnalysisSummarizer(ABC):
     @abstractmethod
     def analyze_method(self, results: list[ExperimentDescription], method: str):
         """
-        Analyze the method
+        Analysis of the method for all experiments on this mixture.
 
         :param results: The results of the method on the second stage of the experiment, which was obtained using a parser.
         :param method: The name of the method that we are analyzing

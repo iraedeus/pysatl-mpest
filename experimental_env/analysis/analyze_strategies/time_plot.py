@@ -20,7 +20,7 @@ class TimePlot(AnalysisStrategy):
         plt.savefig(self._out_dir / "time_plot.png")
         plt.close()
 
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def overall_analyze_method(self, result: ExperimentDescription, method: str):
         steps = result.steps
         time = [step.time for step in steps]
         plt.plot(time, label=f"Total: {round_sig(sum(time), 2)}s")
@@ -28,7 +28,7 @@ class TimePlot(AnalysisStrategy):
         plt.ylabel("Time [s]")
         self.save_analysis()
 
-    def compare_methods(
+    def overall_compare_methods(
         self,
         result_1: ExperimentDescription,
         result_2: ExperimentDescription,

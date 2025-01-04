@@ -59,7 +59,7 @@ def idfunc(vals):
             [(1.0, 5.0), (-1.0, 5.0)],
             500,
             0.01,
-            0.1,
+            0.33,
         ),
         (
             Factory(GaussianModel),

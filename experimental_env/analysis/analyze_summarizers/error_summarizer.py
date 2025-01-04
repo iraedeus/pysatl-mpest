@@ -40,7 +40,7 @@ class ErrorSummarizer(AnalysisSummarizer):
 
         mean = np.sum(errors) / len(errors)
         standart_deviation = np.sqrt(
-            np.sum((x - mean)**2 for x in errors) / len(errors)
+            np.sum((x - mean) ** 2 for x in errors) / len(errors)
         )
 
         errors.sort()
@@ -54,7 +54,7 @@ class ErrorSummarizer(AnalysisSummarizer):
         info_dict = {
             "mean": round_sig(mean, 3),
             "standart_deviation": round_sig(deviation, 3),
-            "median": round_sig(median, 3)
+            "median": round_sig(median, 3),
         }
         yaml_path: Path = self._out_dir.joinpath("metric_info.yaml")
 

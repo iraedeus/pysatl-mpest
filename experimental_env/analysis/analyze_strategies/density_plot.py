@@ -24,7 +24,7 @@ class DensityPlot(AnalysisStrategy):
         plt.savefig(self._out_dir / "density_plot.png")
         plt.close()
 
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def overall_analyze_method(self, result: ExperimentDescription, method: str):
         x_linspace = np.linspace(-10, 10, 1000)
 
         plt.hist(result.samples, color="lightsteelblue", density=True)
@@ -42,7 +42,7 @@ class DensityPlot(AnalysisStrategy):
         )
         self.save_analysis()
 
-    def compare_methods(
+    def overall_compare_methods(
         self,
         result_1: ExperimentDescription,
         result_2: ExperimentDescription,

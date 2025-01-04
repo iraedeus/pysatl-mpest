@@ -36,7 +36,7 @@ class ErrorConvergence(AnalysisStrategy):
         plt.savefig(self._out_dir / "error_convergence_plot.png")
         plt.close()
 
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def overall_analyze_method(self, result: ExperimentDescription, method: str):
         plt.title(self._metric.name)
         plt.xlabel("Step")
         plt.ylabel("Error")
@@ -48,7 +48,7 @@ class ErrorConvergence(AnalysisStrategy):
 
         self.save_analysis()
 
-    def compare_methods(
+    def overall_compare_methods(
         self,
         result_1: ExperimentDescription,
         result_2: ExperimentDescription,

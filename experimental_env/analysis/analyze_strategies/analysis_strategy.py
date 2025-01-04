@@ -1,4 +1,5 @@
 """ A module containing an abstract strategy class for analysis methods. """
+# pylint: disable=duplicate-code
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -34,9 +35,9 @@ class AnalysisStrategy(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def overall_analyze_method(self, result: ExperimentDescription, method: str):
         """
-        Analyze the method
+        Analyze the method result of the experiment
 
         :param result: The result of the method on the second stage of the experiment, which was obtained using a parser.
         :param method: The name of the method that we are analyzing
@@ -45,7 +46,7 @@ class AnalysisStrategy(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def compare_methods(
+    def overall_compare_methods(
         self,
         result_1: ExperimentDescription,
         result_2: ExperimentDescription,
@@ -53,7 +54,7 @@ class AnalysisStrategy(ABC):
         method_2: str,
     ):
         """
-        A function for comparing the methods
+        A function for comparing the methods by two results, with the same base mixture
 
         :param result_1: The result of the first method on the second stage of the experiment, which was obtained using a parser.
         :param result_2: The result of the second method on the second stage of the experiment, which was obtained using a parser.

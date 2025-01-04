@@ -54,7 +54,7 @@ class Analysis:
 
                     for action in self._actions:
                         action.set_path(exp_dir)
-                        action.analyze_method(exp_descr, method)
+                        action.overall_analyze_method(exp_descr, method)
 
     def compare(
         self,
@@ -89,4 +89,6 @@ class Analysis:
 
                     for action in self._actions:
                         action.set_path(exp_dir)
-                        action.compare_methods(res[0], res[1], method_1, method_2)
+                        action.overall_compare_methods(
+                            res[0], res[1], method_1, method_2
+                        )

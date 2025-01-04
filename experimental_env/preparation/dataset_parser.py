@@ -29,6 +29,7 @@ class SamplesDatasetParser:
 
             # Open each experiment dir
             for exp in os.listdir(mixture_name_dir):
+                # TODO: For macOS, there is a problem of finding files.DS_Store at which the program crashes. It is necessary to sort such files.
                 experiment_dir: Path = mixture_name_dir.joinpath(exp)
                 samples_p: Path = experiment_dir.joinpath("samples.csv")
                 config_p: Path = experiment_dir.joinpath("config.yaml")
