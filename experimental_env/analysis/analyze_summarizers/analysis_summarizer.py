@@ -1,4 +1,4 @@
-""" A module containing an abstract strategy class for analysis methods. """
+""" A module containing an abstract summarizer class for analysis methods. """
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -6,7 +6,7 @@ from pathlib import Path
 from experimental_env.experiment.experiment_description import ExperimentDescription
 
 
-class AnalysisStrategy(ABC):
+class AnalysisSummarizer(ABC):
     """
     An abstract strategy class that contains methods for analysis and comparison, as well as a method for establishing a directory
     """
@@ -20,25 +20,18 @@ class AnalysisStrategy(ABC):
 
         :param path: The path to the directory
         """
+
         if not path.exists():
             path.mkdir(parents=True)
 
         self._out_dir = path
 
     @abstractmethod
-    def save_analysis(self):
-        """
-        Save the results of the analysis or comparison to the installed directory
-        """
-
-        raise NotImplementedError
-
-    @abstractmethod
-    def analyze_method(self, result: ExperimentDescription, method: str):
+    def analyze_method(self, results: list[ExperimentDescription], method: str):
         """
         Analyze the method
 
-        :param result: The result of the method on the second stage of the experiment, which was obtained using a parser.
+        :param results: The results of the method on the second stage of the experiment, which was obtained using a parser.
         :param method: The name of the method that we are analyzing
         """
 
@@ -47,16 +40,16 @@ class AnalysisStrategy(ABC):
     @abstractmethod
     def compare_methods(
         self,
-        result_1: ExperimentDescription,
-        result_2: ExperimentDescription,
+        results_1: list[ExperimentDescription],
+        results_2: list[ExperimentDescription],
         method_1: str,
         method_2: str,
     ):
         """
         A function for comparing the methods
 
-        :param result_1: The result of the first method on the second stage of the experiment, which was obtained using a parser.
-        :param result_2: The result of the second method on the second stage of the experiment, which was obtained using a parser.
+        :param results_1: The results of the first method on the second stage of the experiment, which was obtained using a parser.
+        :param results_2: The results of the second method on the second stage of the experiment, which was obtained using a parser.
         :param method_1: Name of the first method
         :param method_2: Name of the second method
         """

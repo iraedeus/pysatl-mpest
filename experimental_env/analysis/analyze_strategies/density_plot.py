@@ -6,7 +6,7 @@ import numpy as np
 from experimental_env.analysis.analyze_strategies.analysis_strategy import (
     AnalysisStrategy,
 )
-from experimental_env.experiment.result_description import ResultDescription
+from experimental_env.experiment.experiment_description import ExperimentDescription
 
 
 class DensityPlot(AnalysisStrategy):
@@ -24,7 +24,7 @@ class DensityPlot(AnalysisStrategy):
         plt.savefig(self._out_dir / "density_plot.png")
         plt.close()
 
-    def analyze_method(self, result: ResultDescription, method: str):
+    def analyze_method(self, result: ExperimentDescription, method: str):
         x_linspace = np.linspace(-10, 10, 1000)
 
         plt.hist(result.samples, color="lightsteelblue", density=True)
@@ -44,8 +44,8 @@ class DensityPlot(AnalysisStrategy):
 
     def compare_methods(
         self,
-        result_1: ResultDescription,
-        result_2: ResultDescription,
+        result_1: ExperimentDescription,
+        result_2: ExperimentDescription,
         method_1: str,
         method_2: str,
     ):

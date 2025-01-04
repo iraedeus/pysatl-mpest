@@ -54,7 +54,7 @@ class StepDescription:
         return output
 
 
-class ResultDescription(Iterable):
+class ExperimentDescription(Iterable):
     """
     A class containing information about all the steps of the algorithm.
     """

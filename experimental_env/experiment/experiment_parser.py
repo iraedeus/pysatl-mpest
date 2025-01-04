@@ -7,8 +7,8 @@ import yaml
 from numpy import genfromtxt
 
 from experimental_env.analysis.analysis import ParserOutput
-from experimental_env.experiment.result_description import (
-    ResultDescription,
+from experimental_env.experiment.experiment_description import (
+    ExperimentDescription,
     StepDescription,
 )
 from experimental_env.preparation.dataset_description import DatasetDescrciption
@@ -78,7 +78,7 @@ class ExperimentParser:
                     samples_size, samples, base_mixture, exp_num
                 )
 
-                result_descr = ResultDescription.from_steps(
+                result_descr = ExperimentDescription.from_steps(
                     init_mixture, steps, ds_descr, error
                 )
 

@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 from ruamel.yaml import YAML
 
-from experimental_env.experiment.result_description import ResultDescription
+from experimental_env.experiment.experiment_description import ExperimentDescription
 
 
 class ExperimentSaver:
@@ -19,7 +19,7 @@ class ExperimentSaver:
         if not path.exists():
             path.mkdir(parents=True)
 
-    def save(self, descr: ResultDescription):
+    def save(self, descr: ExperimentDescription):
         """
         A function that implements saving.
 

@@ -1,4 +1,5 @@
 """Functions for experimental environment"""
+import math
 import re
 
 from experimental_env.analysis.metrics import Parametric
@@ -40,6 +41,19 @@ def choose_best_mle(
             best_result = result
 
     return best_result
+
+
+def round_sig(num: float, significant_digits: int):
+    """
+    Rounds a number to a specified number of significant figures.
+    """
+    if math.isnan(num):
+        return float("nan")
+    if num == 0:
+        return 0
+
+    order = math.floor(math.log10(abs(num)))
+    return round(num, -order + significant_digits - 1)
 
 
 class OrderedProblem(Problem):

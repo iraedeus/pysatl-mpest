@@ -7,8 +7,8 @@ from pathlib import Path
 import numpy as np
 
 from experimental_env.experiment.estimators import AEstimator
+from experimental_env.experiment.experiment_description import ExperimentDescription
 from experimental_env.experiment.experiment_saver import ExperimentSaver
-from experimental_env.experiment.result_description import ResultDescription
 from experimental_env.preparation.dataset_description import DatasetDescrciption
 from mpest import Problem
 from mpest.models import ALL_MODELS, AModel
@@ -68,7 +68,7 @@ class AExecutor(ABC):
                 )
                 result = results[i]
 
-                result_descr = ResultDescription.from_result(
+                result_descr = ExperimentDescription.from_result(
                     problems[i].distributions, result, ds_descr
                 )
                 ExperimentSaver(exp_dir).save(result_descr)
