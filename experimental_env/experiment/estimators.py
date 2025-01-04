@@ -4,7 +4,6 @@ from abc import abstractmethod
 from concurrent.futures import as_completed
 from concurrent.futures.process import ProcessPoolExecutor
 
-import numpy as np
 from tqdm import tqdm
 
 from experimental_env.utils import OrderedProblem, choose_best_mle
