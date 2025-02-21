@@ -35,6 +35,8 @@ mypy = "==1.13.0"
 sphinx = "^8.2.0"
 pytest-cov = "^6.0.0"
 hypothesis = "^6.126.0"
+sphinxcontrib-napoleon = "^0.7"
+sphinx-rtd-theme = "^3.0.2"
 
 [tool.poetry.group.experiments.dependencies]
 tqdm = "^4.67.1"
@@ -45,7 +47,7 @@ ruamel-yaml = "^0.18.10"
 [tool.ruff]
 line-length = 120
 output-format = "grouped"
-exclude = ["*.ipynb", "__init__.py"]
+exclude = ["*.ipynb", "__init__.py", "docs/"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -60,7 +62,7 @@ ignore = ["PLR0913", "PLR2004"]
 [tool.mypy]
 files = ["mpest", "experimental_env"]
 ignore_missing_imports = true
-exclude = ["^mpest/utils.py"]
+exclude = ["^mpest/utils.py", "docs/"]
 
 
 [build-system]
