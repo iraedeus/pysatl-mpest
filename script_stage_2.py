@@ -1,4 +1,4 @@
-""" The script implements the second step of the experiment """
+"""The script implements the second step of the experiment"""
 
 import random
 from pathlib import Path
@@ -17,8 +17,10 @@ from mpest.em.distribution_checkers import (
     PriorProbabilityThresholdChecker,
 )
 
-SOURCE_DIR = Path("/home/danil/PycharmProjects/Projects/EM-algo-DT/experiment/stage_1")
-WORKING_DIR = Path("/home/danil/PycharmProjects/Projects/EM-algo-DT/experiment/stage_2")
+dir_stage_1 = input("Enter the path to the directory where the experiment results are located.")
+dir_stage_2 = input("Enter the directory where the results of the second stage will be saved.")
+SOURCE_DIR = Path(dir_stage_1)
+WORKING_DIR = Path(dir_stage_2)
 
 random.seed(42)
 

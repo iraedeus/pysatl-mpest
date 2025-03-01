@@ -1,4 +1,4 @@
-""" The script implements the first step of the experiment """
+"""The script implements the first step of the experiment"""
 
 from pathlib import Path
 
@@ -10,7 +10,8 @@ from experimental_env.preparation.dataset_generator import (
 )
 from mpest.models import ExponentialModel, GaussianModel, WeibullModelExp
 
-WORKING_DIR = Path("/home/danil/PycharmProjects/Projects/EM-algo-DT/experiment/stage_1")
+dir_stage_1 = input("Enter the path directory where the results of the first stage will be saved.")
+WORKING_DIR = Path(dir_stage_1)
 SAMPLES_SIZE = 1000
 
 np.random.seed(42)
