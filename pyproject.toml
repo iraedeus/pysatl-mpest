@@ -46,7 +46,7 @@ ruamel-yaml = "^0.18.10"
 [tool.ruff]
 line-length = 120
 output-format = "grouped"
-exclude = ["*.ipynb", "__init__.py"]
+exclude = ["*.ipynb", "__init__.py", "docs"]
 
 [tool.ruff.format]
 quote-style = "double"
