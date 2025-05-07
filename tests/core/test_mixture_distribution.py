@@ -142,7 +142,7 @@ class TestMixtureDistribution:
         mock_distributions = [MagicMock(spec=DistributionInMixture) for _ in range(3)]
 
         with patch.object(MixtureDistribution, "_normalize") as mock_normalize:
-            mixture = MixtureDistribution(distributions=mock_distributions) # noqa: F841
+            mixture = MixtureDistribution(distributions=mock_distributions)  # noqa: F841
             mock_normalize.assert_called_once()
 
     def test_iter(self):
@@ -309,7 +309,7 @@ class TestMixtureDistribution:
         mock_dist2.params = np.array([2.0])
 
         with patch("mpest.core.mixture_distribution.DistributionInMixture") as mock_constructor:
-            mixture = MixtureDistribution([mock_dist1, mock_dist2]) # noqa: F841
+            mixture = MixtureDistribution([mock_dist1, mock_dist2])  # noqa: F841
 
             assert mock_constructor.call_count == dists_count
             assert mock_constructor.call_args_list[0] == call(mock_dist1.model, mock_dist1.params, 2.0 / 5.0)

@@ -50,7 +50,7 @@ class LikelihoodEstimator(AEstimator):
 
     @property
     def name(self):
-        return "MLE-EM"
+        return "EM"
 
     def _helper(self, problem: OrderedProblem):
         """
@@ -90,7 +90,7 @@ class LMomentsEstimator(AEstimator):
 
     @property
     def name(self):
-        return "LM-EM"
+        return "ELM"
 
     def _helper(self, problem: OrderedProblem):
         """

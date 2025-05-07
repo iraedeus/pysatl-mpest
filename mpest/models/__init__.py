@@ -7,6 +7,7 @@ from mpest.models.abstract_model import (
 )
 from mpest.models.exponential import ExponentialModel
 from mpest.models.gaussian import GaussianModel
+from mpest.models.uniform import Uniform
 from mpest.models.weibull import WeibullModelExp
 from mpest.models.cauchy import Cauchy
 from mpest.models.pareto import Pareto
@@ -19,4 +20,5 @@ ALL_MODELS: dict[str, type[AModel]] = {
     Cauchy().name: Cauchy,
     Pareto().name: Pareto,
     Beta().name: Beta,
+    Uniform().name: Uniform,
 }

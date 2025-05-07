@@ -8,8 +8,7 @@ from mpest.core.distribution import Distribution
 from mpest.core.mixture_distribution import MixtureDistribution
 from mpest.core.problem import Problem, Result
 from mpest.em.methods.abstract_steps import AExpectation, AMaximization
-from mpest.exceptions import SampleError
-from mpest.models import AModel, AModelDifferentiable
+from mpest.models import AModel, AModelDifferentiable, Uniform
 from mpest.optimizers import AOptimizerJacobian, TOptimizer
 from mpest.utils import ResultWithError
 
@@ -31,16 +30,8 @@ class BayesEStep(AExpectation[EResult]):
         samples = problem.samples
         mixture = problem.distributions
         p_xij = []
-        active_samples = []
         for x in samples:
-            p = np.array([d.model.pdf(x, d.params) for d in mixture])
-            if np.any(p):
-                p_xij.append(p)
-                active_samples.append(x)
-
-        if not active_samples:
-            error = SampleError("None of the elements in the sample is correct for this mixture")
-            return ResultWithError(mixture, error)
+            p_xij.append(np.array([d.model.pdf(x, d.params) for d in mixture]))
 
         # h[j, i] contains probability of X_i to be a part of distribution j
         m = len(p_xij)
@@ -56,7 +47,7 @@ class BayesEStep(AExpectation[EResult]):
 
             h[:, i] = wp / swp
 
-        return active_samples, h, problem
+        return samples, h, problem
 
 
 # class ML(AExpectation[EResult]):
@@ -109,8 +100,30 @@ class LikelihoodMStep(AMaximization[EResult]):
         for j, ch in enumerate(h[:]):
             d = mixture[j]
 
+            if isinstance(d.model, Uniform):
+                threshold = 1e-2
+                curr_a, curr_b = d.params
+                relevant_indices = np.where(ch > threshold)[0]
+                if len(relevant_indices) == 0:
+                    new_params = d.params
+                else:
+                    relevant_samples = np.array(samples)[relevant_indices]
+
+                    new_a = np.min(relevant_samples)
+                    new_b = np.max(relevant_samples)
+
+                    new_params = np.array([new_a, new_b])
+
+                new_distributions.append(Distribution(d.model, new_params))
+                continue
+
             def log_likelihood(params, ch, model: AModel):
-                return -np.sum(ch * [model.lpdf(x, params) for x in samples])
+                Y = np.array([model.lpdf(x, params) for x in samples])
+                penalty = 1e20
+                weighted_neg_lpdf = [-c * y if y != -np.inf else penalty * c for y, c in zip(Y, ch)]
+                output = np.sum(weighted_neg_lpdf)
+
+                return output
 
             def jacobian(params, ch, model: AModelDifferentiable):
                 return -np.sum(

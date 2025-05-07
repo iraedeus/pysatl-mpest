@@ -29,7 +29,6 @@ def valid_x():
 class TestCauchy:
     def test_get_name(self):
         cauchy_model = Cauchy()
-
         assert cauchy_model.name == "Cauchy"
 
     @given(valid_external_params())
