@@ -41,11 +41,13 @@ class ErrorSummarizer(AnalysisSummarizer):
         if not errors:
             return 0, 0, 0
 
-        mean = np.sum(errors) / len(errors)
-        standart_deviation = np.sqrt(np.sum([(x - mean) ** 2 for x in errors]) / len(errors))
-        median = errors[len(errors) // 2]
+        mean = np.mean(errors)
+        std = np.std(errors)
+        median = np.median(errors)
+        perc_90 = np.quantile(errors, 0.90)
+        perc_95 = np.quantile(errors, 0.95)
 
-        return float(mean), float(standart_deviation), float(median)
+        return float(mean), float(std), float(median), float(perc_90), float(perc_95)
 
     def analyze_method(self, results: list[ExperimentDescription], method: str):
         mean, deviation, median = self.calculate(results)
@@ -67,16 +69,20 @@ class ErrorSummarizer(AnalysisSummarizer):
         method_1: str,
         method_2: str,
     ):
-        mean_1, deviation_1, median_1 = self.calculate(results_1)
-        mean_2, deviation_2, median_2 = self.calculate(results_2)
+        mean_1, deviation_1, median_1, perc_90_1, perc_95_1 = self.calculate(results_1)
+        mean_2, deviation_2, median_2, perc_90_2, perc_95_2 = self.calculate(results_2)
 
         info_dict = {
             f"{method_1}_mean": round_sig(mean_1, 3),
             f"{method_1}_standart_deviation": round_sig(deviation_1, 3),
             f"{method_1}_median": round_sig(median_1, 3),
+            f"{method_1}_90_percentile": round_sig(perc_90_1, 3),
+            f"{method_1}_95_percentile": round_sig(perc_95_1, 3),
             f"{method_2}_mean": round_sig(mean_2, 3),
             f"{method_2}_standart_deviation": round_sig(deviation_2, 3),
             f"{method_2}_median": round_sig(median_2, 3),
+            f"{method_2}_90_percentile": round_sig(perc_90_2, 3),
+            f"{method_2}_95_percentile": round_sig(perc_95_2, 3),
         }
         yaml_path: Path = self._out_dir.joinpath("metric_info.yaml")
 
