@@ -9,3 +9,4 @@ API Reference
    core/index
    estimators/index
    optimizers/index
+   initializers/index
