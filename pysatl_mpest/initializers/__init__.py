@@ -1,7 +1,7 @@
 """
 Initializers build a starting :class:`~pysatl_mpest.core.MixtureModel` from a sample and a list of component families.
 
-The package is under development: it exports the base :class:`Initializer`, the cluster initializer
+The package exports the base :class:`Initializer`, the cluster initializer
 :class:`ClusterInitializer` with its role contracts :class:`Partitioner`, :class:`ComponentEstimator` and
 :class:`Matcher` and the protocol :class:`ComponentTable`, the errors, the partitioning methods
 :class:`KMeansPartitioner`, :class:`QuantilePartitioner`, :class:`RandomCentersPartitioner` and
